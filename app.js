@@ -7,10 +7,10 @@ const num=v=>{if(typeof v==="number")return v; const m=String(v??"").replace(","
 const initials=name=>name.split(/\s+/).slice(0,2).map(x=>x[0]||"").join("");
 
 Promise.all([
- fetch("data/vehicles.json?v=3.1").then(r=>r.json()),
- fetch("data/stats.json?v=3.1").then(r=>r.json()),
- fetch("data/brandLogos.json?v=3.1").then(r=>r.json()),
- fetch("data/motoTaxonomy.json?v=3.1&t="+Date.now()).then(r=>r.json())
+ fetch("data/vehicles.json?v=3.2").then(r=>r.json()),
+ fetch("data/stats.json?v=3.2").then(r=>r.json()),
+ fetch("data/brandLogos.json?v=3.2").then(r=>r.json()),
+ fetch("data/motoTaxonomy.json?v=3.2&t="+Date.now()).then(r=>r.json())
 ]).then(([v,s,l,t])=>{
  vehicles=v; stats=s; brandLogos=l; motoTaxonomy=t;
  applyMotoTaxonomy();
@@ -394,6 +394,7 @@ function formatDisplacementAspiration(value){
 function formatSpecValue(key,value){
  if(value===null||value===undefined||value==="") return "—";
  if(key==="kg/CV") return formatKgCv(value);
+ if(key==="Aspiración") return String(value);
  if(RATING_SET.has(key)){
    const n=numericValue(value);
    return n===null?fmt(value):`${formatNumber(n,1,1)} / 5`;
@@ -463,14 +464,159 @@ function ratingHtml(v){
    </div>
  </section>`;
 }
-function detailSpecEntries(v){
- return Object.entries(v.specs||{}).filter(([key])=>{
-   if(RATING_SET.has(key)) return false;
-   if(v.type==="moto"&&(key==="Precio mínimo"||key==="Precio máximo")) return false;
-   return true;
- });
-}
+const SPEC_GROUP_DEFS=[
+ {
+   id:"engine",
+   title:"Motor y transmisión",
+   subtitle:"Mecánica, entrega de potencia y cadena cinemática",
+   keys:[
+     "Cilindrada","Aspiración","Arquitectura","Cilindros","Combustible",
+     "Motor","Culata","Alimentación","Potencia","RPM potencia","Potencia medida",
+     "Par","RPM par","Transmisión","Tracción","Vida útil motor"
+   ]
+ },
+ {
+   id:"dimensions",
+   title:"Dimensiones y peso",
+   subtitle:"Masa, proporciones y ergonomía",
+   keys:[
+     "Peso DIN","Peso en marcha","Peso en seco",
+     "Batalla / Largo / Ancho / Alto","Altura asiento","kg/CV"
+   ]
+ },
+ {
+   id:"chassis",
+   title:"Chasis y parte ciclo",
+   subtitle:"Estructura, suspensiones, frenos y neumáticos",
+   keys:[
+     "Chasis","Suspensión delantera","Suspensión trasera",
+     "Freno delantero","Freno trasero","Neumático delantero","Neumático trasero"
+   ]
+ },
+ {
+   id:"performance",
+   title:"Prestaciones",
+   subtitle:"Aceleración, frenada, velocidad y tiempos",
+   keys:[
+     "0-100 km/h","80-120 km/h","400 m","Velocidad máxima","100-0 km/h",
+     "ZePerfs","Deportividad","Pista","Tsukuba","Hockenheim Short","Balocco","Auto Zeitung"
+   ]
+ },
+ {
+   id:"efficiency",
+   title:"Eficiencia y aerodinámica",
+   subtitle:"Consumo, emisiones y resistencia al avance",
+   keys:["Consumo","Autovía","CO₂","Eficiencia","Cx","SCx"]
+ },
+ {
+   id:"market",
+   title:"Mercado y valor",
+   subtitle:"Referencias económicas de la ficha",
+   keys:["Precio actual","Precio Alemania","Precio original","Precio ene. 2025"]
+ },
+ {
+   id:"usage",
+   title:"Uso y homologación",
+   subtitle:"Categoría, limitación y orientación de uso",
+   keys:["Tipo","A2"]
+ }
+];
 
+function aspirationLabel(code){
+ const raw=String(code||"").trim().toUpperCase();
+ const labels={
+   "NA":"Atmosférico",
+   "T":"Turbo",
+   "TT":"Biturbo",
+   "C":"Compresor",
+   "T+C":"Turbo + compresor",
+   "E":"Eléctrico"
+ };
+ return labels[raw]||String(code||"").trim()||"—";
+}
+function splitCarDisplacementAspiration(value){
+ if(value===null||value===undefined||value==="") return null;
+ const text=String(value).trim();
+ const match=text.match(/^(\d+(?:[.,]\d+)?)\s*(.*?)$/);
+ if(!match) return null;
+ return {
+   displacement:match[1],
+   aspiration:aspirationLabel(match[2])
+ };
+}
+function normalizedDetailEntries(v){
+ const out=[];
+ Object.entries(v.specs||{}).forEach(([key,value])=>{
+   if(RATING_SET.has(key)) return;
+   if(v.type==="moto"&&(key==="Precio mínimo"||key==="Precio máximo")) return;
+
+   if(key==="Cilindrada / aspiración"){
+     const split=splitCarDisplacementAspiration(value);
+     if(split){
+       out.push({key:"Cilindrada",value:split.displacement});
+       out.push({key:"Aspiración",value:split.aspiration});
+       return;
+     }
+   }
+   out.push({key,value});
+ });
+ return out;
+}
+function specGroupForKey(key){
+ for(const group of SPEC_GROUP_DEFS){
+   if(group.keys.includes(key)) return group.id;
+ }
+ return "other";
+}
+function groupedDetailSpecs(v){
+ const entries=normalizedDetailEntries(v);
+ const groups=new Map();
+
+ SPEC_GROUP_DEFS.forEach(def=>{
+   groups.set(def.id,{...def,entries:[]});
+ });
+ groups.set("other",{
+   id:"other",
+   title:"Otros datos",
+   subtitle:"Información adicional disponible en la base",
+   keys:[],
+   entries:[]
+ });
+
+ entries.forEach(entry=>{
+   groups.get(specGroupForKey(entry.key)).entries.push(entry);
+ });
+
+ for(const group of groups.values()){
+   if(group.keys.length){
+     group.entries.sort((a,b)=>group.keys.indexOf(a.key)-group.keys.indexOf(b.key));
+   }else{
+     group.entries.sort((a,b)=>a.key.localeCompare(b.key,"es"));
+   }
+ }
+
+ return [...groups.values()].filter(group=>group.entries.length);
+}
+function specGroupHtml(group){
+ const wide=group.entries.length>=7||group.id==="performance";
+ return `<section class="specGroup ${wide?"specGroupWide":""}" data-spec-group="${escapeAttr(group.id)}">
+   <div class="specGroupHead">
+     <div>
+       <span class="specGroupKicker">${escapeHtml(group.title.toUpperCase())}</span>
+       <h4>${escapeHtml(group.title)}</h4>
+       <p>${escapeHtml(group.subtitle)}</p>
+     </div>
+     <span class="specGroupCount">${group.entries.length}</span>
+   </div>
+   <div class="specGroupRows">
+     ${group.entries.map(({key,value})=>`
+       <div class="specRow">
+         <span>${escapeHtml(key)}</span>
+         <span>${escapeHtml(formatSpecValue(key,value))}</span>
+       </div>`).join("")}
+   </div>
+ </section>`;
+}
 function displayGeneration(v){
  const raw=String(v?.generation||"").trim();
  if(!raw || raw==="Sin especificar") return "Primera generación";
@@ -515,7 +661,7 @@ function openDetail(id){
    if(label==="Peso") return value==null?"—":`${formatNumber(value,0,0)} kg`;
    return formatKgCv(value);
  };
- const specs=detailSpecEntries(v);
+ const specGroups=groupedDetailSpecs(v);
  $("#dialogContent").innerHTML=`<div class="detailHero">
   <span class="badge">${v.type==="car"?"COCHE":"MOTO"} · ${escapeHtml(v.brand)}</span>
   <h2>${escapeHtml(v.name)}</h2>
@@ -526,9 +672,12 @@ function openDetail(id){
  <div class="details">
    ${ratingHtml(v)}
    <section class="specsSection">
-     <div class="detailsSectionHead"><div><span class="detailKicker">FICHA TÉCNICA</span><h3>Especificaciones</h3></div></div>
-     <div class="specList">
-       ${specs.map(([key,value])=>`<div class="specRow"><span>${escapeHtml(key)}</span><span>${escapeHtml(formatSpecValue(key,value))}</span></div>`).join("")}
+     <div class="detailsSectionHead">
+       <div><span class="detailKicker">FICHA TÉCNICA</span><h3>Especificaciones</h3></div>
+       <span class="specSectionHint">${specGroups.length} bloques</span>
+     </div>
+     <div class="specGroups">
+       ${specGroups.map(specGroupHtml).join("")}
      </div>
    </section>
  </div>`;

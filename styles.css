@@ -275,3 +275,100 @@
   }
   .priceBand strong{text-align:left}
 }
+
+
+/* Motorpedia V3.2 — grouped technical specifications */
+.specSectionHint{
+  color:#747c86;
+  font-size:10px;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+}
+.specGroups{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:16px;
+}
+.specGroup{
+  overflow:hidden;
+  border:1px solid #2b3139;
+  border-radius:13px;
+  background:#0d1014;
+}
+.specGroupWide{
+  grid-column:1/-1;
+}
+.specGroupHead{
+  min-height:92px;
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:18px;
+  padding:17px 18px 15px;
+  border-bottom:1px solid #252b32;
+  background:linear-gradient(145deg,#15191f,#101318);
+}
+.specGroupKicker{
+  display:block;
+  margin-bottom:5px;
+  color:#ff674f;
+  font-size:9px;
+  font-weight:800;
+  letter-spacing:.13em;
+}
+.specGroupHead h4{
+  margin:0;
+  color:#f4f5f7;
+  font-size:17px;
+  letter-spacing:-.015em;
+}
+.specGroupHead p{
+  max-width:360px;
+  margin:5px 0 0;
+  color:#747c86;
+  font-size:10px;
+  line-height:1.4;
+}
+.specGroupCount{
+  display:flex;
+  min-width:25px;
+  height:25px;
+  align-items:center;
+  justify-content:center;
+  border-radius:999px;
+  background:#20252c;
+  color:#929aa5;
+  font-size:10px;
+  font-variant-numeric:tabular-nums;
+}
+.specGroupRows{
+  padding:2px 16px 8px;
+}
+.specGroup .specRow{
+  min-height:39px;
+  align-items:center;
+}
+.specGroup .specRow:last-child{
+  border-bottom:0;
+}
+.specGroupWide .specGroupRows{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  column-gap:32px;
+}
+.specGroup[data-spec-group="engine"] .specGroupHead{
+  box-shadow:inset 3px 0 0 #e24732;
+}
+.specGroup[data-spec-group="performance"] .specGroupHead{
+  box-shadow:inset 3px 0 0 #ff674f;
+}
+.specGroup[data-spec-group="chassis"] .specGroupHead,
+.specGroup[data-spec-group="dimensions"] .specGroupHead{
+  box-shadow:inset 3px 0 0 #59616c;
+}
+
+@media(max-width:760px){
+  .specGroups{grid-template-columns:1fr}
+  .specGroupWide{grid-column:auto}
+  .specGroupWide .specGroupRows{display:block}
+}
