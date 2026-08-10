@@ -674,3 +674,201 @@
   .timelineCanvas{min-width:780px}
   .timelineAxisRow,.timelineRow{grid-template-columns:160px minmax(0,1fr);gap:12px}
 }
+
+
+/* Motorpedia V3.3.1 — generation-level timeline */
+.timelineCanvasDetailed{
+  min-width:980px;
+}
+.timelineRowsDetailed{
+  display:flex;
+  flex-direction:column;
+}
+.timelineModelBlock{
+  border-bottom:1px solid #252b32;
+}
+.timelineModelBlock:last-child{
+  border-bottom:0;
+}
+.timelineModelRow,
+.timelineGenerationRow{
+  width:100%;
+  display:grid;
+  grid-template-columns:210px minmax(0,1fr);
+  gap:16px;
+  align-items:center;
+  border:0;
+  color:inherit;
+  text-align:left;
+  cursor:pointer;
+}
+.timelineModelRow{
+  min-height:58px;
+  padding:7px 0;
+  background:#11151a;
+}
+.timelineModelRow:hover{
+  background:#151a20;
+}
+.timelineModelLabel{
+  min-width:0;
+  padding-left:6px;
+}
+.timelineModelLabel strong{
+  display:block;
+  color:#f4f5f7;
+  font-size:13px;
+  line-height:1.2;
+}
+.timelineModelLabel span{
+  display:block;
+  margin-top:4px;
+  color:#737c87;
+  font-size:10px;
+}
+.timelineModelTrack{
+  height:32px;
+}
+.timelineBar{
+  justify-content:space-between;
+  gap:8px;
+}
+.timelineBarName{
+  overflow:hidden;
+  min-width:0;
+  font-size:9px;
+  font-weight:800;
+  white-space:nowrap;
+  text-overflow:ellipsis;
+}
+.timelineGenerationRows{
+  position:relative;
+  padding:3px 0 7px;
+  background:#0b0e12;
+}
+.timelineGenerationRow{
+  min-height:44px;
+  padding:3px 0;
+  background:transparent;
+}
+.timelineGenerationRow:hover{
+  background:rgba(255,255,255,.018);
+}
+.timelineGenerationLabel{
+  position:relative;
+  display:flex;
+  align-items:center;
+  min-width:0;
+  padding-left:28px;
+}
+.timelineGenerationLabel::before{
+  content:"";
+  position:absolute;
+  left:14px;
+  top:-13px;
+  bottom:50%;
+  width:1px;
+  background:#303741;
+}
+.timelineGenerationRow:not(:last-child) .timelineGenerationLabel::before{
+  bottom:-14px;
+}
+.timelineBranch{
+  position:absolute;
+  left:14px;
+  top:50%;
+  width:8px;
+  height:1px;
+  background:#3a424c;
+}
+.timelineGenerationLabel div{
+  min-width:0;
+}
+.timelineGenerationLabel strong{
+  display:block;
+  overflow:hidden;
+  color:#c5cad1;
+  font-size:11px;
+  font-weight:700;
+  white-space:nowrap;
+  text-overflow:ellipsis;
+}
+.timelineGenerationLabel span:not(.timelineBranch){
+  display:block;
+  margin-top:2px;
+  color:#606975;
+  font-size:9px;
+}
+.timelineGenerationTrack{
+  height:28px;
+}
+.timelineGenerationBar{
+  position:absolute;
+  top:5px;
+  height:18px;
+  min-width:22px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:6px;
+  overflow:hidden;
+  padding:0 7px;
+  border-radius:4px;
+  color:#fff;
+  opacity:.82;
+  transition:opacity .15s ease,filter .15s ease,transform .15s ease;
+}
+.timelineGenerationRow:hover .timelineGenerationBar{
+  opacity:1;
+  filter:brightness(1.12);
+  transform:translateY(-1px);
+}
+.timelineGenerationBar span{
+  overflow:hidden;
+  font-size:8px;
+  font-weight:800;
+  white-space:nowrap;
+  text-overflow:ellipsis;
+}
+.timelineGenerationBar small{
+  flex:0 0 auto;
+  font-size:8px;
+  font-weight:700;
+  opacity:.85;
+}
+.timelineGenerationBar.genTone1{background:#7f3028}
+.timelineGenerationBar.genTone2{background:#8f3b30}
+.timelineGenerationBar.genTone3{background:#9f493a}
+.timelineGenerationBar.genTone4{background:#a85c4d}
+.timelineGenerationBar.genTone5{background:#7b4a45}
+.timelineGenerationBar.genTone6{background:#8c5148}
+.legendGenBar{
+  width:22px;
+  height:6px;
+  margin-left:12px;
+  border-radius:999px;
+  background:#8f3b30;
+}
+.timelineHelp{
+  display:flex;
+  flex-wrap:wrap;
+  gap:14px 24px;
+  margin:10px 3px 0;
+  color:#69727d;
+  font-size:10px;
+}
+.timelineHelp b{
+  color:#a9b0b9;
+  font-weight:700;
+}
+@media(max-width:700px){
+  .timelineCanvasDetailed{min-width:820px}
+  .timelineModelRow,
+  .timelineGenerationRow{
+    grid-template-columns:160px minmax(0,1fr);
+    gap:12px;
+  }
+  .timelineGenerationLabel{padding-left:24px}
+  .timelineGenerationLabel::before,
+  .timelineBranch{left:11px}
+}

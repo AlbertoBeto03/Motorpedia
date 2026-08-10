@@ -7,10 +7,10 @@ const num=v=>{if(typeof v==="number")return v; const m=String(v??"").replace(","
 const initials=name=>name.split(/\s+/).slice(0,2).map(x=>x[0]||"").join("");
 
 Promise.all([
- fetch("data/vehicles.json?v=3.3").then(r=>r.json()),
- fetch("data/stats.json?v=3.3").then(r=>r.json()),
- fetch("data/brandLogos.json?v=3.3").then(r=>r.json()),
- fetch("data/motoTaxonomy.json?v=3.3&t="+Date.now()).then(r=>r.json())
+ fetch("data/vehicles.json?v=3.3.1").then(r=>r.json()),
+ fetch("data/stats.json?v=3.3.1").then(r=>r.json()),
+ fetch("data/brandLogos.json?v=3.3.1").then(r=>r.json()),
+ fetch("data/motoTaxonomy.json?v=3.3.1&t="+Date.now()).then(r=>r.json())
 ]).then(([v,s,l,t])=>{
  vehicles=v; stats=s; brandLogos=l; motoTaxonomy=t;
  applyMotoTaxonomy();
@@ -423,21 +423,20 @@ function brandInsights(brandData,timeline){
    {label:"Generaciones registradas",value:String(totalGenerations)}
  ].filter(Boolean);
 }
-function generationMarkerHtml(model,timelineMin,timelineRange){
- if(!Array.isArray(model.generations)||model.generations.length<2) return "";
- const markers=[];
- model.generations.forEach(g=>{
-   const {start,end}=generationSpan(g);
-   if(!Number.isFinite(start)) return;
-   const left=((start-timelineMin)/timelineRange)*100;
-   if(left<=0.15) return;
-   markers.push(`<span class="timelineGenerationMark" style="left:${left.toFixed(3)}%" title="${escapeAttr(`${g.name} · ${yearRangeLabel(start,end)}`)}"></span>`);
- });
- return markers.join("");
+function generationRange(g){
+ const {start,end}=generationSpan(g);
+ return {
+   start:Number.isFinite(start)?start:null,
+   end:Number.isFinite(end)?end:(Number.isFinite(start)?start:null)
+ };
+}
+function generationTone(modelName,index){
+ const base=Math.abs([...String(modelName||"")].reduce((h,ch)=>((h<<5)-h)+ch.charCodeAt(0),0));
+ return `genTone${((base+index)%6)+1}`;
 }
 function renderTimelineAxis(ticks,minYear,range){
  return `<div class="timelineAxisRow">
-   <div class="timelineAxisTitle">Modelo / familia</div>
+   <div class="timelineAxisTitle">Modelo / generación</div>
    <div class="timelineAxisTrack">
      ${ticks.map((year,index)=>{
        const left=((year-minYear)/range)*100;
@@ -445,6 +444,42 @@ function renderTimelineAxis(ticks,minYear,range){
        return `<span class="timelineAxisTick ${edge}" style="left:${left.toFixed(3)}%"><i>${escapeHtml(String(year))}</i></span>`;
      }).join("")}
    </div>
+ </div>`;
+}
+function renderGenerationRows(model,ticks,minYear,range){
+ const valid=model.generations
+   .map((g,index)=>({g,index,...generationRange(g)}))
+   .filter(x=>Number.isFinite(x.start)&&Number.isFinite(x.end))
+   .sort((a,b)=>a.start-b.start||a.end-b.end||a.g.name.localeCompare(b.g.name,"es"));
+
+ if(!valid.length) return "";
+
+ return `<div class="timelineGenerationRows">
+   ${valid.map(({g,index,start,end})=>{
+     const span=Math.max(1,end-start+1);
+     const left=((start-minYear)/range)*100;
+     const width=Math.max((span/range)*100,2.2);
+     const tone=generationTone(model.name,index);
+     return `<button class="timelineGenerationRow" type="button"
+       data-brand="${escapeAttr(model.__brand||"")}"
+       data-model="${escapeAttr(model.name)}"
+       data-generation="${escapeAttr(g.rawName||g.name)}">
+       <div class="timelineGenerationLabel">
+         <span class="timelineBranch"></span>
+         <div>
+           <strong>${escapeHtml(g.name)}</strong>
+           <span>${escapeHtml(yearRangeLabel(start,end))} · ${g.count} ${g.count===1?"versión":"versiones"}</span>
+         </div>
+       </div>
+       <div class="timelineTrack timelineGenerationTrack">
+         ${ticks.map(year=>`<span class="timelineGridLine" style="left:${(((year-minYear)/range)*100).toFixed(3)}%"></span>`).join("")}
+         <div class="timelineGenerationBar ${tone}" style="left:${left.toFixed(3)}%;width:${width.toFixed(3)}%">
+           <span>${escapeHtml(g.name)}</span>
+           <small>${escapeHtml(yearRangeLabel(start,end))}</small>
+         </div>
+       </div>
+     </button>`;
+   }).join("")}
  </div>`;
 }
 function renderBrandTimeline(brandData,mode="featured"){
@@ -456,31 +491,46 @@ function renderBrandTimeline(brandData,mode="featured"){
  const range=Math.max(1,(timeline.maxYear-timeline.minYear)+1);
  const ticks=timelineTicks(timeline.minYear,timeline.maxYear);
  const insights=brandInsights(brandData,timeline);
- const rows=timeline.items.map(model=>{
+
+ const blocks=timeline.items.map(model=>{
+   model.__brand=brandData.brand;
    const startPct=((model.yearStart-timeline.minYear)/range)*100;
    const widthPct=Math.max((model.span/range)*100,2.8);
    const tone=modelTone(model.name);
-   return `<button class="timelineRow" type="button" data-model="${escapeAttr(model.name)}">
-     <div class="timelineLabel">
-       <strong>${escapeHtml(model.name)}</strong>
-       <span>${model.generations.length} gen. · ${model.count} versiones</span>
-     </div>
-     <div class="timelineTrack">
-       ${ticks.map(year=>`<span class="timelineGridLine" style="left:${(((year-timeline.minYear)/range)*100).toFixed(3)}%"></span>`).join("")}
-       <div class="timelineBar ${tone}" style="left:${startPct.toFixed(3)}%;width:${widthPct.toFixed(3)}%">
-         <span class="timelineBarYears">${escapeHtml(yearRangeLabel(model.yearStart,model.yearEnd))}</span>
+   const visibleGenerations=model.generations.filter(g=>{
+     const r=generationRange(g);
+     return Number.isFinite(r.start)&&Number.isFinite(r.end);
+   }).length;
+
+   return `<article class="timelineModelBlock">
+     <button class="timelineModelRow" type="button" data-model="${escapeAttr(model.name)}">
+       <div class="timelineModelLabel">
+         <strong>${escapeHtml(model.name)}</strong>
+         <span>${visibleGenerations} ${visibleGenerations===1?"generación":"generaciones"} · ${model.count} versiones</span>
        </div>
-       ${generationMarkerHtml(model,timeline.minYear,range)}
-     </div>
-   </button>`;
+       <div class="timelineTrack timelineModelTrack">
+         ${ticks.map(year=>`<span class="timelineGridLine" style="left:${(((year-timeline.minYear)/range)*100).toFixed(3)}%"></span>`).join("")}
+         <div class="timelineBar ${tone}" style="left:${startPct.toFixed(3)}%;width:${widthPct.toFixed(3)}%">
+           <span class="timelineBarName">${escapeHtml(model.name)}</span>
+           <span class="timelineBarYears">${escapeHtml(yearRangeLabel(model.yearStart,model.yearEnd))}</span>
+         </div>
+       </div>
+     </button>
+     ${renderGenerationRows(model,ticks,timeline.minYear,range)}
+   </article>`;
  }).join("");
+
+ const totalGenerations=timeline.items.reduce((sum,m)=>sum+m.generations.filter(g=>{
+   const r=generationRange(g);
+   return Number.isFinite(r.start)&&Number.isFinite(r.end);
+ }).length,0);
 
  return `<section class="timelineSection">
    <div class="timelineTitleRow">
      <div class="sectionTitle compact">
        <p class="eyebrow">HISTORIA DE LA MARCA</p>
-       <h3>Timeline de modelos</h3>
-       <p>La longitud de cada barra representa los años cubiertos por las fichas de Motorpedia. Las pequeñas marcas verticales señalan el inicio de nuevas generaciones.</p>
+       <h3>Timeline de modelos y generaciones</h3>
+       <p>Cada familia tiene su barra principal y, debajo, todas sus generaciones alineadas sobre la misma escala temporal. Pulsa una generación para abrir directamente sus versiones.</p>
      </div>
      <div class="timelineModes" aria-label="Modelos mostrados en la cronología">
        <button type="button" class="timelineModeBtn ${mode==="featured"?"active":""}" data-mode="featured">Principales</button>
@@ -495,23 +545,29 @@ function renderBrandTimeline(brandData,mode="featured"){
    <div class="timelineBoard">
      <div class="timelineBoardTop">
        <div class="timelineLegend">
-         <span class="legendBar"></span>Periodo del modelo
-         <span class="legendGen"></span>Cambio de generación
+         <span class="legendBar"></span>Modelo
+         <span class="legendGenBar"></span>Generación
        </div>
-       <div class="timelineMeta">${mode==="featured"&&timeline.hiddenCount>0?`${timeline.items.length} familias destacadas de ${timeline.allItems.length}`:`${timeline.items.length} familias con años registrados`}</div>
+       <div class="timelineMeta">
+         ${timeline.items.length} modelos · ${totalGenerations} generaciones visibles
+         ${mode==="featured"&&timeline.hiddenCount>0?` · ${timeline.hiddenCount} modelos ocultos`:""}
+       </div>
      </div>
      <div class="timelineViewport">
-       <div class="timelineCanvas">
+       <div class="timelineCanvas timelineCanvasDetailed">
          ${renderTimelineAxis(ticks,timeline.minYear,range)}
-         <div class="timelineRows">${rows}</div>
+         <div class="timelineRowsDetailed">${blocks}</div>
        </div>
      </div>
    </div>
-   <p class="timelineHint">Pulsa cualquier modelo para saltar directamente a sus generaciones y versiones.</p>
+   <div class="timelineHelp">
+     <span><b>Click en modelo</b> → salta a su tarjeta</span>
+     <span><b>Click en generación</b> → abre sus versiones</span>
+   </div>
  </section>`;
 }
 function bindTimelineInteractions(brandData){
- $$(".timelineRow").forEach(row=>row.addEventListener("click",()=>{
+ $$(".timelineModelRow").forEach(row=>row.addEventListener("click",()=>{
    const target=document.querySelector(`#model-${slugifyDomId(row.dataset.model)}`);
    if(target){
      target.scrollIntoView({behavior:"smooth",block:"start"});
@@ -519,6 +575,15 @@ function bindTimelineInteractions(brandData){
      setTimeout(()=>target.classList.remove("flashCard"),1400);
    }
  }));
+
+ $$(".timelineGenerationRow").forEach(row=>row.addEventListener("click",()=>{
+   openGeneration(
+     row.dataset.brand,
+     row.dataset.model,
+     row.dataset.generation
+   );
+ }));
+
  $$(".timelineModeBtn").forEach(btn=>btn.addEventListener("click",()=>{
    timelineMode=btn.dataset.mode||"featured";
    $("#brandTimeline").innerHTML=renderBrandTimeline(brandData,timelineMode);
