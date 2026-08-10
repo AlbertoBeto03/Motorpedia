@@ -80,8 +80,7 @@
   },
   "DeTomaso": {
     "file": null,
-    "slug": "detomaso",
-    "theme": "light-bg"
+    "slug": "detomaso"
   },
   "Dodge": {
     "file": null,
@@ -105,7 +104,8 @@
   },
   "Honda": {
     "file": null,
-    "slug": "honda"
+    "slug": "honda",
+    "theme": "invert"
   },
   "Husqvarna": {
     "file": null,
@@ -121,11 +121,13 @@
   },
   "Jeep": {
     "file": null,
-    "slug": "jeep"
+    "slug": "jeep",
+    "theme": "light-bg"
   },
   "Kawasaki": {
     "file": null,
-    "slug": "kawasaki"
+    "slug": "kawasaki",
+    "theme": "invert"
   },
   "KTM": {
     "file": null,
@@ -133,7 +135,8 @@
   },
   "Land Rover": {
     "file": null,
-    "slug": "land-rover"
+    "slug": "land-rover",
+    "theme": "invert"
   },
   "Lexis": {
     "file": null,
