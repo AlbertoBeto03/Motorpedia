@@ -25,7 +25,8 @@
   },
   "Aston Martin": {
     "file": null,
-    "slug": "aston-martin"
+    "slug": "aston-martin",
+    "theme": "invert"
   },
   "Audi": {
     "file": null,
@@ -33,14 +34,16 @@
   },
   "Benelli": {
     "file": null,
-    "slug": "benelli"
+    "slug": "benelli",
+    "theme": "light-bg"
   },
   "Bentley": {
     "file": null,
-    "slug": "bentley"
+    "slug": "bentley",
+    "theme": "invert"
   },
   "BMW": {
-    "file": null,
+    "file": "assets/brand-logos/BMW.png",
     "slug": "bmw"
   },
   "BWM": {
@@ -48,11 +51,11 @@
     "slug": "bwm"
   },
   "BYD": {
-    "file": null,
+    "file": "assets/brand-logos/BYD.png",
     "slug": "byd"
   },
   "CFMoto": {
-    "file": null,
+    "file": "assets/brand-logos/Cfmoto.png",
     "slug": "cfmoto"
   },
   "Chevrolet": {
@@ -61,7 +64,8 @@
   },
   "Chrysler": {
     "file": null,
-    "slug": "chrysler"
+    "slug": "chrysler",
+    "theme": "invert"
   },
   "Citroen": {
     "file": null,
