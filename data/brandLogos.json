@@ -210,7 +210,7 @@
     "local": null
   },
   "Abarth": {
-    "local": null,
+    "local": "assets/brand-logos/Abarth.png",
     "colorUrl": null
   },
   "Alpina": {
