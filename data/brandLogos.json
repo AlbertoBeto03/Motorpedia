@@ -184,7 +184,8 @@
   },
   "Morbidelli": {
     "file": null,
-    "slug": "morbidelli"
+    "slug": "morbidelli",
+    "theme": "invert"
   },
   "Morgan": {
     "file": null,
@@ -207,7 +208,8 @@
   },
   "Opel": {
     "file": null,
-    "slug": "opel"
+    "slug": "opel",
+    "theme": "invert"
   },
   "Pegaso": {
     "file": null,
