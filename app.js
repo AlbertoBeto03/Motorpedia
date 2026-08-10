@@ -1,5 +1,5 @@
 let vehicles=[], brands=[], stats={}, hierarchy=[], brandLogos={}, motoTaxonomy={};
-let typeFilter="all", visible=48, selected=new Set(), currentResults=[];
+let typeFilter="all", visible=48, selected=new Set(), currentResults=[], timelineMode="featured";
 
 const $=s=>document.querySelector(s), $$=s=>document.querySelectorAll(s);
 const fmt=v=>v===null||v===undefined||v===""?"—":String(v);
@@ -7,10 +7,10 @@ const num=v=>{if(typeof v==="number")return v; const m=String(v??"").replace(","
 const initials=name=>name.split(/\s+/).slice(0,2).map(x=>x[0]||"").join("");
 
 Promise.all([
- fetch("data/vehicles.json?v=3.2").then(r=>r.json()),
- fetch("data/stats.json?v=3.2").then(r=>r.json()),
- fetch("data/brandLogos.json?v=3.2").then(r=>r.json()),
- fetch("data/motoTaxonomy.json?v=3.2&t="+Date.now()).then(r=>r.json())
+ fetch("data/vehicles.json?v=3.3").then(r=>r.json()),
+ fetch("data/stats.json?v=3.3").then(r=>r.json()),
+ fetch("data/brandLogos.json?v=3.3").then(r=>r.json()),
+ fetch("data/motoTaxonomy.json?v=3.3&t="+Date.now()).then(r=>r.json())
 ]).then(([v,s,l,t])=>{
  vehicles=v; stats=s; brandLogos=l; motoTaxonomy=t;
  applyMotoTaxonomy();
@@ -194,6 +194,7 @@ function populateBrands(){
  const sel=$("#brandFilter");
  brands.forEach(b=>{const o=document.createElement("option");o.value=b.name;o.textContent=`${b.name} (${b.total})`;sel.appendChild(o)});
 }
+function slugifyDomId(text){ return String(text||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,""); }
 function brandSlug(brand){
  return String(brand||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"")
    .toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"");
@@ -258,10 +259,14 @@ function genYears(g){
 }
 function openBrand(brand){
  const h=hierarchy.find(x=>x.brand===brand); if(!h)return;
+ timelineMode="featured";
  $("#brandsLanding").classList.add("hidden"); $("#brandBrowser").classList.remove("hidden");
  $("#brandHeader").innerHTML=`${logoUrl(brand)?logoHtml(brand,"heroBrandLogo"):`<span class="fallbackLogo">${escapeHtml(initials(brand))}</span>`}<div><p class="eyebrow">FABRICANTE</p><h2>${escapeHtml(brand)}</h2><p>${h.models.length} modelos · ${h.count} versiones en la base de datos</p></div>`;
- $("#modelGrid").innerHTML=h.models.map(m=>`<article class="modelCard"><div class="modelTop"><h3>${escapeHtml(m.name)}</h3><span>${m.count} versiones · ${m.generations.length} generaciones</span></div><div class="generations">${m.generations.map(g=>`<button class="generationBtn" data-brand="${escapeAttr(brand)}" data-model="${escapeAttr(m.name)}" data-generation="${escapeAttr(g.rawName||g.name)}"><span class="generationLeft"><strong>${escapeHtml(g.name)}</strong><small>${escapeHtml(genYears(g))}</small></span><span class="generationRight"><span>${g.count} versiones</span><b>→</b></span></button>`).join("")}</div></article>`).join("");
- $$(".generationBtn").forEach(btn=>btn.addEventListener("click",()=>openGeneration(btn.dataset.brand,btn.dataset.model,btn.dataset.generation))); bindLogoFallbacks($("#brandBrowser"));
+ $("#brandTimeline").innerHTML=renderBrandTimeline(h,timelineMode);
+ $("#modelGrid").innerHTML=h.models.map(m=>`<article class="modelCard" id="model-${escapeAttr(slugifyDomId(m.name))}" data-model-card="${escapeAttr(m.name)}"><div class="modelTop"><h3>${escapeHtml(m.name)}</h3><span>${m.count} versiones · ${m.generations.length} generaciones</span></div><div class="generations">${m.generations.map(g=>`<button class="generationBtn" data-brand="${escapeAttr(brand)}" data-model="${escapeAttr(m.name)}" data-generation="${escapeAttr(g.rawName||g.name)}"><span class="generationLeft"><strong>${escapeHtml(g.name)}</strong><small>${escapeHtml(genYears(g))}</small></span><span class="generationRight"><span>${g.count} versiones</span><b>→</b></span></button>`).join("")}</div></article>`).join("");
+ $$(".generationBtn").forEach(btn=>btn.addEventListener("click",()=>openGeneration(btn.dataset.brand,btn.dataset.model,btn.dataset.generation)));
+ bindTimelineInteractions(h);
+ bindLogoFallbacks($("#brandBrowser"));
  window.scrollTo({top:0,behavior:"smooth"});
 }
 function openGeneration(brand,model,generation){
@@ -278,6 +283,249 @@ function openGeneration(brand,model,generation){
  $("#loadMore").style.display="none";
  bindCards(); bindLogoFallbacks($("#grid"));
 }
+
+function modelRange(model){
+ const starts=model.generations.map(g=>generationSpan(g).start).filter(Number.isFinite);
+ const ends=model.generations.map(g=>generationSpan(g).end).filter(Number.isFinite);
+ return {
+   start:starts.length?Math.min(...starts):null,
+   end:ends.length?Math.max(...ends):null
+ };
+}
+function timelineStep(range){
+ if(range<=15) return 1;
+ if(range<=30) return 2;
+ if(range<=55) return 5;
+ if(range<=110) return 10;
+ return 20;
+}
+function modelTone(name){
+ let hash=0;
+ for(const ch of String(name||"")) hash=((hash<<5)-hash)+ch.charCodeAt(0);
+ return `tone${(Math.abs(hash)%6)+1}`;
+}
+function timelineModelScore(model){
+ const span=Math.max(1,(model.yearEnd??model.yearStart??0)-(model.yearStart??model.yearEnd??0)+1);
+ return model.count*3.3 + model.generations.length*8 + Math.min(span,35)*1.1;
+}
+function curateTimelineModels(enriched,limit=18){
+ if(enriched.length<=limit) return [...enriched];
+
+ const selected=new Map();
+ const add=model=>{ if(model&&selected.size<limit) selected.set(model.name,model); };
+
+ // Strongest families by data richness.
+ [...enriched]
+   .sort((a,b)=>b.score-a.score||a.name.localeCompare(b.name,"es"))
+   .slice(0,Math.min(11,limit))
+   .forEach(add);
+
+ // Historical anchors: early and recent families must not disappear simply
+ // because modern models have more versions in the database.
+ [...enriched]
+   .sort((a,b)=>(a.yearStart??9999)-(b.yearStart??9999)||b.score-a.score)
+   .slice(0,3)
+   .forEach(add);
+ [...enriched]
+   .sort((a,b)=>(b.yearEnd??0)-(a.yearEnd??0)||b.score-a.score)
+   .slice(0,3)
+   .forEach(add);
+
+ // Give long histories some temporal coverage.
+ const allStarts=enriched.map(x=>x.yearStart).filter(Number.isFinite);
+ const allEnds=enriched.map(x=>x.yearEnd).filter(Number.isFinite);
+ const minYear=allStarts.length?Math.min(...allStarts):null;
+ const maxYear=allEnds.length?Math.max(...allEnds):null;
+ if(Number.isFinite(minYear)&&Number.isFinite(maxYear)){
+   const bucket=20;
+   for(let from=Math.floor(minYear/bucket)*bucket;from<=maxYear&&selected.size<limit;from+=bucket){
+     const to=from+bucket-1;
+     const candidates=enriched
+       .filter(x=>Number.isFinite(x.yearStart)&&Number.isFinite(x.yearEnd)&&x.yearStart<=to&&x.yearEnd>=from)
+       .sort((a,b)=>b.score-a.score);
+     add(candidates[0]);
+   }
+ }
+
+ // Fill any remaining spaces with the strongest omitted models.
+ [...enriched]
+   .sort((a,b)=>b.score-a.score)
+   .forEach(add);
+
+ return [...selected.values()];
+}
+function brandTimelineData(brandData,mode="featured"){
+ const enriched=brandData.models.map(model=>{
+   const range=modelRange(model);
+   const yearStart=Number.isFinite(range.start)?range.start:null;
+   const yearEnd=Number.isFinite(range.end)?range.end:yearStart;
+   const span=(Number.isFinite(yearStart)&&Number.isFinite(yearEnd))?Math.max(1,yearEnd-yearStart+1):1;
+   const item={...model,yearStart,yearEnd,span};
+   item.score=timelineModelScore(item);
+   return item;
+ }).filter(model=>Number.isFinite(model.yearStart)&&Number.isFinite(model.yearEnd));
+
+ if(!enriched.length){
+   return {items:[],allItems:[],minYear:null,maxYear:null,hiddenCount:0};
+ }
+
+ const allItems=[...enriched].sort((a,b)=>
+   (a.yearStart??9999)-(b.yearStart??9999) ||
+   (a.yearEnd??9999)-(b.yearEnd??9999) ||
+   b.count-a.count ||
+   a.name.localeCompare(b.name,"es")
+ );
+ const starts=allItems.map(x=>x.yearStart);
+ const ends=allItems.map(x=>x.yearEnd);
+ const minYear=Math.min(...starts);
+ const maxYear=Math.max(...ends);
+
+ const chosen=mode==="all"?allItems:curateTimelineModels(allItems,18);
+ const chosenNames=new Set(chosen.map(x=>x.name));
+ const items=allItems.filter(x=>chosenNames.has(x.name));
+
+ return {
+   items,
+   allItems,
+   minYear,
+   maxYear,
+   hiddenCount:Math.max(0,allItems.length-items.length)
+ };
+}
+function yearRangeLabel(start,end){
+ if(Number.isFinite(start)&&Number.isFinite(end)){
+   return start===end?String(start):`${start}–${end}`;
+ }
+ if(Number.isFinite(start)) return `${start}–`;
+ if(Number.isFinite(end)) return `–${end}`;
+ return "Años no definidos";
+}
+function timelineTicks(minYear,maxYear){
+ if(!Number.isFinite(minYear)||!Number.isFinite(maxYear)) return [];
+ const step=timelineStep(maxYear-minYear);
+ const first=Math.ceil(minYear/step)*step;
+ const out=[minYear];
+ for(let year=first;year<maxYear;year+=step){
+   if(year!==minYear) out.push(year);
+ }
+ if(maxYear!==minYear) out.push(maxYear);
+ return [...new Set(out)].sort((a,b)=>a-b);
+}
+function brandInsights(brandData,timeline){
+ const first=timeline.allItems[0];
+ const latest=[...timeline.allItems].sort((a,b)=>(b.yearEnd??0)-(a.yearEnd??0)||(b.yearStart??0)-(a.yearStart??0))[0];
+ const longest=[...timeline.allItems].sort((a,b)=>b.span-a.span||b.count-a.count)[0];
+ const totalGenerations=brandData.models.reduce((sum,m)=>sum+m.generations.length,0);
+ return [
+   first?{label:"Inicio de la historia",value:`${first.name} · ${yearRangeLabel(first.yearStart,first.yearEnd)}`} : null,
+   latest?{label:"Modelo más reciente",value:`${latest.name} · ${yearRangeLabel(latest.yearStart,latest.yearEnd)}`} : null,
+   longest?{label:"Familia más longeva",value:`${longest.name} · ${longest.span} años`} : null,
+   {label:"Generaciones registradas",value:String(totalGenerations)}
+ ].filter(Boolean);
+}
+function generationMarkerHtml(model,timelineMin,timelineRange){
+ if(!Array.isArray(model.generations)||model.generations.length<2) return "";
+ const markers=[];
+ model.generations.forEach(g=>{
+   const {start,end}=generationSpan(g);
+   if(!Number.isFinite(start)) return;
+   const left=((start-timelineMin)/timelineRange)*100;
+   if(left<=0.15) return;
+   markers.push(`<span class="timelineGenerationMark" style="left:${left.toFixed(3)}%" title="${escapeAttr(`${g.name} · ${yearRangeLabel(start,end)}`)}"></span>`);
+ });
+ return markers.join("");
+}
+function renderTimelineAxis(ticks,minYear,range){
+ return `<div class="timelineAxisRow">
+   <div class="timelineAxisTitle">Modelo / familia</div>
+   <div class="timelineAxisTrack">
+     ${ticks.map((year,index)=>{
+       const left=((year-minYear)/range)*100;
+       const edge=index===0?"axisStart":index===ticks.length-1?"axisEnd":"";
+       return `<span class="timelineAxisTick ${edge}" style="left:${left.toFixed(3)}%"><i>${escapeHtml(String(year))}</i></span>`;
+     }).join("")}
+   </div>
+ </div>`;
+}
+function renderBrandTimeline(brandData,mode="featured"){
+ const timeline=brandTimelineData(brandData,mode);
+ if(!timeline.items.length){
+   return `<section class="timelineSection"><div class="sectionTitle compact"><p class="eyebrow">CRONOLOGÍA</p><h3>Historia de la gama</h3><p>No hay suficientes años en las fichas para construir una cronología fiable.</p></div></section>`;
+ }
+
+ const range=Math.max(1,(timeline.maxYear-timeline.minYear)+1);
+ const ticks=timelineTicks(timeline.minYear,timeline.maxYear);
+ const insights=brandInsights(brandData,timeline);
+ const rows=timeline.items.map(model=>{
+   const startPct=((model.yearStart-timeline.minYear)/range)*100;
+   const widthPct=Math.max((model.span/range)*100,2.8);
+   const tone=modelTone(model.name);
+   return `<button class="timelineRow" type="button" data-model="${escapeAttr(model.name)}">
+     <div class="timelineLabel">
+       <strong>${escapeHtml(model.name)}</strong>
+       <span>${model.generations.length} gen. · ${model.count} versiones</span>
+     </div>
+     <div class="timelineTrack">
+       ${ticks.map(year=>`<span class="timelineGridLine" style="left:${(((year-timeline.minYear)/range)*100).toFixed(3)}%"></span>`).join("")}
+       <div class="timelineBar ${tone}" style="left:${startPct.toFixed(3)}%;width:${widthPct.toFixed(3)}%">
+         <span class="timelineBarYears">${escapeHtml(yearRangeLabel(model.yearStart,model.yearEnd))}</span>
+       </div>
+       ${generationMarkerHtml(model,timeline.minYear,range)}
+     </div>
+   </button>`;
+ }).join("");
+
+ return `<section class="timelineSection">
+   <div class="timelineTitleRow">
+     <div class="sectionTitle compact">
+       <p class="eyebrow">HISTORIA DE LA MARCA</p>
+       <h3>Timeline de modelos</h3>
+       <p>La longitud de cada barra representa los años cubiertos por las fichas de Motorpedia. Las pequeñas marcas verticales señalan el inicio de nuevas generaciones.</p>
+     </div>
+     <div class="timelineModes" aria-label="Modelos mostrados en la cronología">
+       <button type="button" class="timelineModeBtn ${mode==="featured"?"active":""}" data-mode="featured">Principales</button>
+       <button type="button" class="timelineModeBtn ${mode==="all"?"active":""}" data-mode="all">Todos</button>
+     </div>
+   </div>
+
+   <div class="timelineInsights">
+     ${insights.map(item=>`<div class="timelineInsight"><span>${escapeHtml(item.label)}</span><strong>${escapeHtml(item.value)}</strong></div>`).join("")}
+   </div>
+
+   <div class="timelineBoard">
+     <div class="timelineBoardTop">
+       <div class="timelineLegend">
+         <span class="legendBar"></span>Periodo del modelo
+         <span class="legendGen"></span>Cambio de generación
+       </div>
+       <div class="timelineMeta">${mode==="featured"&&timeline.hiddenCount>0?`${timeline.items.length} familias destacadas de ${timeline.allItems.length}`:`${timeline.items.length} familias con años registrados`}</div>
+     </div>
+     <div class="timelineViewport">
+       <div class="timelineCanvas">
+         ${renderTimelineAxis(ticks,timeline.minYear,range)}
+         <div class="timelineRows">${rows}</div>
+       </div>
+     </div>
+   </div>
+   <p class="timelineHint">Pulsa cualquier modelo para saltar directamente a sus generaciones y versiones.</p>
+ </section>`;
+}
+function bindTimelineInteractions(brandData){
+ $$(".timelineRow").forEach(row=>row.addEventListener("click",()=>{
+   const target=document.querySelector(`#model-${slugifyDomId(row.dataset.model)}`);
+   if(target){
+     target.scrollIntoView({behavior:"smooth",block:"start"});
+     target.classList.add("flashCard");
+     setTimeout(()=>target.classList.remove("flashCard"),1400);
+   }
+ }));
+ $$(".timelineModeBtn").forEach(btn=>btn.addEventListener("click",()=>{
+   timelineMode=btn.dataset.mode||"featured";
+   $("#brandTimeline").innerHTML=renderBrandTimeline(brandData,timelineMode);
+   bindTimelineInteractions(brandData);
+ }));
+}
+
 function renderBrands(){
  $("#brandGrid").innerHTML=brands.filter(b=>b.total>0).map(b=>`
  <button class="brandCard" data-brand="${escapeAttr(b.name)}">
