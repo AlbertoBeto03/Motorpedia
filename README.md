@@ -17,3 +17,11 @@ Motorpedia convierte `Base de Datos.xlsx` en una base de datos visual de automoc
 La clasificación es automática y deliberadamente conservadora. Las excepciones se irán refinando marca por marca en siguientes versiones.
 
 `Base de Datos.xlsx` sigue siendo la fuente maestra.
+
+
+## V2.1
+
+- Cada generación muestra su rango de años calculado a partir de las fichas que contiene.
+- Logos mostrados a color.
+- Sistema de logos locales en `assets/brand-logos/`.
+- `data/brandLogos.json` acepta un campo `local` para sobreescribir logos automáticos.

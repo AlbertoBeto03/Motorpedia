@@ -27,18 +27,50 @@ function populateBrands(){
  const sel=$("#brandFilter");
  brands.forEach(b=>{const o=document.createElement("option");o.value=b.name;o.textContent=`${b.name} (${b.total})`;sel.appendChild(o)});
 }
-function logoUrl(brand){return brandLogos?.[brand]?.url||null}
+function logoSources(brand){
+ const cfg=brandLogos?.[brand]||{};
+ return {local:cfg.local||null,remote:cfg.url||null};
+}
+function logoUrl(brand){
+ const s=logoSources(brand);
+ return s.local||s.remote||null;
+}
 function logoHtml(brand,cls="brandLogo"){
- const u=logoUrl(brand);
- if(!u) return `<span class="brandInitial">${escapeHtml(initials(brand))}</span>`;
- return `<img class="${cls}" src="${escapeAttr(u)}" alt="Logo ${escapeAttr(brand)}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><span class="brandInitial" style="display:none">${escapeHtml(initials(brand))}</span>`;
+ const s=logoSources(brand);
+ const first=s.local||s.remote;
+ if(!first) return `<span class="brandInitial">${escapeHtml(initials(brand))}</span>`;
+ const fallback=s.local&&s.remote?s.remote:"";
+ return `<img class="${cls}" src="${escapeAttr(first)}" data-fallback="${escapeAttr(fallback)}" alt="Logo ${escapeAttr(brand)}"><span class="brandInitial" style="display:none">${escapeHtml(initials(brand))}</span>`;
+}
+function bindLogoFallbacks(scope=document){
+ scope.querySelectorAll("img[data-fallback]").forEach(img=>{
+   img.addEventListener("error",()=>{
+     const fb=img.dataset.fallback;
+     if(fb&&img.src!==fb){
+       img.dataset.fallback="";
+       img.src=fb;
+     }else{
+       img.style.display="none";
+       const next=img.nextElementSibling;
+       if(next) next.style.display="flex";
+     }
+   },{once:false});
+ });
+}
+function genYears(g){
+ if(g.yearStart&&g.yearEnd){
+   return g.yearStart===g.yearEnd?String(g.yearStart):`${g.yearStart}–${g.yearEnd}`;
+ }
+ if(g.yearStart) return `${g.yearStart}–`;
+ if(g.yearEnd) return `–${g.yearEnd}`;
+ return "Años no definidos";
 }
 function openBrand(brand){
  const h=hierarchy.find(x=>x.brand===brand); if(!h)return;
  $("#brandsLanding").classList.add("hidden"); $("#brandBrowser").classList.remove("hidden");
- $("#brandHeader").innerHTML=`${logoUrl(brand)?`<img class="heroBrandLogo" src="${escapeAttr(logoUrl(brand))}" alt="Logo ${escapeAttr(brand)}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><span class="fallbackLogo" style="display:none">${escapeHtml(initials(brand))}</span>`:`<span class="fallbackLogo">${escapeHtml(initials(brand))}</span>`}<div><p class="eyebrow">FABRICANTE</p><h2>${escapeHtml(brand)}</h2><p>${h.models.length} modelos · ${h.count} versiones en la base de datos</p></div>`;
- $("#modelGrid").innerHTML=h.models.map(m=>`<article class="modelCard"><div class="modelTop"><h3>${escapeHtml(m.name)}</h3><span>${m.count} versiones · ${m.generations.length} generaciones</span></div><div class="generations">${m.generations.map(g=>`<button class="generationBtn" data-brand="${escapeAttr(brand)}" data-model="${escapeAttr(m.name)}" data-generation="${escapeAttr(g.name)}"><strong>${escapeHtml(g.name)}</strong><span>${g.count} versiones →</span></button>`).join("")}</div></article>`).join("");
- $$(".generationBtn").forEach(btn=>btn.addEventListener("click",()=>openGeneration(btn.dataset.brand,btn.dataset.model,btn.dataset.generation)));
+ $("#brandHeader").innerHTML=`${logoUrl(brand)?logoHtml(brand,"heroBrandLogo"):`<span class="fallbackLogo">${escapeHtml(initials(brand))}</span>`}<div><p class="eyebrow">FABRICANTE</p><h2>${escapeHtml(brand)}</h2><p>${h.models.length} modelos · ${h.count} versiones en la base de datos</p></div>`;
+ $("#modelGrid").innerHTML=h.models.map(m=>`<article class="modelCard"><div class="modelTop"><h3>${escapeHtml(m.name)}</h3><span>${m.count} versiones · ${m.generations.length} generaciones</span></div><div class="generations">${m.generations.map(g=>`<button class="generationBtn" data-brand="${escapeAttr(brand)}" data-model="${escapeAttr(m.name)}" data-generation="${escapeAttr(g.name)}"><span class="generationTitle"><strong>${escapeHtml(g.name)}</strong><span class="generationYears">${escapeHtml(genYears(g))}</span></span><span class="generationMeta"><span>${g.count} versiones</span><span>→</span></span></button>`).join("")}</div></article>`).join("");
+ $$(".generationBtn").forEach(btn=>btn.addEventListener("click",()=>openGeneration(btn.dataset.brand,btn.dataset.model,btn.dataset.generation))); bindLogoFallbacks($("#brandBrowser"));
  window.scrollTo({top:0,behavior:"smooth"});
 }
 function openGeneration(brand,model,generation){
@@ -53,7 +85,7 @@ function openGeneration(brand,model,generation){
  $("#resultContext").textContent=`${brand} › ${model} › ${generation}`;
  $("#grid").innerHTML=currentResults.map(cardHtml).join("");
  $("#loadMore").style.display="none";
- bindCards();
+ bindCards(); bindLogoFallbacks($("#grid"));
 }
 function renderBrands(){
  $("#brandGrid").innerHTML=brands.filter(b=>b.total>0).map(b=>`
@@ -62,7 +94,7 @@ function renderBrands(){
   <strong>${escapeHtml(b.name)}</strong>
   <span>${b.total} vehículos · ${b.cars} coches · ${b.motos} motos</span>
  </button>`).join("");
- $$(".brandCard").forEach(x=>x.addEventListener("click",()=>openBrand(x.dataset.brand)));
+ $$(".brandCard").forEach(x=>x.addEventListener("click",()=>openBrand(x.dataset.brand))); bindLogoFallbacks($("#brandGrid"));
 }
 function escapeHtml(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]))}
 function escapeAttr(s){return escapeHtml(s)}
@@ -102,7 +134,7 @@ function cardHtml(v){
   <div class="vehicleVisual openDetail"><span class="vehicleMark">${escapeHtml(initials(v.brand))}</span></div>
   <div class="cardBody">
    <div class="cardTop"><span class="cardType">${v.type==="car"?"COCHE":"MOTO"}</span><span class="year">${escapeHtml(y)}</span></div>
-   <h3 class="openDetail">${escapeHtml(v.name)}</h3><div class="cardBrandLine">${logoUrl(v.brand)?`<img class="cardBrandLogo" src="${escapeAttr(logoUrl(v.brand))}" alt="">`:""}<div class="brand">${escapeHtml(v.brand)}</div></div><div class="hierarchyCrumb">${escapeHtml(v.model||"")} · ${escapeHtml(v.generation||"")}</div>
+   <h3 class="openDetail">${escapeHtml(v.name)}</h3><div class="cardBrandLine">${logoUrl(v.brand)?logoHtml(v.brand,"cardBrandLogo"):""}<div class="brand">${escapeHtml(v.brand)}</div></div><div class="hierarchyCrumb">${escapeHtml(v.model||"")} · ${escapeHtml(v.generation||"")}</div>
    <div class="miniSpecs">
     <div><strong>${escapeHtml(p)}${p!=="—"?" CV":""}</strong><span>potencia</span></div>
     <div><strong>${escapeHtml(w)}${w!=="—"?" kg":""}</strong><span>peso</span></div>
