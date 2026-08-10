@@ -1,1 +1,44 @@
+name: Update Motorpedia data
 
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "Base de Datos.xlsx"
+      - "tools/import_excel.py"
+      - "assets/vehicles/**"
+      - "content/articles/**"
+
+permissions:
+  contents: write
+
+jobs:
+  update-data:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Rebuild Motorpedia database
+        run: python tools/import_excel.py
+
+      - name: Commit generated data
+        shell: bash
+        run: |
+          git config user.name "motorpedia-bot"
+          git config user.email "motorpedia-bot@users.noreply.github.com"
+          git add data/vehicles.json data/stats.json data/content-index.csv
+
+          if git diff --cached --quiet; then
+            echo "No generated data changes."
+            exit 0
+          fi
+
+          git commit -m "chore: rebuild Motorpedia data"
+          git push
