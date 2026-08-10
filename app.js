@@ -7,11 +7,11 @@ const num=v=>{if(typeof v==="number")return v; const m=String(v??"").replace(","
 const initials=name=>name.split(/\s+/).slice(0,2).map(x=>x[0]||"").join("");
 
 Promise.all([
- fetch("data/vehicles.json?v=2.2.1").then(r=>r.json()),
- fetch("data/brands.json?v=2.2.1").then(r=>r.json()),
- fetch("data/stats.json?v=2.2.1").then(r=>r.json()),
- fetch("data/hierarchy.json?v=2.2.1").then(r=>r.json()),
- fetch("data/brandLogos.json?v=2.2.1").then(r=>r.json())
+ fetch("data/vehicles.json?v=2.2.2").then(r=>r.json()),
+ fetch("data/brands.json?v=2.2.2").then(r=>r.json()),
+ fetch("data/stats.json?v=2.2.2").then(r=>r.json()),
+ fetch("data/hierarchy.json?v=2.2.2").then(r=>r.json()),
+ fetch("data/brandLogos.json?v=2.2.2").then(r=>r.json())
 ]).then(([v,b,s,h,l])=>{
  vehicles=v; brands=b; stats=s; hierarchy=h; brandLogos=l;
  $("#totalStat").textContent=s.total.toLocaleString("es-ES");
@@ -27,13 +27,22 @@ function populateBrands(){
  const sel=$("#brandFilter");
  brands.forEach(b=>{const o=document.createElement("option");o.value=b.name;o.textContent=`${b.name} (${b.total})`;sel.appendChild(o)});
 }
+function brandSlug(brand){
+ return String(brand||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"")
+   .toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"");
+}
 function logoSources(brand){
  const cfg=brandLogos?.[brand]||{};
- return [cfg.local,cfg.colorUrl,cfg.url].filter(Boolean);
+ const slug=cfg.slug||brandSlug(brand);
+ const base="assets/brand-logos/";
+ const exact=encodeURIComponent(brand);
+ return [...new Set([
+   cfg.file,
+   `${base}${slug}.svg`,`${base}${slug}.png`,`${base}${slug}.webp`,`${base}${slug}.jpg`,
+   `${base}${exact}.svg`,`${base}${exact}.png`,`${base}${exact}.webp`,`${base}${exact}.jpg`
+ ].filter(Boolean))];
 }
-function logoUrl(brand){
- return logoSources(brand)[0]||null;
-}
+function logoUrl(brand){ return logoSources(brand)[0]||null; }
 function logoHtml(brand,cls="brandLogo"){
  const sources=logoSources(brand);
  if(!sources.length) return `<span class="brandInitial">${escapeHtml(initials(brand))}</span>`;
@@ -46,10 +55,10 @@ function bindLogoFallbacks(scope=document){
    img.addEventListener("error",()=>{
      let sources=[];
      try{sources=JSON.parse(img.dataset.logoSources||"[]")}catch(e){}
-     const nextIndex=Number(img.dataset.logoIndex||0)+1;
-     if(nextIndex<sources.length){
-       img.dataset.logoIndex=String(nextIndex);
-       img.src=sources[nextIndex];
+     const i=Number(img.dataset.logoIndex||0)+1;
+     if(i<sources.length){
+       img.dataset.logoIndex=String(i);
+       img.src=sources[i];
      }else{
        img.style.display="none";
        const fallback=img.nextElementSibling;

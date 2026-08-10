@@ -35,3 +35,10 @@ La clasificación es automática y deliberadamente conservadora. Las excepciones
 - Toyota `GR Supra` se agrupa en `Supra`.
 - Toyota `GR Yaris` se agrupa en `Yaris`.
 - Guía: `data/TAXONOMY_GUIDE.md`.
+
+
+## V2.2.2
+- Logos 100 % locales.
+- Detección automática por nombre de marca.
+- `brandLogos.json` queda solo para excepciones.
+- Guía completa en `LOGOS.md`.
