@@ -70,15 +70,18 @@
   },
   "Citroen": {
     "file": null,
-    "slug": "citroen"
+    "slug": "citroen",
+    "theme": "invert"
   },
   "Cupra": {
     "file": null,
-    "slug": "cupra"
+    "slug": "cupra",
+    "theme": "invert"
   },
   "DeTomaso": {
     "file": null,
-    "slug": "detomaso"
+    "slug": "detomaso",
+    "theme": "light-bg"
   },
   "Dodge": {
     "file": null,
