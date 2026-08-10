@@ -7,11 +7,11 @@ const num=v=>{if(typeof v==="number")return v; const m=String(v??"").replace(","
 const initials=name=>name.split(/\s+/).slice(0,2).map(x=>x[0]||"").join("");
 
 Promise.all([
- fetch("data/vehicles.json?v=2.2.2").then(r=>r.json()),
- fetch("data/brands.json?v=2.2.2").then(r=>r.json()),
- fetch("data/stats.json?v=2.2.2").then(r=>r.json()),
- fetch("data/hierarchy.json?v=2.2.2").then(r=>r.json()),
- fetch("data/brandLogos.json?v=2.2.2").then(r=>r.json())
+ fetch("data/vehicles.json?v=2.2.3").then(r=>r.json()),
+ fetch("data/brands.json?v=2.2.3").then(r=>r.json()),
+ fetch("data/stats.json?v=2.2.3").then(r=>r.json()),
+ fetch("data/hierarchy.json?v=2.2.3").then(r=>r.json()),
+ fetch("data/brandLogos.json?v=2.2.3").then(r=>r.json())
 ]).then(([v,b,s,h,l])=>{
  vehicles=v; brands=b; stats=s; hierarchy=h; brandLogos=l;
  $("#totalStat").textContent=s.total.toLocaleString("es-ES");
@@ -101,7 +101,7 @@ function openGeneration(brand,model,generation){
  currentResults=vehicles.filter(v=>v.brand===brand&&v.model===model&&v.generation===generation).sort((a,b)=>a.name.localeCompare(b.name,"es"));
  visible=9999;
  $("#resultCount").textContent=currentResults.length.toLocaleString("es-ES");
- $("#resultContext").textContent=`${brand} › ${model} › ${generation}`;
+ $("#resultContext").textContent=`${brand} › ${model} › ${generation==="Sin especificar"?"Primera generación":generation}`;
  $("#grid").innerHTML=currentResults.map(cardHtml).join("");
  $("#loadMore").style.display="none";
  bindCards(); bindLogoFallbacks($("#grid"));
@@ -146,6 +146,12 @@ function renderResults(){
  $("#grid").innerHTML=slice.map(cardHtml).join("");
  $("#loadMore").style.display=visible<currentResults.length?"block":"none";
  bindCards();
+ bindLogoFallbacks($("#grid"));
+}
+function displayGeneration(v){
+ const raw=String(v?.generation||"").trim();
+ if(!raw || raw==="Sin especificar") return "Primera generación";
+ return raw;
 }
 function cardHtml(v){
  const p=fmt(v.power), w=fmt(v.weight), y=v.yearText||fmt(v.yearStart);
@@ -153,7 +159,7 @@ function cardHtml(v){
   <div class="vehicleVisual openDetail"><span class="vehicleMark">${escapeHtml(initials(v.brand))}</span></div>
   <div class="cardBody">
    <div class="cardTop"><span class="cardType">${v.type==="car"?"COCHE":"MOTO"}</span><span class="year">${escapeHtml(y)}</span></div>
-   <h3 class="openDetail">${escapeHtml(v.name)}</h3><div class="cardBrandLine">${logoUrl(v.brand)?logoHtml(v.brand,"cardBrandLogo"):""}<div class="brand">${escapeHtml(v.brand)}</div></div><div class="hierarchyCrumb">${escapeHtml(v.model||"")} · ${escapeHtml(v.generation||"")}</div>
+   <h3 class="openDetail">${escapeHtml(v.name)}</h3><div class="cardBrandLine">${logoUrl(v.brand)?logoHtml(v.brand,"cardBrandLogo"):""}<div class="brand">${escapeHtml(v.brand)}</div></div><div class="hierarchyCrumb">${escapeHtml(v.model||"")} · ${escapeHtml(displayGeneration(v))}</div>
    <div class="miniSpecs">
     <div><strong>${escapeHtml(p)}${p!=="—"?" CV":""}</strong><span>potencia</span></div>
     <div><strong>${escapeHtml(w)}${w!=="—"?" kg":""}</strong><span>peso</span></div>
@@ -179,7 +185,7 @@ function openDetail(id){
  ];
  $("#dialogContent").innerHTML=`<div class="detailHero">
   <span class="badge">${v.type==="car"?"COCHE":"MOTO"} · ${escapeHtml(v.brand)}</span>
-  <h2>${escapeHtml(v.name)}</h2><p>${escapeHtml(v.yearText||"Año sin especificar")}</p>
+  <h2>${escapeHtml(v.name)}</h2><p>${escapeHtml(v.model||"")} · ${escapeHtml(displayGeneration(v))} · ${escapeHtml(v.yearText||"Año sin especificar")}</p>
   <div class="keySpecs">${key.map(([l,x,u])=>`<div><strong>${escapeHtml(fmt(x))}${x!=null&&x!==""&&u?" "+u:""}</strong><span>${l}</span></div>`).join("")}</div>
  </div>
  <div class="details"><h3>Especificaciones</h3><div class="specList">

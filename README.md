@@ -42,3 +42,12 @@ La clasificación es automática y deliberadamente conservadora. Las excepciones
 - Detección automática por nombre de marca.
 - `brandLogos.json` queda solo para excepciones.
 - Guía completa en `LOGOS.md`.
+
+
+## V2.2.3
+
+- Corregido el fallback de logos en las tarjetas del catálogo.
+- Ya no se muestra el icono de imagen rota si falta una extensión concreta.
+- Las tarjetas muestran `Primera generación` en lugar de `Sin especificar`.
+- El mismo nombre amigable se usa en el contexto del catálogo y en la ficha.
+- Cache-busting actualizado a `2.2.3`.
