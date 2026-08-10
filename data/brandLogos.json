@@ -30,7 +30,8 @@
   },
   "Audi": {
     "file": null,
-    "slug": "audi"
+    "slug": "audi",
+    "theme": "invert"
   },
   "Benelli": {
     "file": null,
@@ -40,7 +41,7 @@
   "Bentley": {
     "file": null,
     "slug": "bentley",
-    "theme": "invert"
+    "theme": "light-bg"
   },
   "BMW": {
     "file": "assets/brand-logos/BMW.png",
