@@ -2,72 +2,86 @@
   "BMW": {
     "slug": "bmw",
     "url": "https://cdn.simpleicons.org/bmw",
-    "local": null
+    "local": null,
+    "colorUrl": "https://commons.wikimedia.org/wiki/Special:Redirect/file/BMW.svg"
   },
   "Audi": {
     "slug": "audi",
     "url": "https://cdn.simpleicons.org/audi",
-    "local": null
+    "local": null,
+    "colorUrl": "https://commons.wikimedia.org/wiki/Special:Redirect/file/Audi%20logo.svg"
   },
   "Porsche": {
     "slug": "porsche",
     "url": "https://cdn.simpleicons.org/porsche",
-    "local": null
+    "local": null,
+    "colorUrl": "https://www.google.com/s2/favicons?domain=porsche.com&sz=256"
   },
   "Alfa Romeo": {
     "slug": "alfaromeo",
     "url": "https://cdn.simpleicons.org/alfaromeo",
-    "local": null
+    "local": null,
+    "colorUrl": "https://www.google.com/s2/favicons?domain=alfaromeo.com&sz=256"
   },
   "VW": {
     "slug": "volkswagen",
     "url": "https://cdn.simpleicons.org/volkswagen",
-    "local": null
+    "local": null,
+    "colorUrl": "https://commons.wikimedia.org/wiki/Special:Redirect/file/Volkswagen%20-%20Logo.svg"
   },
   "Ford": {
     "slug": "ford",
     "url": "https://cdn.simpleicons.org/ford",
-    "local": null
+    "local": null,
+    "colorUrl": "https://www.google.com/s2/favicons?domain=ford.com&sz=256"
   },
   "Honda": {
     "slug": "honda",
     "url": "https://cdn.simpleicons.org/honda",
-    "local": null
+    "local": null,
+    "colorUrl": "https://www.google.com/s2/favicons?domain=honda.com&sz=256"
   },
   "Peugeot": {
     "slug": "peugeot",
     "url": "https://cdn.simpleicons.org/peugeot",
-    "local": null
+    "local": null,
+    "colorUrl": "https://www.google.com/s2/favicons?domain=peugeot.com&sz=256"
   },
   "Renault": {
     "slug": "renault",
     "url": "https://cdn.simpleicons.org/renault",
-    "local": null
+    "local": null,
+    "colorUrl": "https://www.google.com/s2/favicons?domain=renault.com&sz=256"
   },
   "Volvo": {
     "slug": "volvo",
     "url": "https://cdn.simpleicons.org/volvo",
-    "local": null
+    "local": null,
+    "colorUrl": "https://www.google.com/s2/favicons?domain=volvocars.com&sz=256"
   },
   "Toyota": {
     "slug": "toyota",
     "url": "https://cdn.simpleicons.org/toyota",
-    "local": null
+    "local": null,
+    "colorUrl": "https://www.google.com/s2/favicons?domain=toyota.com&sz=256"
   },
   "Nissan": {
     "slug": "nissan",
     "url": "https://cdn.simpleicons.org/nissan",
-    "local": null
+    "local": null,
+    "colorUrl": "https://www.google.com/s2/favicons?domain=nissan-global.com&sz=256"
   },
   "Mazda": {
     "slug": "mazda",
     "url": "https://cdn.simpleicons.org/mazda",
-    "local": null
+    "local": null,
+    "colorUrl": "https://www.google.com/s2/favicons?domain=mazda.com&sz=256"
   },
   "Hyundai": {
     "slug": "hyundai",
     "url": "https://cdn.simpleicons.org/hyundai",
-    "local": null
+    "local": null,
+    "colorUrl": "https://www.google.com/s2/favicons?domain=hyundai.com&sz=256"
   },
   "Kia": {
     "slug": "kia",
@@ -77,7 +91,8 @@
   "Ferrari": {
     "slug": "ferrari",
     "url": "https://cdn.simpleicons.org/ferrari",
-    "local": null
+    "local": null,
+    "colorUrl": "https://www.google.com/s2/favicons?domain=ferrari.com&sz=256"
   },
   "Lamborghini": {
     "slug": "lamborghini",
@@ -92,7 +107,8 @@
   "Bentley": {
     "slug": "bentley",
     "url": "https://cdn.simpleicons.org/bentley",
-    "local": null
+    "local": null,
+    "colorUrl": null
   },
   "Bugatti": {
     "slug": "bugatti",
@@ -102,72 +118,86 @@
   "Aston Martin": {
     "slug": "astonmartin",
     "url": "https://cdn.simpleicons.org/astonmartin",
-    "local": null
+    "local": null,
+    "colorUrl": "https://www.google.com/s2/favicons?domain=astonmartin.com&sz=256"
   },
   "Tesla": {
     "slug": "tesla",
     "url": "https://cdn.simpleicons.org/tesla",
-    "local": null
+    "local": null,
+    "colorUrl": null
   },
   "Jeep": {
     "slug": "jeep",
     "url": "https://cdn.simpleicons.org/jeep",
-    "local": null
+    "local": null,
+    "colorUrl": null
   },
   "Citroen": {
     "slug": "citroen",
     "url": "https://cdn.simpleicons.org/citroen",
-    "local": null
+    "local": null,
+    "colorUrl": "https://www.google.com/s2/favicons?domain=citroen.com&sz=256"
   },
   "Skoda": {
     "slug": "skoda",
     "url": "https://cdn.simpleicons.org/skoda",
-    "local": null
+    "local": null,
+    "colorUrl": "https://www.google.com/s2/favicons?domain=skoda-auto.com&sz=256"
   },
   "Seat": {
     "slug": "seat",
     "url": "https://cdn.simpleicons.org/seat",
-    "local": null
+    "local": null,
+    "colorUrl": "https://www.google.com/s2/favicons?domain=seat.com&sz=256"
   },
   "Opel": {
     "slug": "opel",
     "url": "https://cdn.simpleicons.org/opel",
-    "local": null
+    "local": null,
+    "colorUrl": "https://www.google.com/s2/favicons?domain=opel.com&sz=256"
   },
   "Suzuki": {
     "slug": "suzuki",
     "url": "https://cdn.simpleicons.org/suzuki",
-    "local": null
+    "local": null,
+    "colorUrl": "https://www.google.com/s2/favicons?domain=globalsuzuki.com&sz=256"
   },
   "Yamaha": {
     "slug": "yamaha",
     "url": "https://cdn.simpleicons.org/yamaha",
-    "local": null
+    "local": null,
+    "colorUrl": "https://www.google.com/s2/favicons?domain=yamaha-motor.eu&sz=256"
   },
   "Ducati": {
     "slug": "ducati",
     "url": "https://cdn.simpleicons.org/ducati",
-    "local": null
+    "local": null,
+    "colorUrl": "https://www.google.com/s2/favicons?domain=ducati.com&sz=256"
   },
   "Kawasaki": {
     "slug": "kawasaki",
     "url": "https://cdn.simpleicons.org/kawasaki",
-    "local": null
+    "local": null,
+    "colorUrl": "https://www.google.com/s2/favicons?domain=kawasaki.eu&sz=256"
   },
   "KTM": {
     "slug": "ktm",
     "url": "https://cdn.simpleicons.org/ktm",
-    "local": null
+    "local": null,
+    "colorUrl": "https://www.google.com/s2/favicons?domain=ktm.com&sz=256"
   },
   "Triumph": {
     "slug": "triumph",
     "url": "https://cdn.simpleicons.org/triumph",
-    "local": null
+    "local": null,
+    "colorUrl": "https://www.google.com/s2/favicons?domain=triumphmotorcycles.com&sz=256"
   },
   "Aprilia": {
     "slug": "aprilia",
     "url": "https://cdn.simpleicons.org/aprilia",
-    "local": null
+    "local": null,
+    "colorUrl": "https://www.google.com/s2/favicons?domain=aprilia.com&sz=256"
   },
   "Royal Enfield": {
     "slug": "royalenfield",
@@ -178,5 +208,157 @@
     "slug": "harleydavidson",
     "url": "https://cdn.simpleicons.org/harleydavidson",
     "local": null
+  },
+  "Abarth": {
+    "local": null,
+    "colorUrl": null
+  },
+  "Alpina": {
+    "local": null,
+    "colorUrl": null
+  },
+  "Alpine": {
+    "local": null,
+    "colorUrl": "https://www.google.com/s2/favicons?domain=alpinecars.com&sz=256"
+  },
+  "Ascari": {
+    "local": null,
+    "colorUrl": null
+  },
+  "Benelli": {
+    "local": null,
+    "colorUrl": null
+  },
+  "BWM": {
+    "local": null,
+    "colorUrl": null
+  },
+  "BYD": {
+    "local": null,
+    "colorUrl": null
+  },
+  "CFMoto": {
+    "local": null,
+    "colorUrl": null
+  },
+  "Chevrolet": {
+    "local": null,
+    "colorUrl": null
+  },
+  "Chrysler": {
+    "local": null,
+    "colorUrl": null
+  },
+  "Cupra": {
+    "local": null,
+    "colorUrl": null
+  },
+  "DeTomaso": {
+    "local": null,
+    "colorUrl": null
+  },
+  "Dodge": {
+    "local": null,
+    "colorUrl": null
+  },
+  "Fiat": {
+    "local": null,
+    "colorUrl": null
+  },
+  "Husqvarna": {
+    "local": null,
+    "colorUrl": null
+  },
+  "Jaguar": {
+    "local": null,
+    "colorUrl": null
+  },
+  "Land Rover": {
+    "local": null,
+    "colorUrl": null
+  },
+  "Lexis": {
+    "local": null,
+    "colorUrl": null
+  },
+  "Lexus": {
+    "local": null,
+    "colorUrl": null
+  },
+  "Lotus": {
+    "local": null,
+    "colorUrl": null
+  },
+  "MB": {
+    "local": null,
+    "colorUrl": "https://commons.wikimedia.org/wiki/Special:Redirect/file/Mercedes-Benz%20%282025%29.svg"
+  },
+  "McLaren": {
+    "local": null,
+    "colorUrl": null
+  },
+  "MG": {
+    "local": null,
+    "colorUrl": null
+  },
+  "Mini": {
+    "local": null,
+    "colorUrl": null
+  },
+  "Mitsubishi": {
+    "local": null,
+    "colorUrl": null
+  },
+  "Mondial": {
+    "local": null,
+    "colorUrl": null
+  },
+  "Morbidelli": {
+    "local": null,
+    "colorUrl": null
+  },
+  "Morgan": {
+    "local": null,
+    "colorUrl": null
+  },
+  "Norton": {
+    "local": null,
+    "colorUrl": null
+  },
+  "Omoda": {
+    "local": null,
+    "colorUrl": null
+  },
+  "Pegaso": {
+    "local": null,
+    "colorUrl": null
+  },
+  "QJ": {
+    "local": null,
+    "colorUrl": null
+  },
+  "QJMotor": {
+    "local": null,
+    "colorUrl": null
+  },
+  "Ruf": {
+    "local": null,
+    "colorUrl": null
+  },
+  "Saab": {
+    "local": null,
+    "colorUrl": "https://www.google.com/s2/favicons?domain=saab.com&sz=256"
+  },
+  "Subaru": {
+    "local": null,
+    "colorUrl": null
+  },
+  "Voge": {
+    "local": null,
+    "colorUrl": "https://www.google.com/s2/favicons?domain=voge-global.com&sz=256"
+  },
+  "Zontes": {
+    "local": null,
+    "colorUrl": null
   }
 }

@@ -1,32 +1,30 @@
-# Logos locales de marcas
+# Añadir o sustituir logos de marca
 
-Motorpedia intenta cargar automáticamente algunos logos desde `data/brandLogos.json`.
+Motorpedia V2.2 prueba los logos en este orden:
 
-Si un logo no aparece, aparece mal, o quieres sustituirlo por otro:
+1. `local` — tu archivo dentro del repositorio.
+2. `colorUrl` — logo/fav-icon en color configurado automáticamente.
+3. `url` — fallback anterior.
+4. Iniciales de la marca.
 
-1. Consigue un archivo `.png`, `.webp` o `.svg` del logo.
-2. Guárdalo en esta carpeta.
-3. Usa un nombre simple, por ejemplo:
-   - `bmw.svg`
-   - `alfa-romeo.png`
-   - `mercedes-benz.svg`
-4. Abre `data/brandLogos.json`.
-5. Para esa marca, sustituye o añade el campo `local`.
+## Ejemplo: añadir Voge
 
-Ejemplo:
+1. Sube:
+   `assets/brand-logos/voge.png`
+
+2. Abre `data/brandLogos.json`.
+
+3. Busca `"Voge"` y deja:
 
 ```json
-"BMW": {
-  "slug": "bmw",
-  "url": "https://cdn.simpleicons.org/bmw",
-  "local": "assets/brand-logos/bmw.svg"
+"Voge": {
+  "local": "assets/brand-logos/voge.png",
+  "colorUrl": "https://www.google.com/s2/favicons?domain=voge-global.com&sz=256"
 }
 ```
 
-Motorpedia usará primero `local`. Si no existe, intentará `url`.
-Si ambos fallan, mostrará las iniciales de la marca.
+No necesitas tocar `app.js`.
 
-Recomendación:
-- SVG: preferible por calidad y poco peso.
-- PNG/WebP: fondo transparente.
-- Evita imágenes enormes; 256×256 o similar es suficiente para PNG/WebP.
+Preferencia de formatos:
+- SVG para máxima calidad.
+- PNG/WebP con fondo transparente si no tienes SVG.

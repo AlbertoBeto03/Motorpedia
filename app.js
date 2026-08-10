@@ -7,11 +7,11 @@ const num=v=>{if(typeof v==="number")return v; const m=String(v??"").replace(","
 const initials=name=>name.split(/\s+/).slice(0,2).map(x=>x[0]||"").join("");
 
 Promise.all([
- fetch("data/vehicles.json").then(r=>r.json()),
- fetch("data/brands.json").then(r=>r.json()),
- fetch("data/stats.json").then(r=>r.json()),
- fetch("data/hierarchy.json").then(r=>r.json()),
- fetch("data/brandLogos.json").then(r=>r.json())
+ fetch("data/vehicles.json?v=2.2").then(r=>r.json()),
+ fetch("data/brands.json?v=2.2").then(r=>r.json()),
+ fetch("data/stats.json?v=2.2").then(r=>r.json()),
+ fetch("data/hierarchy.json?v=2.2").then(r=>r.json()),
+ fetch("data/brandLogos.json?v=2.2").then(r=>r.json())
 ]).then(([v,b,s,h,l])=>{
  vehicles=v; brands=b; stats=s; hierarchy=h; brandLogos=l;
  $("#totalStat").textContent=s.total.toLocaleString("es-ES");
@@ -29,47 +29,57 @@ function populateBrands(){
 }
 function logoSources(brand){
  const cfg=brandLogos?.[brand]||{};
- return {local:cfg.local||null,remote:cfg.url||null};
+ return [cfg.local,cfg.colorUrl,cfg.url].filter(Boolean);
 }
 function logoUrl(brand){
- const s=logoSources(brand);
- return s.local||s.remote||null;
+ return logoSources(brand)[0]||null;
 }
 function logoHtml(brand,cls="brandLogo"){
- const s=logoSources(brand);
- const first=s.local||s.remote;
- if(!first) return `<span class="brandInitial">${escapeHtml(initials(brand))}</span>`;
- const fallback=s.local&&s.remote?s.remote:"";
- return `<img class="${cls}" src="${escapeAttr(first)}" data-fallback="${escapeAttr(fallback)}" alt="Logo ${escapeAttr(brand)}"><span class="brandInitial" style="display:none">${escapeHtml(initials(brand))}</span>`;
+ const sources=logoSources(brand);
+ if(!sources.length) return `<span class="brandInitial">${escapeHtml(initials(brand))}</span>`;
+ return `<img class="${cls}" src="${escapeAttr(sources[0])}" data-logo-sources="${escapeAttr(JSON.stringify(sources))}" data-logo-index="0" alt="Logo ${escapeAttr(brand)}"><span class="brandInitial" style="display:none">${escapeHtml(initials(brand))}</span>`;
 }
 function bindLogoFallbacks(scope=document){
- scope.querySelectorAll("img[data-fallback]").forEach(img=>{
+ scope.querySelectorAll("img[data-logo-sources]").forEach(img=>{
+   if(img.dataset.bound==="1") return;
+   img.dataset.bound="1";
    img.addEventListener("error",()=>{
-     const fb=img.dataset.fallback;
-     if(fb&&img.src!==fb){
-       img.dataset.fallback="";
-       img.src=fb;
+     let sources=[];
+     try{sources=JSON.parse(img.dataset.logoSources||"[]")}catch(e){}
+     const nextIndex=Number(img.dataset.logoIndex||0)+1;
+     if(nextIndex<sources.length){
+       img.dataset.logoIndex=String(nextIndex);
+       img.src=sources[nextIndex];
      }else{
        img.style.display="none";
-       const next=img.nextElementSibling;
-       if(next) next.style.display="flex";
+       const fallback=img.nextElementSibling;
+       if(fallback) fallback.style.display="flex";
      }
-   },{once:false});
+   });
  });
 }
+function generationSpan(g){
+ // V2.2: recalculate from the vehicles themselves so this works even if
+ // hierarchy.json is ever served from an older cache.
+ const members=(g.vehicleIds||[]).map(id=>vehicles.find(v=>v.id===id)).filter(Boolean);
+ const starts=members.map(v=>v.yearStart).filter(Number.isFinite);
+ const ends=members.map(v=>Number.isFinite(v.yearEnd)?v.yearEnd:v.yearStart).filter(Number.isFinite);
+ const start=starts.length?Math.min(...starts):(Number.isFinite(g.yearStart)?g.yearStart:null);
+ const end=ends.length?Math.max(...ends):(Number.isFinite(g.yearEnd)?g.yearEnd:null);
+ return {start,end};
+}
 function genYears(g){
- if(g.yearStart&&g.yearEnd){
-   return g.yearStart===g.yearEnd?String(g.yearStart):`${g.yearStart}–${g.yearEnd}`;
- }
- if(g.yearStart) return `${g.yearStart}–`;
- if(g.yearEnd) return `–${g.yearEnd}`;
- return "Años no definidos";
+ const {start,end}=generationSpan(g);
+ if(start&&end) return start===end?String(start):`${start}–${end}`;
+ if(start) return `${start}–`;
+ if(end) return `–${end}`;
+ return "Año no definido";
 }
 function openBrand(brand){
  const h=hierarchy.find(x=>x.brand===brand); if(!h)return;
  $("#brandsLanding").classList.add("hidden"); $("#brandBrowser").classList.remove("hidden");
  $("#brandHeader").innerHTML=`${logoUrl(brand)?logoHtml(brand,"heroBrandLogo"):`<span class="fallbackLogo">${escapeHtml(initials(brand))}</span>`}<div><p class="eyebrow">FABRICANTE</p><h2>${escapeHtml(brand)}</h2><p>${h.models.length} modelos · ${h.count} versiones en la base de datos</p></div>`;
- $("#modelGrid").innerHTML=h.models.map(m=>`<article class="modelCard"><div class="modelTop"><h3>${escapeHtml(m.name)}</h3><span>${m.count} versiones · ${m.generations.length} generaciones</span></div><div class="generations">${m.generations.map(g=>`<button class="generationBtn" data-brand="${escapeAttr(brand)}" data-model="${escapeAttr(m.name)}" data-generation="${escapeAttr(g.name)}"><span class="generationTitle"><strong>${escapeHtml(g.name)}</strong><span class="generationYears">${escapeHtml(genYears(g))}</span></span><span class="generationMeta"><span>${g.count} versiones</span><span>→</span></span></button>`).join("")}</div></article>`).join("");
+ $("#modelGrid").innerHTML=h.models.map(m=>`<article class="modelCard"><div class="modelTop"><h3>${escapeHtml(m.name)}</h3><span>${m.count} versiones · ${m.generations.length} generaciones</span></div><div class="generations">${m.generations.map(g=>`<button class="generationBtn" data-brand="${escapeAttr(brand)}" data-model="${escapeAttr(m.name)}" data-generation="${escapeAttr(g.name)}"><span class="generationLeft"><strong>${escapeHtml(g.name)}</strong><small>${escapeHtml(genYears(g))}</small></span><span class="generationRight"><span>${g.count} versiones</span><b>→</b></span></button>`).join("")}</div></article>`).join("");
  $$(".generationBtn").forEach(btn=>btn.addEventListener("click",()=>openGeneration(btn.dataset.brand,btn.dataset.model,btn.dataset.generation))); bindLogoFallbacks($("#brandBrowser"));
  window.scrollTo({top:0,behavior:"smooth"});
 }

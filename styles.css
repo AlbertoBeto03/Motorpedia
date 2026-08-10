@@ -22,3 +22,54 @@
   .generationBtn{align-items:flex-start;gap:12px}
   .generationMeta{flex-direction:column;align-items:flex-end;gap:2px}
 }
+
+/* Motorpedia V2.2 */
+.generationBtn{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) auto!important;
+  align-items:center!important;
+  gap:18px!important;
+  min-height:65px;
+}
+.generationLeft{
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:flex-start!important;
+  gap:4px!important;
+  min-width:0;
+}
+.generationLeft strong{
+  display:block;
+  color:#f4f5f7;
+  font-size:18px;
+  line-height:1.1;
+}
+.generationLeft small{
+  display:block!important;
+  color:#aeb5be!important;
+  font-size:12px!important;
+  line-height:1.2;
+  font-weight:500;
+}
+.generationRight{
+  display:flex!important;
+  align-items:center!important;
+  gap:10px!important;
+  white-space:nowrap;
+  color:#7f8792!important;
+  font-size:11px!important;
+}
+.generationRight b{
+  color:#9aa2ad;
+  font-size:12px;
+}
+.brandLogo,.heroBrandLogo,.cardBrandLogo{
+  filter:none!important;
+  mix-blend-mode:normal!important;
+  opacity:1!important;
+}
+.versionStamp{
+  color:#6f7781;
+  font-size:10px;
+  letter-spacing:.08em;
+}
