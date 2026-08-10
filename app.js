@@ -7,11 +7,11 @@ const num=v=>{if(typeof v==="number")return v; const m=String(v??"").replace(","
 const initials=name=>name.split(/\s+/).slice(0,2).map(x=>x[0]||"").join("");
 
 Promise.all([
- fetch("data/vehicles.json?v=2.2").then(r=>r.json()),
- fetch("data/brands.json?v=2.2").then(r=>r.json()),
- fetch("data/stats.json?v=2.2").then(r=>r.json()),
- fetch("data/hierarchy.json?v=2.2").then(r=>r.json()),
- fetch("data/brandLogos.json?v=2.2").then(r=>r.json())
+ fetch("data/vehicles.json?v=2.2.1").then(r=>r.json()),
+ fetch("data/brands.json?v=2.2.1").then(r=>r.json()),
+ fetch("data/stats.json?v=2.2.1").then(r=>r.json()),
+ fetch("data/hierarchy.json?v=2.2.1").then(r=>r.json()),
+ fetch("data/brandLogos.json?v=2.2.1").then(r=>r.json())
 ]).then(([v,b,s,h,l])=>{
  vehicles=v; brands=b; stats=s; hierarchy=h; brandLogos=l;
  $("#totalStat").textContent=s.total.toLocaleString("es-ES");
@@ -79,7 +79,7 @@ function openBrand(brand){
  const h=hierarchy.find(x=>x.brand===brand); if(!h)return;
  $("#brandsLanding").classList.add("hidden"); $("#brandBrowser").classList.remove("hidden");
  $("#brandHeader").innerHTML=`${logoUrl(brand)?logoHtml(brand,"heroBrandLogo"):`<span class="fallbackLogo">${escapeHtml(initials(brand))}</span>`}<div><p class="eyebrow">FABRICANTE</p><h2>${escapeHtml(brand)}</h2><p>${h.models.length} modelos · ${h.count} versiones en la base de datos</p></div>`;
- $("#modelGrid").innerHTML=h.models.map(m=>`<article class="modelCard"><div class="modelTop"><h3>${escapeHtml(m.name)}</h3><span>${m.count} versiones · ${m.generations.length} generaciones</span></div><div class="generations">${m.generations.map(g=>`<button class="generationBtn" data-brand="${escapeAttr(brand)}" data-model="${escapeAttr(m.name)}" data-generation="${escapeAttr(g.name)}"><span class="generationLeft"><strong>${escapeHtml(g.name)}</strong><small>${escapeHtml(genYears(g))}</small></span><span class="generationRight"><span>${g.count} versiones</span><b>→</b></span></button>`).join("")}</div></article>`).join("");
+ $("#modelGrid").innerHTML=h.models.map(m=>`<article class="modelCard"><div class="modelTop"><h3>${escapeHtml(m.name)}</h3><span>${m.count} versiones · ${m.generations.length} generaciones</span></div><div class="generations">${m.generations.map(g=>`<button class="generationBtn" data-brand="${escapeAttr(brand)}" data-model="${escapeAttr(m.name)}" data-generation="${escapeAttr(g.rawName||g.name)}"><span class="generationLeft"><strong>${escapeHtml(g.name)}</strong><small>${escapeHtml(genYears(g))}</small></span><span class="generationRight"><span>${g.count} versiones</span><b>→</b></span></button>`).join("")}</div></article>`).join("");
  $$(".generationBtn").forEach(btn=>btn.addEventListener("click",()=>openGeneration(btn.dataset.brand,btn.dataset.model,btn.dataset.generation))); bindLogoFallbacks($("#brandBrowser"));
  window.scrollTo({top:0,behavior:"smooth"});
 }

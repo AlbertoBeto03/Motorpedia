@@ -25,3 +25,13 @@ La clasificación es automática y deliberadamente conservadora. Las excepciones
 - Logos mostrados a color.
 - Sistema de logos locales en `assets/brand-logos/`.
 - `data/brandLogos.json` acepta un campo `local` para sobreescribir logos automáticos.
+
+
+## V2.2.1
+
+- Generaciones ordenadas cronológicamente por año de inicio.
+- `Sin especificar` pasa a mostrarse como `Primera generación`.
+- Sistema `modelPrefixOverrides` para corregir familias mal detectadas sin tocar Excel.
+- Toyota `GR Supra` se agrupa en `Supra`.
+- Toyota `GR Yaris` se agrupa en `Yaris`.
+- Guía: `data/TAXONOMY_GUIDE.md`.

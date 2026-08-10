@@ -17,5 +17,12 @@
       "8": "Serie 8"
     }
   },
-  "notes": "Motorpedia V2: automatic hierarchy. Add per-vehicle or per-pattern corrections here in future versions."
+  "notes": "V2.2.1: use modelPrefixOverrides to force a model family from a name prefix. Example: Toyota / GR Supra -> Supra. Longest prefix wins.",
+  "modelPrefixOverrides": {
+    "Toyota": {
+      "GR Supra": "Supra",
+      "GR Yaris": "Yaris"
+    }
+  },
+  "generationLabelOverrides": {}
 }
