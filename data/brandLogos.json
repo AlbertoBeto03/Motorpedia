@@ -144,7 +144,8 @@
   },
   "Lexus": {
     "file": null,
-    "slug": "lexus"
+    "slug": "lexus",
+    "theme": "invert"
   },
   "Lotus": {
     "file": null,
@@ -152,7 +153,8 @@
   },
   "Mazda": {
     "file": null,
-    "slug": "mazda"
+    "slug": "mazda",
+    "theme": "invert"
   },
   "MB": {
     "file": null,
@@ -160,7 +162,8 @@
   },
   "McLaren": {
     "file": null,
-    "slug": "mclaren"
+    "slug": "mclaren",
+    "theme": "invert"
   },
   "MG": {
     "file": null,
@@ -168,7 +171,8 @@
   },
   "Mini": {
     "file": null,
-    "slug": "mini"
+    "slug": "mini",
+    "theme": "invert"
   },
   "Mitsubishi": {
     "file": null,
@@ -188,15 +192,18 @@
   },
   "Nissan": {
     "file": null,
-    "slug": "nissan"
+    "slug": "nissan",
+    "theme": "invert"
   },
   "Norton": {
     "file": null,
-    "slug": "norton"
+    "slug": "norton",
+    "theme": "invert"
   },
   "Omoda": {
     "file": null,
-    "slug": "omoda"
+    "slug": "omoda",
+    "theme": "invert"
   },
   "Opel": {
     "file": null,
@@ -204,7 +211,8 @@
   },
   "Pegaso": {
     "file": null,
-    "slug": "pegaso"
+    "slug": "pegaso",
+    "theme": "invert"
   },
   "Peugeot": {
     "file": null,
@@ -224,7 +232,8 @@
   },
   "Renault": {
     "file": null,
-    "slug": "renault"
+    "slug": "renault",
+    "theme": "invert"
   },
   "Ruf": {
     "file": null,
@@ -236,7 +245,8 @@
   },
   "Seat": {
     "file": null,
-    "slug": "seat"
+    "slug": "seat",
+    "theme": "invert"
   },
   "Skoda": {
     "file": null,
@@ -268,7 +278,8 @@
   },
   "Volvo": {
     "file": null,
-    "slug": "volvo"
+    "slug": "volvo",
+    "theme": "invert"
   },
   "VW": {
     "file": null,
@@ -276,7 +287,8 @@
   },
   "Yamaha": {
     "file": null,
-    "slug": "yamaha"
+    "slug": "yamaha",
+    "theme": "light-bg"
   },
   "Zontes": {
     "file": null,
