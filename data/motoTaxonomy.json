@@ -1,0 +1,1635 @@
+{
+  "version": 3,
+  "brandAliases": {
+    "QJ": "QJMotor"
+  },
+  "overrides": [],
+  "groups": [
+    {
+      "brand": "Aprilia",
+      "model": "Caponord",
+      "generations": [
+        {
+          "name": "ETV 1000",
+          "prefixes": [
+            "Caponord ETV 1000"
+          ]
+        },
+        {
+          "name": "1200",
+          "prefixes": [
+            "Caponord 1200"
+          ]
+        }
+      ]
+    },
+    {
+      "brand": "Aprilia",
+      "model": "Dorsoduro",
+      "generations": [
+        {
+          "name": "750",
+          "prefixes": [
+            "Dorsoduro 750"
+          ]
+        },
+        {
+          "name": "1200",
+          "prefixes": [
+            "Dorsoduro 1200"
+          ]
+        },
+        {
+          "name": "900",
+          "prefixes": [
+            "Dorsoduro 900"
+          ]
+        }
+      ]
+    },
+    {
+      "brand": "Aprilia",
+      "model": "Mana 850",
+      "generations": [
+        {
+          "name": "Primera generación",
+          "prefixes": [
+            "Mana 850"
+          ]
+        }
+      ]
+    },
+    {
+      "brand": "Aprilia",
+      "model": "Pegaso",
+      "generations": [
+        {
+          "name": "600",
+          "prefixes": [
+            "Pegaso 600"
+          ]
+        },
+        {
+          "name": "650 I",
+          "prefixes": [
+            "Pegaso 650"
+          ],
+          "yearFrom": 1994,
+          "yearTo": 1999
+        },
+        {
+          "name": "650 II",
+          "prefixes": [
+            "Pegaso 650"
+          ],
+          "yearFrom": 2000,
+          "yearTo": 2004
+        },
+        {
+          "name": "650 III",
+          "prefixes": [
+            "Pegaso 650"
+          ],
+          "yearFrom": 2005,
+          "yearTo": 2011
+        }
+      ]
+    },
+    {
+      "brand": "Aprilia",
+      "model": "RS 125",
+      "generations": [
+        {
+          "name": "Extrema",
+          "prefixes": [
+            "RS 125 Extrema"
+          ]
+        },
+        {
+          "name": "2ª etapa",
+          "prefixes": [
+            "RS 125"
+          ],
+          "yearFrom": 1998,
+          "yearTo": 2002
+        },
+        {
+          "name": "2ª generación",
+          "prefixes": [
+            "RS 125 2gen"
+          ],
+          "yearFrom": 2003,
+          "yearTo": 2005
+        },
+        {
+          "name": "Euro 3",
+          "prefixes": [
+            "RS 125 Euro3"
+          ],
+          "yearFrom": 2006,
+          "yearTo": 2010
+        },
+        {
+          "name": "RS4 125",
+          "prefixes": [
+            "RS4 125"
+          ],
+          "yearFrom": 2011,
+          "yearTo": 2017
+        },
+        {
+          "name": "Euro 4",
+          "prefixes": [
+            "RS 125 Euro4"
+          ],
+          "yearFrom": 2018,
+          "yearTo": 2020
+        },
+        {
+          "name": "Euro 5",
+          "prefixes": [
+            "RS 125 Euro5"
+          ],
+          "yearFrom": 2021,
+          "yearTo": 2024
+        },
+        {
+          "name": "Euro 5+",
+          "prefixes": [
+            "RS 125 Euro5+"
+          ],
+          "yearFrom": 2025,
+          "yearTo": 2100
+        }
+      ]
+    },
+    {
+      "brand": "Aprilia",
+      "model": "RS 250",
+      "generations": [
+        {
+          "name": "1ª generación",
+          "prefixes": [
+            "RS 250"
+          ],
+          "yearFrom": 1994,
+          "yearTo": 1997
+        },
+        {
+          "name": "2ª generación",
+          "prefixes": [
+            "RS 250 2gen"
+          ],
+          "yearFrom": 1998,
+          "yearTo": 2002
+        }
+      ]
+    },
+    {
+      "brand": "Aprilia",
+      "model": "RS 660",
+      "generations": [
+        {
+          "name": "1ª generación",
+          "prefixes": [
+            "RS 660"
+          ],
+          "yearFrom": 2021,
+          "yearTo": 2024
+        },
+        {
+          "name": "2ª generación",
+          "prefixes": [
+            "RS 660 gen2"
+          ],
+          "yearFrom": 2024,
+          "yearTo": 2100
+        }
+      ]
+    },
+    {
+      "brand": "Aprilia",
+      "model": "RSV",
+      "generations": [
+        {
+          "name": "RSV Mille",
+          "prefixes": [
+            "RSV Mille"
+          ],
+          "yearFrom": 1998,
+          "yearTo": 2004
+        },
+        {
+          "name": "RSV 1000 R",
+          "prefixes": [
+            "RSV 1000 R"
+          ],
+          "yearFrom": 2004,
+          "yearTo": 2009
+        },
+        {
+          "name": "RSV4 I",
+          "prefixes": [
+            "RSV4"
+          ],
+          "yearFrom": 2009,
+          "yearTo": 2014
+        },
+        {
+          "name": "RSV4 II",
+          "prefixes": [
+            "RSV4 RR",
+            "RSV4 1100 Factory",
+            "RSV4"
+          ],
+          "yearFrom": 2015,
+          "yearTo": 2020
+        },
+        {
+          "name": "RSV4 III",
+          "prefixes": [
+            "RSV4 2021",
+            "RSV4"
+          ],
+          "yearFrom": 2021,
+          "yearTo": 2024
+        },
+        {
+          "name": "RSV4 IV",
+          "prefixes": [
+            "RSV4 1100",
+            "RSV4"
+          ],
+          "yearFrom": 2025,
+          "yearTo": 2100
+        }
+      ]
+    },
+    {
+      "brand": "Aprilia",
+      "model": "RXV",
+      "generations": [
+        {
+          "name": "Primera generación",
+          "prefixes": [
+            "RXV 450",
+            "RXV 550"
+          ]
+        }
+      ]
+    },
+    {
+      "brand": "Aprilia",
+      "model": "Shiver",
+      "generations": [
+        {
+          "name": "750 I",
+          "prefixes": [
+            "Shiver 750"
+          ],
+          "yearFrom": 2007,
+          "yearTo": 2009
+        },
+        {
+          "name": "750 II",
+          "prefixes": [
+            "Shiver 750 gen2",
+            "Shiver 750 GT"
+          ],
+          "yearFrom": 2009,
+          "yearTo": 2016
+        },
+        {
+          "name": "900",
+          "prefixes": [
+            "Shiver 900"
+          ],
+          "yearFrom": 2017,
+          "yearTo": 2020
+        }
+      ]
+    },
+    {
+      "brand": "Aprilia",
+      "model": "SXV",
+      "generations": [
+        {
+          "name": "Primera generación",
+          "prefixes": [
+            "SXV 450",
+            "SXV 550"
+          ]
+        }
+      ]
+    },
+    {
+      "brand": "Aprilia",
+      "model": "Tuareg 660",
+      "generations": [
+        {
+          "name": "1ª generación",
+          "prefixes": [
+            "Tuareg 660"
+          ],
+          "yearFrom": 2022,
+          "yearTo": 2024
+        },
+        {
+          "name": "2ª generación",
+          "prefixes": [
+            "Tuareg 660 gen2"
+          ],
+          "yearFrom": 2025,
+          "yearTo": 2100
+        }
+      ]
+    },
+    {
+      "brand": "Aprilia",
+      "model": "Tuono 660",
+      "generations": [
+        {
+          "name": "1ª generación",
+          "prefixes": [
+            "Tuono 660",
+            "Tuono 660 Factory"
+          ],
+          "yearFrom": 2021,
+          "yearTo": 2024
+        },
+        {
+          "name": "2ª generación",
+          "prefixes": [
+            "Tuono 660 Factory gen2"
+          ],
+          "yearFrom": 2025,
+          "yearTo": 2100
+        }
+      ]
+    },
+    {
+      "brand": "Aprilia",
+      "model": "Tuono V2/V4",
+      "generations": [
+        {
+          "name": "Tuono 1000",
+          "prefixes": [
+            "Tuono 1000"
+          ],
+          "yearFrom": 2004,
+          "yearTo": 2011
+        },
+        {
+          "name": "Tuono V4",
+          "prefixes": [
+            "Tuono V4"
+          ],
+          "yearFrom": 2011,
+          "yearTo": 2100
+        }
+      ]
+    },
+    {
+      "brand": "BMW",
+      "model": "F 800 R",
+      "generations": [
+        {
+          "name": "1ª generación",
+          "prefixes": [
+            "F 800 R"
+          ],
+          "yearFrom": 2009,
+          "yearTo": 2014
+        },
+        {
+          "name": "2ª generación",
+          "prefixes": [
+            "F 800 R gen2"
+          ],
+          "yearFrom": 2015,
+          "yearTo": 2019
+        }
+      ]
+    },
+    {
+      "brand": "BMW",
+      "model": "F 900 R",
+      "generations": [
+        {
+          "name": "1ª generación",
+          "prefixes": [
+            "F 900 R",
+            "F 900 R A2"
+          ],
+          "yearFrom": 2020,
+          "yearTo": 2024
+        },
+        {
+          "name": "2ª generación",
+          "prefixes": [
+            "F 900 R gen2"
+          ],
+          "yearFrom": 2025,
+          "yearTo": 2100
+        }
+      ]
+    },
+    {
+      "brand": "BMW",
+      "model": "G 310 R",
+      "generations": [
+        {
+          "name": "1ª generación",
+          "prefixes": [
+            "G 310 R"
+          ],
+          "yearFrom": 2017,
+          "yearTo": 2020
+        },
+        {
+          "name": "2ª generación",
+          "prefixes": [
+            "G 310 R gen2"
+          ],
+          "yearFrom": 2021,
+          "yearTo": 2100
+        }
+      ]
+    },
+    {
+      "brand": "BMW",
+      "model": "K 1600",
+      "generations": [
+        {
+          "name": "Primera generación",
+          "prefixes": [
+            "K 1600 B",
+            "K 1600 GT",
+            "K 1600 GTL"
+          ]
+        }
+      ]
+    },
+    {
+      "brand": "Benelli",
+      "model": "BN 302 / 302S",
+      "generations": [
+        {
+          "name": "BN 302",
+          "prefixes": [
+            "BN 302"
+          ],
+          "yearFrom": 2016,
+          "yearTo": 2018
+        },
+        {
+          "name": "302S",
+          "prefixes": [
+            "302S"
+          ],
+          "yearFrom": 2019,
+          "yearTo": 2020
+        }
+      ]
+    },
+    {
+      "brand": "Benelli",
+      "model": "BN 600",
+      "generations": [
+        {
+          "name": "Primera generación",
+          "prefixes": [
+            "BN 600i",
+            "BN 600R"
+          ]
+        }
+      ]
+    },
+    {
+      "brand": "Benelli",
+      "model": "Leoncino 500",
+      "generations": [
+        {
+          "name": "1ª generación",
+          "prefixes": [
+            "Leoncino 500"
+          ],
+          "yearFrom": 2017,
+          "yearTo": 2020
+        },
+        {
+          "name": "2ª generación",
+          "prefixes": [
+            "Leoncino 500 gen2"
+          ],
+          "yearFrom": 2021,
+          "yearTo": 2100
+        }
+      ]
+    },
+    {
+      "brand": "CFMoto",
+      "model": "650NK",
+      "generations": [
+        {
+          "name": "1ª generación",
+          "prefixes": [
+            "650NK gen1"
+          ],
+          "yearFrom": 2015,
+          "yearTo": 2016
+        },
+        {
+          "name": "2ª generación",
+          "prefixes": [
+            "650NK gen2"
+          ],
+          "yearFrom": 2017,
+          "yearTo": 2021
+        },
+        {
+          "name": "3ª generación",
+          "prefixes": [
+            "650NK gen3"
+          ],
+          "yearFrom": 2022,
+          "yearTo": 2024
+        }
+      ]
+    },
+    {
+      "brand": "CFMoto",
+      "model": "700 CL-X",
+      "generations": [
+        {
+          "name": "Primera generación",
+          "prefixes": [
+            "700 CL-X Adventure",
+            "700 CL-X Heritage",
+            "700 CL-X Sport"
+          ]
+        }
+      ]
+    },
+    {
+      "brand": "Ducati",
+      "model": "Monster",
+      "generations": [
+        {
+          "name": "Classic / S-series",
+          "prefixes": [
+            "Monster 620",
+            "Monster 695",
+            "Monster S2R",
+            "Monster S4",
+            "Monster S4R"
+          ],
+          "yearFrom": 2001,
+          "yearTo": 2008
+        },
+        {
+          "name": "696 / 796 / 1100",
+          "prefixes": [
+            "Monster 696",
+            "Monster 796",
+            "Monster 1100"
+          ],
+          "yearFrom": 2008,
+          "yearTo": 2014
+        },
+        {
+          "name": "797 / 821 / 1200",
+          "prefixes": [
+            "Monster 797",
+            "Monster 821",
+            "Monster 1200"
+          ],
+          "yearFrom": 2014,
+          "yearTo": 2020
+        },
+        {
+          "name": "937",
+          "prefixes": [
+            "Monster 937"
+          ],
+          "yearFrom": 2021,
+          "yearTo": 2025
+        },
+        {
+          "name": "V2",
+          "prefixes": [
+            "Monster V2"
+          ],
+          "yearFrom": 2026,
+          "yearTo": 2100
+        }
+      ]
+    },
+    {
+      "brand": "Honda",
+      "model": "CB300R",
+      "generations": [
+        {
+          "name": "1ª generación",
+          "prefixes": [
+            "CB300R"
+          ],
+          "yearFrom": 2018,
+          "yearTo": 2021
+        },
+        {
+          "name": "2ª generación",
+          "prefixes": [
+            "CB300R gen2"
+          ],
+          "yearFrom": 2022,
+          "yearTo": 2100
+        }
+      ]
+    },
+    {
+      "brand": "Honda",
+      "model": "CB500",
+      "generations": [
+        {
+          "name": "CB500F I",
+          "prefixes": [
+            "CB500F ABS"
+          ],
+          "yearFrom": 2013,
+          "yearTo": 2015
+        },
+        {
+          "name": "CB500F II",
+          "prefixes": [
+            "CB500F gen2"
+          ],
+          "yearFrom": 2016,
+          "yearTo": 2018
+        },
+        {
+          "name": "CB500F III",
+          "prefixes": [
+            "CB500F gen3"
+          ],
+          "yearFrom": 2019,
+          "yearTo": 2021
+        },
+        {
+          "name": "CB500F IV",
+          "prefixes": [
+            "CB500F gen4"
+          ],
+          "yearFrom": 2021,
+          "yearTo": 2023
+        },
+        {
+          "name": "CB500 Hornet",
+          "prefixes": [
+            "CB500 Hornet"
+          ],
+          "yearFrom": 2024,
+          "yearTo": 2100
+        }
+      ]
+    },
+    {
+      "brand": "Honda",
+      "model": "Hornet 600",
+      "generations": [
+        {
+          "name": "Primera generación",
+          "prefixes": [
+            "CB600F Hornet",
+            "Hornet 600"
+          ]
+        }
+      ]
+    },
+    {
+      "brand": "Honda",
+      "model": "CB650",
+      "generations": [
+        {
+          "name": "CB650F",
+          "prefixes": [
+            "CB650F ABS"
+          ],
+          "yearFrom": 2014,
+          "yearTo": 2019
+        },
+        {
+          "name": "CB650R I",
+          "prefixes": [
+            "CB650R"
+          ],
+          "yearFrom": 2019,
+          "yearTo": 2023
+        },
+        {
+          "name": "CB650R II",
+          "prefixes": [
+            "CB650R restyling"
+          ],
+          "yearFrom": 2024,
+          "yearTo": 2100
+        }
+      ]
+    },
+    {
+      "brand": "Honda",
+      "model": "CBF600S",
+      "generations": [
+        {
+          "name": "1ª generación",
+          "prefixes": [
+            "CBF600S"
+          ],
+          "yearFrom": 2004,
+          "yearTo": 2007
+        },
+        {
+          "name": "Restyling",
+          "prefixes": [
+            "CBF600S restyling"
+          ],
+          "yearFrom": 2008,
+          "yearTo": 2013
+        }
+      ]
+    },
+    {
+      "brand": "Honda",
+      "model": "CBR500R",
+      "generations": [
+        {
+          "name": "1ª generación",
+          "prefixes": [
+            "CBR500R"
+          ],
+          "yearFrom": 2013,
+          "yearTo": 2015
+        },
+        {
+          "name": "2ª generación",
+          "prefixes": [
+            "CBR500R restyling"
+          ],
+          "yearFrom": 2016,
+          "yearTo": 2018
+        },
+        {
+          "name": "3ª generación",
+          "prefixes": [
+            "CBR500R gen2"
+          ],
+          "yearFrom": 2019,
+          "yearTo": 2021
+        },
+        {
+          "name": "4ª generación",
+          "prefixes": [
+            "CBR500R gen3"
+          ],
+          "yearFrom": 2022,
+          "yearTo": 2023
+        },
+        {
+          "name": "4ª generación · restyling",
+          "prefixes": [
+            "CBR500R gen3 restyling"
+          ],
+          "yearFrom": 2024,
+          "yearTo": 2025
+        }
+      ]
+    },
+    {
+      "brand": "Honda",
+      "model": "CBR600RR",
+      "generations": [
+        {
+          "name": "2009",
+          "prefixes": [
+            "CBR600RR"
+          ],
+          "yearFrom": 2009,
+          "yearTo": 2009
+        },
+        {
+          "name": "2012",
+          "prefixes": [
+            "CBR600RR ABS"
+          ],
+          "yearFrom": 2012,
+          "yearTo": 2012
+        },
+        {
+          "name": "2024",
+          "prefixes": [
+            "CBR600RR"
+          ],
+          "yearFrom": 2024,
+          "yearTo": 2100
+        }
+      ]
+    },
+    {
+      "brand": "Honda",
+      "model": "CBR650R",
+      "generations": [
+        {
+          "name": "1ª generación",
+          "prefixes": [
+            "CBR650R"
+          ],
+          "yearFrom": 2019,
+          "yearTo": 2020
+        },
+        {
+          "name": "Euro 5",
+          "prefixes": [
+            "CBR650R Euro5"
+          ],
+          "yearFrom": 2021,
+          "yearTo": 2023
+        },
+        {
+          "name": "Euro 5 · restyling",
+          "prefixes": [
+            "CBR650R Euro5  Restyling"
+          ],
+          "yearFrom": 2024,
+          "yearTo": 2025
+        }
+      ]
+    },
+    {
+      "brand": "KTM",
+      "model": "390 Duke",
+      "generations": [
+        {
+          "name": "1ª generación",
+          "prefixes": [
+            "390 Duke gen1"
+          ],
+          "yearFrom": 2013,
+          "yearTo": 2016
+        },
+        {
+          "name": "2ª generación",
+          "prefixes": [
+            "390 Duke gen2"
+          ],
+          "yearFrom": 2017,
+          "yearTo": 2020
+        },
+        {
+          "name": "2ª generación · restyling",
+          "prefixes": [
+            "390 Duke gen2 restyling"
+          ],
+          "yearFrom": 2021,
+          "yearTo": 2023
+        },
+        {
+          "name": "3ª generación",
+          "prefixes": [
+            "390 Duke gen3"
+          ],
+          "yearFrom": 2024,
+          "yearTo": 2100
+        }
+      ]
+    },
+    {
+      "brand": "Kawasaki",
+      "model": "ER-6",
+      "generations": [
+        {
+          "name": "1ª generación",
+          "prefixes": [
+            "ER-6f",
+            "ER-6n"
+          ],
+          "yearFrom": 2006,
+          "yearTo": 2008
+        },
+        {
+          "name": "Restyling",
+          "prefixes": [
+            "ER-6f restyling",
+            "ER-6n restyling"
+          ],
+          "yearFrom": 2009,
+          "yearTo": 2011
+        },
+        {
+          "name": "2ª generación",
+          "prefixes": [
+            "ER-6f gen2",
+            "ER-6n gen2"
+          ],
+          "yearFrom": 2012,
+          "yearTo": 2016
+        }
+      ]
+    },
+    {
+      "brand": "Kawasaki",
+      "model": "Ninja 250 / 300 / 400",
+      "generations": [
+        {
+          "name": "Ninja 250R",
+          "prefixes": [
+            "Ninja 250R"
+          ],
+          "yearFrom": 2008,
+          "yearTo": 2012
+        },
+        {
+          "name": "Ninja 300",
+          "prefixes": [
+            "Ninja 300"
+          ],
+          "yearFrom": 2013,
+          "yearTo": 2016
+        },
+        {
+          "name": "Ninja 400",
+          "prefixes": [
+            "Ninja 400"
+          ],
+          "yearFrom": 2019,
+          "yearTo": 2023
+        }
+      ]
+    },
+    {
+      "brand": "Kawasaki",
+      "model": "Ninja ZX-4R",
+      "generations": [
+        {
+          "name": "Primera generación",
+          "prefixes": [
+            "Ninja ZX-4R",
+            "Ninja ZX-4RR"
+          ],
+          "yearFrom": 2024,
+          "yearTo": 2100
+        }
+      ]
+    },
+    {
+      "brand": "Kawasaki",
+      "model": "Ninja ZX-6R",
+      "generations": [
+        {
+          "name": "1998–1999",
+          "prefixes": [
+            "Ninja ZX-6R"
+          ],
+          "yearFrom": 1998,
+          "yearTo": 1999
+        },
+        {
+          "name": "2000–2002",
+          "prefixes": [
+            "Ninja ZX-6R"
+          ],
+          "yearFrom": 2000,
+          "yearTo": 2002
+        },
+        {
+          "name": "2003–2004",
+          "prefixes": [
+            "Ninja ZX-6R 636"
+          ],
+          "yearFrom": 2003,
+          "yearTo": 2004
+        },
+        {
+          "name": "2005–2006",
+          "prefixes": [
+            "Ninja ZX-6R 636"
+          ],
+          "yearFrom": 2005,
+          "yearTo": 2006
+        },
+        {
+          "name": "2007–2008",
+          "prefixes": [
+            "Ninja ZX-6R"
+          ],
+          "yearFrom": 2007,
+          "yearTo": 2008
+        },
+        {
+          "name": "2009–2012",
+          "prefixes": [
+            "Ninja ZX-6R"
+          ],
+          "yearFrom": 2009,
+          "yearTo": 2012
+        },
+        {
+          "name": "2013–2016",
+          "prefixes": [
+            "Ninja ZX-6R 636"
+          ],
+          "yearFrom": 2013,
+          "yearTo": 2016
+        },
+        {
+          "name": "2019–2023",
+          "prefixes": [
+            "Ninja ZX-6R"
+          ],
+          "yearFrom": 2019,
+          "yearTo": 2023
+        },
+        {
+          "name": "2024–",
+          "prefixes": [
+            "Ninja ZX-6R"
+          ],
+          "yearFrom": 2024,
+          "yearTo": 2100
+        }
+      ]
+    },
+    {
+      "brand": "Kawasaki",
+      "model": "Z300 / Z400 / Z500",
+      "generations": [
+        {
+          "name": "Z300",
+          "prefixes": [
+            "Z300 ABS"
+          ],
+          "yearFrom": 2015,
+          "yearTo": 2017
+        },
+        {
+          "name": "Z400",
+          "prefixes": [
+            "Z400"
+          ],
+          "yearFrom": 2019,
+          "yearTo": 2023
+        },
+        {
+          "name": "Z500",
+          "prefixes": [
+            "Z500"
+          ],
+          "yearFrom": 2024,
+          "yearTo": 2100
+        }
+      ]
+    },
+    {
+      "brand": "Norton",
+      "model": "Commando 961",
+      "generations": [
+        {
+          "name": "Mk1",
+          "prefixes": [
+            "Commando 961 Mk1"
+          ]
+        }
+      ]
+    },
+    {
+      "brand": "QJMotor",
+      "model": "SRK 125",
+      "generations": [
+        {
+          "name": "Primera generación",
+          "prefixes": [
+            "SRK 125R",
+            "SRK 125S"
+          ]
+        }
+      ]
+    },
+    {
+      "brand": "QJMotor",
+      "model": "SRT 550",
+      "generations": [
+        {
+          "name": "Primera generación",
+          "prefixes": [
+            "SRT 550",
+            "SRT 550X"
+          ]
+        }
+      ]
+    },
+    {
+      "brand": "QJMotor",
+      "model": "SRT 700",
+      "generations": [
+        {
+          "name": "Primera generación",
+          "prefixes": [
+            "SRT 700 On Road",
+            "SRT 700X Trail"
+          ]
+        }
+      ]
+    },
+    {
+      "brand": "QJMotor",
+      "model": "SRT 800",
+      "generations": [
+        {
+          "name": "Primera generación",
+          "prefixes": [
+            "SRT 800",
+            "SRT 800X"
+          ]
+        }
+      ]
+    },
+    {
+      "brand": "QJMotor",
+      "model": "SRT 900",
+      "generations": [
+        {
+          "name": "Primera generación",
+          "prefixes": [
+            "SRT 900S On Road",
+            "SRT 900SX Trail"
+          ]
+        }
+      ]
+    },
+    {
+      "brand": "Suzuki",
+      "model": "GS500",
+      "generations": [
+        {
+          "name": "Primera generación",
+          "prefixes": [
+            "GS500",
+            "GS500F"
+          ]
+        }
+      ]
+    },
+    {
+      "brand": "Suzuki",
+      "model": "Bandit 600 / 650",
+      "generations": [
+        {
+          "name": "600 I",
+          "prefixes": [
+            "GSF600 Bandit N",
+            "GSF600S Bandit"
+          ],
+          "yearFrom": 1995,
+          "yearTo": 1999
+        },
+        {
+          "name": "600 II",
+          "prefixes": [
+            "GSF600 Bandit N gen2",
+            "GSF600S Bandit gen2"
+          ],
+          "yearFrom": 2000,
+          "yearTo": 2004
+        },
+        {
+          "name": "650 I",
+          "prefixes": [
+            "GSF650 Bandit N",
+            "GSF650S Bandit"
+          ],
+          "yearFrom": 2005,
+          "yearTo": 2006
+        },
+        {
+          "name": "650 II",
+          "prefixes": [
+            "GSF650 Bandit N gen2",
+            "GSF650S Bandit gen2"
+          ],
+          "yearFrom": 2007,
+          "yearTo": 2016
+        }
+      ]
+    },
+    {
+      "brand": "Suzuki",
+      "model": "SV650 / Gladius",
+      "generations": [
+        {
+          "name": "SV650 I",
+          "prefixes": [
+            "SV650S"
+          ],
+          "yearFrom": 1999,
+          "yearTo": 2002
+        },
+        {
+          "name": "SV650 II",
+          "prefixes": [
+            "SV650 gen2",
+            "SV650S gen2"
+          ],
+          "yearFrom": 2003,
+          "yearTo": 2008
+        },
+        {
+          "name": "Gladius",
+          "prefixes": [
+            "SFV650 Gladius"
+          ],
+          "yearFrom": 2009,
+          "yearTo": 2015
+        },
+        {
+          "name": "SV650 Euro 4",
+          "prefixes": [
+            "SV650 Euro4"
+          ],
+          "yearFrom": 2017,
+          "yearTo": 2020
+        },
+        {
+          "name": "SV650 Euro 5",
+          "prefixes": [
+            "SV650 Euro5"
+          ],
+          "yearFrom": 2021,
+          "yearTo": 2100
+        }
+      ]
+    },
+    {
+      "brand": "Suzuki",
+      "model": "V-Strom 650",
+      "generations": [
+        {
+          "name": "1ª generación",
+          "prefixes": [
+            "V-Strom 650"
+          ],
+          "yearFrom": 2004,
+          "yearTo": 2007
+        },
+        {
+          "name": "1ª generación · restyling",
+          "prefixes": [
+            "V-Strom 650 restyling"
+          ],
+          "yearFrom": 2007,
+          "yearTo": 2011
+        },
+        {
+          "name": "2ª generación",
+          "prefixes": [
+            "V-Strom 650 gen2"
+          ],
+          "yearFrom": 2012,
+          "yearTo": 2017
+        },
+        {
+          "name": "3ª generación",
+          "prefixes": [
+            "V-Strom 650 gen3"
+          ],
+          "yearFrom": 2017,
+          "yearTo": 2020
+        },
+        {
+          "name": "3ª generación · Euro 5",
+          "prefixes": [
+            "V-Strom 650 gen3 Euro 5"
+          ],
+          "yearFrom": 2021,
+          "yearTo": 2100
+        }
+      ]
+    },
+    {
+      "brand": "Triumph",
+      "model": "Street Triple",
+      "generations": [
+        {
+          "name": "675 I",
+          "prefixes": [
+            "Street Triple 675",
+            "Street Triple 675 R"
+          ],
+          "yearFrom": 2007,
+          "yearTo": 2012
+        },
+        {
+          "name": "675 II",
+          "prefixes": [
+            "Street Triple 675 2gen",
+            "Street Triple 675 R 2gen",
+            "Street Triple 675 RX"
+          ],
+          "yearFrom": 2013,
+          "yearTo": 2016
+        },
+        {
+          "name": "765 I",
+          "prefixes": [
+            "Street Triple R",
+            "Street Triple RS",
+            "Street Triple S 765",
+            "Street Triple S A2",
+            "Street Triple R LRH"
+          ],
+          "yearFrom": 2017,
+          "yearTo": 2019
+        },
+        {
+          "name": "765 I · Euro 5",
+          "prefixes": [
+            "Street Triple R Euro5",
+            "Street Triple RS Euro5",
+            "Street Triple S A2 Euro5",
+            "Street Triple R LRH Euro5"
+          ],
+          "yearFrom": 2020,
+          "yearTo": 2022
+        },
+        {
+          "name": "765 II",
+          "prefixes": [
+            "Street Triple 765 Moto2 Edition",
+            "Street Triple 765 R",
+            "Street Triple 765 R A2",
+            "Street Triple 765 RS"
+          ],
+          "yearFrom": 2023,
+          "yearTo": 2100
+        }
+      ]
+    },
+    {
+      "brand": "Triumph",
+      "model": "Trident 660",
+      "generations": [
+        {
+          "name": "1ª generación",
+          "prefixes": [
+            "Trident 660"
+          ],
+          "yearFrom": 2021,
+          "yearTo": 2025
+        },
+        {
+          "name": "2ª generación",
+          "prefixes": [
+            "Trident 660 gen2"
+          ],
+          "yearFrom": 2026,
+          "yearTo": 2100
+        }
+      ]
+    },
+    {
+      "brand": "Voge",
+      "model": "500R / 525R / 625R",
+      "generations": [
+        {
+          "name": "500R",
+          "prefixes": [
+            "500R"
+          ],
+          "yearFrom": 2019,
+          "yearTo": 2023
+        },
+        {
+          "name": "525R",
+          "prefixes": [
+            "525R"
+          ],
+          "yearFrom": 2023,
+          "yearTo": 2024
+        },
+        {
+          "name": "625R",
+          "prefixes": [
+            "625R"
+          ],
+          "yearFrom": 2025,
+          "yearTo": 2100
+        }
+      ]
+    },
+    {
+      "brand": "Yamaha",
+      "model": "Fazer 600",
+      "generations": [
+        {
+          "name": "FZS600 I",
+          "prefixes": [
+            "FZS600 Fazer"
+          ],
+          "yearFrom": 1998,
+          "yearTo": 2001
+        },
+        {
+          "name": "FZS600 · restyling",
+          "prefixes": [
+            "FZS600 Fazer restyling"
+          ],
+          "yearFrom": 2002,
+          "yearTo": 2003
+        },
+        {
+          "name": "FZ6 S1",
+          "prefixes": [
+            "FZ6 Fazer S1"
+          ],
+          "yearFrom": 2004,
+          "yearTo": 2006
+        },
+        {
+          "name": "FZ6 S2",
+          "prefixes": [
+            "FZ6 Fazer S2"
+          ],
+          "yearFrom": 2007,
+          "yearTo": 2010
+        }
+      ]
+    },
+    {
+      "brand": "Yamaha",
+      "model": "Fazer 1000",
+      "generations": [
+        {
+          "name": "FZS1000",
+          "prefixes": [
+            "FZS1000 Fazer"
+          ],
+          "yearFrom": 2001,
+          "yearTo": 2005
+        },
+        {
+          "name": "FZ1",
+          "prefixes": [
+            "FZ1 Fazer"
+          ],
+          "yearFrom": 2006,
+          "yearTo": 2014
+        }
+      ]
+    },
+    {
+      "brand": "Yamaha",
+      "model": "MT-03",
+      "generations": [
+        {
+          "name": "1ª generación",
+          "prefixes": [
+            "MT-03"
+          ],
+          "yearFrom": 2016,
+          "yearTo": 2019
+        },
+        {
+          "name": "2ª generación",
+          "prefixes": [
+            "MT-03 gen2"
+          ],
+          "yearFrom": 2020,
+          "yearTo": 2024
+        },
+        {
+          "name": "3ª generación",
+          "prefixes": [
+            "MT-03 gen3"
+          ],
+          "yearFrom": 2024,
+          "yearTo": 2100
+        }
+      ]
+    },
+    {
+      "brand": "Yamaha",
+      "model": "MT-07",
+      "generations": [
+        {
+          "name": "1ª generación",
+          "prefixes": [
+            "MT-07 ABS"
+          ],
+          "yearFrom": 2014,
+          "yearTo": 2017
+        },
+        {
+          "name": "2ª generación",
+          "prefixes": [
+            "MT-07 gen2"
+          ],
+          "yearFrom": 2018,
+          "yearTo": 2020
+        },
+        {
+          "name": "3ª generación",
+          "prefixes": [
+            "MT-07 gen3"
+          ],
+          "yearFrom": 2021,
+          "yearTo": 2024
+        },
+        {
+          "name": "4ª generación",
+          "prefixes": [
+            "MT-07 gen4"
+          ],
+          "yearFrom": 2025,
+          "yearTo": 2100
+        }
+      ]
+    },
+    {
+      "brand": "Yamaha",
+      "model": "R3",
+      "generations": [
+        {
+          "name": "1ª generación",
+          "prefixes": [
+            "R3"
+          ],
+          "yearFrom": 2015,
+          "yearTo": 2018
+        },
+        {
+          "name": "2ª generación",
+          "prefixes": [
+            "R3 gen2"
+          ],
+          "yearFrom": 2019,
+          "yearTo": 2024
+        },
+        {
+          "name": "3ª generación",
+          "prefixes": [
+            "R3 gen3"
+          ],
+          "yearFrom": 2025,
+          "yearTo": 2100
+        }
+      ]
+    },
+    {
+      "brand": "Yamaha",
+      "model": "XJ6 Diversion",
+      "generations": [
+        {
+          "name": "Primera generación",
+          "prefixes": [
+            "XJ6 Diversion F ABS",
+            "XJ6 Diversion N ABS",
+            "XJ6 Diversion S ABS"
+          ]
+        }
+      ]
+    },
+    {
+      "brand": "Yamaha",
+      "model": "XSR700",
+      "generations": [
+        {
+          "name": "1ª generación",
+          "prefixes": [
+            "XSR700"
+          ],
+          "yearFrom": 2016,
+          "yearTo": 2021
+        },
+        {
+          "name": "2ª generación",
+          "prefixes": [
+            "XSR700 gen2"
+          ],
+          "yearFrom": 2022,
+          "yearTo": 2024
+        }
+      ]
+    },
+    {
+      "brand": "Zontes",
+      "model": "703R",
+      "generations": [
+        {
+          "name": "Primera generación",
+          "prefixes": [
+            "703R",
+            "703RR"
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,4 +1,4 @@
-let vehicles=[], brands=[], stats={}, hierarchy=[], brandLogos={};
+let vehicles=[], brands=[], stats={}, hierarchy=[], brandLogos={}, motoTaxonomy={};
 let typeFilter="all", visible=48, selected=new Set(), currentResults=[];
 
 const $=s=>document.querySelector(s), $$=s=>document.querySelectorAll(s);
@@ -7,21 +7,188 @@ const num=v=>{if(typeof v==="number")return v; const m=String(v??"").replace(","
 const initials=name=>name.split(/\s+/).slice(0,2).map(x=>x[0]||"").join("");
 
 Promise.all([
- fetch("data/vehicles.json?v=2.2.4").then(r=>r.json()),
- fetch("data/brands.json?v=2.2.4").then(r=>r.json()),
- fetch("data/stats.json?v=2.2.4").then(r=>r.json()),
- fetch("data/hierarchy.json?v=2.2.4").then(r=>r.json()),
- fetch("data/brandLogos.json?v=2.2.4").then(r=>r.json())
-]).then(([v,b,s,h,l])=>{
- vehicles=v; brands=b; stats=s; hierarchy=h; brandLogos=l;
- $("#totalStat").textContent=s.total.toLocaleString("es-ES");
- $("#carStat").textContent=s.cars.toLocaleString("es-ES");
- $("#motoStat").textContent=s.motos.toLocaleString("es-ES");
- $("#brandStat").textContent=s.brands.toLocaleString("es-ES");
+ fetch("data/vehicles.json?v=3").then(r=>r.json()),
+ fetch("data/stats.json?v=3").then(r=>r.json()),
+ fetch("data/brandLogos.json?v=3").then(r=>r.json()),
+ fetch("data/motoTaxonomy.json?v=3&t="+Date.now()).then(r=>r.json())
+]).then(([v,s,l,t])=>{
+ vehicles=v; stats=s; brandLogos=l; motoTaxonomy=t;
+ applyMotoTaxonomy();
+ brands=buildBrandStatsFromVehicles();
+ hierarchy=buildHierarchyFromVehicles();
+ stats.brands=brands.length;
+ $("#totalStat").textContent=stats.total.toLocaleString("es-ES");
+ $("#carStat").textContent=stats.cars.toLocaleString("es-ES");
+ $("#motoStat").textContent=stats.motos.toLocaleString("es-ES");
+ $("#brandStat").textContent=stats.brands.toLocaleString("es-ES");
  populateBrands(); renderBrands(); applyFilters();
 }).catch(err=>{
  $("#grid").innerHTML=`<div class="empty">No se pudieron cargar los datos. ${err.message}</div>`;
 });
+
+
+function ordinalGeneration(n){
+ const num=Number(n);
+ return Number.isFinite(num)?`${num}ª generación`:"Primera generación";
+}
+function motoCoreName(v){
+ const originalBrand=String(v.brand||"").trim();
+ let core=String(v.name||"").trim();
+ if(originalBrand && core.toLowerCase().startsWith(originalBrand.toLowerCase()+" ")){
+   core=core.slice(originalBrand.length).trim();
+ }
+ if(originalBrand==="QJ" && core.toLowerCase().startsWith("motor ")){
+   core=core.slice(6).trim();
+ }
+ return core;
+}
+function fallbackMotoTaxonomy(core){
+ const text=String(core||"").trim();
+ const genMatch=text.match(/\bgen\s*([1-9])\b/i)||text.match(/\b([1-9])gen\b/i);
+ const restyling=/\brestyling\b/i.test(text);
+ let generation="Primera generación";
+ if(genMatch){
+   generation=ordinalGeneration(genMatch[1]);
+   if(restyling) generation+=" · restyling";
+ }else if(restyling){
+   generation="Restyling";
+ }
+ let model=text
+   .replace(/\bgen\s*[1-9]\b/ig," ")
+   .replace(/\b[1-9]gen\b/ig," ")
+   .replace(/\brestyling\b/ig," ")
+   .replace(/\bEuro\s*5\+\b/ig," ")
+   .replace(/\bEuro\s*[345]\b/ig," ")
+   .replace(/\bEuro[345]\+?\b/ig," ")
+   .replace(/\bABS\b/ig," ")
+   .replace(/\bA2\b/ig," ")
+   .replace(/\s+/g," ").trim();
+ return {model:model||text||"Otros",generation};
+}
+function applyMotoTaxonomy(){
+ const aliases=motoTaxonomy?.brandAliases||{};
+ const groups=Array.isArray(motoTaxonomy?.groups)?motoTaxonomy.groups:[];
+ const quick=Array.isArray(motoTaxonomy?.overrides)?motoTaxonomy.overrides:[];
+ vehicles.forEach(v=>{
+   if(v.type!=="moto") return;
+   const originalBrand=v.brand;
+   const core=motoCoreName(v);
+   const targetBrand=aliases[originalBrand]||originalBrand;
+   v.brand=targetBrand;
+   const y=Number.isFinite(v.yearStart)?v.yearStart:(Number.isFinite(v.yearEnd)?v.yearEnd:null);
+   const matches=[];
+
+   // Quick overrides always win.
+   quick.forEach(rule=>{
+     const ruleBrand=rule.brand||targetBrand;
+     if(ruleBrand!==targetBrand) return;
+     const prefix=String(rule.prefix||"");
+     if(!prefix||!core.toLowerCase().startsWith(prefix.toLowerCase())) return;
+     const from=Number.isFinite(rule.yearFrom)?rule.yearFrom:-Infinity;
+     const to=Number.isFinite(rule.yearTo)?rule.yearTo:Infinity;
+     const ranged=Number.isFinite(rule.yearFrom)||Number.isFinite(rule.yearTo);
+     if(ranged && !Number.isFinite(y)) return;
+     if(Number.isFinite(y)&&(y<from||y>to)) return;
+     matches.push({
+       score:100000000+prefix.length*10000,
+       model:rule.model||fallbackMotoTaxonomy(core).model,
+       generation:rule.generation||"Primera generación"
+     });
+   });
+
+   // Curated family rules.
+   groups.forEach(group=>{
+     if(group.brand!==targetBrand) return;
+     (group.generations||[]).forEach(g=>{
+       const ranged=Number.isFinite(g.yearFrom)||Number.isFinite(g.yearTo);
+       const from=Number.isFinite(g.yearFrom)?g.yearFrom:-Infinity;
+       const to=Number.isFinite(g.yearTo)?g.yearTo:Infinity;
+       if(ranged && !Number.isFinite(y)) return;
+       if(Number.isFinite(y)&&(y<from||y>to)) return;
+       (g.prefixes||[]).forEach(prefix=>{
+         if(core.toLowerCase().startsWith(String(prefix).toLowerCase())){
+           const width=(Number.isFinite(g.yearFrom)&&Number.isFinite(g.yearTo))?Math.max(0,g.yearTo-g.yearFrom):9999;
+           const score=String(prefix).length*10000+(ranged?1000:0)-Math.min(width,999);
+           matches.push({score,model:group.model,generation:g.name});
+         }
+       });
+     });
+   });
+
+   if(matches.length){
+     matches.sort((a,b)=>b.score-a.score);
+     v.model=matches[0].model;
+     v.generation=matches[0].generation;
+   }else{
+     const fallback=fallbackMotoTaxonomy(core);
+     v.model=fallback.model;
+     v.generation=fallback.generation;
+   }
+ });
+}
+function buildBrandStatsFromVehicles(){
+ const map=new Map();
+ vehicles.forEach(v=>{
+   if(!map.has(v.brand)) map.set(v.brand,{name:v.brand,cars:0,motos:0,total:0});
+   const row=map.get(v.brand);
+   row.total++;
+   if(v.type==="car") row.cars++;
+   else if(v.type==="moto") row.motos++;
+ });
+ return [...map.values()].sort((a,b)=>a.name.localeCompare(b.name,"es"));
+}
+function buildHierarchyFromVehicles(){
+ const tree=new Map();
+ vehicles.forEach(v=>{
+   const brand=v.brand||"Sin marca";
+   const model=v.model||"Otros";
+   const raw=String(v.generation||"Sin especificar");
+   if(!tree.has(brand)) tree.set(brand,new Map());
+   const models=tree.get(brand);
+   if(!models.has(model)) models.set(model,new Map());
+   const gens=models.get(model);
+   if(!gens.has(raw)) gens.set(raw,[]);
+   gens.get(raw).push(v);
+ });
+ const result=[];
+ for(const [brand,models] of tree){
+   const modelItems=[];
+   for(const [model,gens] of models){
+     const genItems=[];
+     for(const [raw,members] of gens){
+       const starts=members.map(v=>v.yearStart).filter(Number.isFinite);
+       const ends=members.map(v=>Number.isFinite(v.yearEnd)?v.yearEnd:v.yearStart).filter(Number.isFinite);
+       const yearStart=starts.length?Math.min(...starts):null;
+       const yearEnd=ends.length?Math.max(...ends):null;
+       genItems.push({
+         name:(!raw||raw==="Sin especificar")?"Primera generación":raw,
+         rawName:raw,
+         count:members.length,
+         vehicleIds:members.map(v=>v.id),
+         yearStart,yearEnd
+       });
+     }
+     genItems.sort((a,b)=>
+       (a.yearStart??9999)-(b.yearStart??9999) ||
+       (a.yearEnd??9999)-(b.yearEnd??9999) ||
+       a.name.localeCompare(b.name,"es")
+     );
+     modelItems.push({
+       name:model,
+       count:genItems.reduce((n,g)=>n+g.count,0),
+       generations:genItems
+     });
+   }
+   modelItems.sort((a,b)=>a.name.localeCompare(b.name,"es"));
+   result.push({
+     brand,
+     count:modelItems.reduce((n,m)=>n+m.count,0),
+     models:modelItems
+   });
+ }
+ result.sort((a,b)=>a.brand.localeCompare(b.brand,"es"));
+ return result;
+}
 
 function populateBrands(){
  const sel=$("#brandFilter");
