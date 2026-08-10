@@ -8,7 +8,7 @@
   "Audi": {
     "slug": "audi",
     "url": "https://cdn.simpleicons.org/audi",
-    "local": null,
+    "local": "assets/brand-logos/Audi.png",
     "colorUrl": "https://commons.wikimedia.org/wiki/Special:Redirect/file/Audi%20logo.svg"
   },
   "Porsche": {
@@ -20,7 +20,7 @@
   "Alfa Romeo": {
     "slug": "alfaromeo",
     "url": "https://cdn.simpleicons.org/alfaromeo",
-    "local": null,
+    "local": "assets/brand-logos/Alfa-Romeo.png",
     "colorUrl": "https://www.google.com/s2/favicons?domain=alfaromeo.com&sz=256"
   },
   "VW": {
@@ -118,7 +118,7 @@
   "Aston Martin": {
     "slug": "astonmartin",
     "url": "https://cdn.simpleicons.org/astonmartin",
-    "local": null,
+    "local": "assets/brand-logos/Aston-Martin.png",
     "colorUrl": "https://www.google.com/s2/favicons?domain=astonmartin.com&sz=256"
   },
   "Tesla": {
@@ -196,7 +196,7 @@
   "Aprilia": {
     "slug": "aprilia",
     "url": "https://cdn.simpleicons.org/aprilia",
-    "local": null,
+    "local": "assets/brand-logos/Aprilia.png",
     "colorUrl": "https://www.google.com/s2/favicons?domain=aprilia.com&sz=256"
   },
   "Royal Enfield": {
@@ -214,15 +214,15 @@
     "colorUrl": null
   },
   "Alpina": {
-    "local": null,
+    "local": "assets/brand-logos/Alpina.png",
     "colorUrl": null
   },
   "Alpine": {
-    "local": null,
+    "local": "assets/brand-logos/Alpine.png",
     "colorUrl": "https://www.google.com/s2/favicons?domain=alpinecars.com&sz=256"
   },
   "Ascari": {
-    "local": null,
+    "local": "assets/brand-logos/Ascari.png",
     "colorUrl": null
   },
   "Benelli": {
