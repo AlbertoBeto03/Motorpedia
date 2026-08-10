@@ -8,67 +8,89 @@
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <header class="topbar">
-    <a class="brand" href="./">MOTORPEDIA</a>
-    <nav>
-      <a class="active" href="./">Inicio</a>
-      <a href="#catalogo">Catálogo</a>
-      <a href="#comparador">Comparador</a>
-      <a href="#marcas">Marcas</a>
-    </nav>
-  </header>
+<header class="topbar">
+  <button class="logo" id="homeBtn" type="button">MOTORPEDIA</button>
+  <nav>
+    <button class="nav active" data-view="catalog">Explorar</button>
+    <button class="nav" data-view="brands">Marcas</button>
+    <button class="nav" id="compareNav">Comparador <span id="compareCount">0</span></button>
+  </nav>
+</header>
 
-  <main>
-    <section class="hero">
+<main>
+  <section class="hero">
+    <div>
       <p class="eyebrow">AUTOMOTIVE DATABASE</p>
-      <h1>Tu enciclopedia interactiva de coches y motos.</h1>
-      <p class="lead">
-        Motorpedia está preparada para transformar tu base Excel en fichas visuales,
-        filtros, comparaciones, líneas temporales y rankings.
-      </p>
-      <div class="actions">
-        <a class="primary" href="#estado">Ver estado del proyecto</a>
-        <a class="secondary" href="https://github.com/AlbertoBeto03/Motorpedia">Repositorio</a>
-      </div>
-    </section>
+      <h1>Encuentra. Compara.<br>Descubre.</h1>
+      <p class="heroText">Miles de fichas de coches y motos nacidas directamente de tu base de datos.</p>
+    </div>
+    <div class="heroStats">
+      <div><strong id="totalStat">—</strong><span>vehículos</span></div>
+      <div><strong id="carStat">—</strong><span>coches</span></div>
+      <div><strong id="motoStat">—</strong><span>motos</span></div>
+      <div><strong id="brandStat">—</strong><span>marcas</span></div>
+    </div>
+  </section>
 
-    <section id="estado" class="status">
-      <div class="metric">
-        <span>Fuente maestra</span>
-        <strong>Excel</strong>
-        <small>Base de Datos.xlsx</small>
+  <section id="catalogView" class="view activeView">
+    <div class="toolbar">
+      <label class="searchBox">
+        <span>⌕</span>
+        <input id="search" type="search" placeholder="Busca BMW M3, Ducati, Porsche 911…" autocomplete="off">
+      </label>
+      <div class="typeTabs" aria-label="Tipo de vehículo">
+        <button class="type active" data-type="all">Todos</button>
+        <button class="type" data-type="car">Coches</button>
+        <button class="type" data-type="moto">Motos</button>
       </div>
-      <div class="metric">
-        <span>Hosting previsto</span>
-        <strong>0 €/mes</strong>
-        <small>GitHub Pages</small>
-      </div>
-      <div class="metric">
-        <span>Estado</span>
-        <strong>Fase 1</strong>
-        <small>Arquitectura inicial</small>
-      </div>
-    </section>
+    </div>
 
-    <section class="roadmap">
-      <div>
-        <p class="eyebrow">ROADMAP</p>
-        <h2>Qué vamos a construir</h2>
-      </div>
-      <ol>
-        <li><b>01</b><span><strong>Importador</strong> Excel → datos web normalizados.</span></li>
-        <li><b>02</b><span><strong>Catálogo</strong> con búsqueda, filtros y ordenación.</span></li>
-        <li><b>03</b><span><strong>Fichas</strong> específicas para coches y motos.</span></li>
-        <li><b>04</b><span><strong>Comparador</strong> de varios vehículos.</span></li>
-        <li><b>05</b><span><strong>Marcas y timelines</strong> de modelos y generaciones.</span></li>
-        <li><b>06</b><span><strong>Fotos, favoritos y rankings</strong>.</span></li>
-      </ol>
-    </section>
-  </main>
+    <div class="contentGrid">
+      <aside class="filters">
+        <div class="filterHead"><h2>Filtros</h2><button id="clearFilters">Limpiar</button></div>
+        <label>Marca<select id="brandFilter"><option value="">Todas</option></select></label>
+        <label>Potencia mínima<input id="minPower" type="number" min="0" step="10" placeholder="CV"></label>
+        <label>Año desde<input id="minYear" type="number" min="1800" max="2100" placeholder="1990"></label>
+        <label>Ordenar<select id="sort">
+          <option value="name">Nombre A–Z</option>
+          <option value="yearDesc">Más recientes</option>
+          <option value="powerDesc">Más potentes</option>
+          <option value="weightAsc">Menor peso</option>
+          <option value="kgcvAsc">Mejor kg/CV</option>
+        </select></label>
+      </aside>
 
-  <footer>
-    <span>Motorpedia</span>
-    <span>Base de datos personal de automoción</span>
-  </footer>
+      <div class="results">
+        <div class="resultHead"><div><strong id="resultCount">0</strong> resultados</div><span id="resultContext">Todos los vehículos</span></div>
+        <div id="grid" class="vehicleGrid"></div>
+        <button id="loadMore" class="loadMore">Mostrar más</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="brandsView" class="view">
+    <div class="sectionTitle"><p class="eyebrow">MARCAS</p><h2>Explora por fabricante</h2></div>
+    <div id="brandGrid" class="brandGrid"></div>
+  </section>
+
+  <section id="compareView" class="view">
+    <div class="sectionTitle"><p class="eyebrow">COMPARADOR</p><h2>Vehículos cara a cara</h2><p>Selecciona hasta 4 vehículos desde el catálogo.</p></div>
+    <div id="compareEmpty" class="empty">Todavía no has seleccionado ningún vehículo.</div>
+    <div id="compareTableWrap" class="compareWrap"></div>
+  </section>
+</main>
+
+<div id="compareBar" class="compareBar hidden">
+  <div><strong>Comparador</strong><span id="compareNames"></span></div>
+  <button id="openCompare">Comparar ahora</button>
+</div>
+
+<dialog id="vehicleDialog">
+  <button class="closeDialog" id="closeDialog" aria-label="Cerrar">×</button>
+  <div id="dialogContent"></div>
+</dialog>
+
+<footer><span>MOTORPEDIA</span><span>Excel → Web · GitHub Pages</span></footer>
+<script src="app.js"></script>
 </body>
 </html>

@@ -2,32 +2,25 @@
 
 Base de datos interactiva personal de coches y motos.
 
-## Arquitectura
+## V1
 
-`Base de Datos.xlsx` es la fuente maestra. La web no debe requerir introducir los vehículos manualmente.
+- **3.058 vehículos** cargados desde el Excel.
+- 2.766 coches.
+- 292 motos.
+- búsqueda instantánea;
+- filtros por tipo. marca. potencia y año;
+- ordenación;
+- fichas completas;
+- comparador de hasta 4 vehículos;
+- explorador de marcas;
+- responsive para PC y móvil.
 
-```text
-Base de Datos.xlsx
-        ↓
-Importador / normalizador
-        ↓
-data/
-        ↓
-Motorpedia
-```
+## Fuente de datos
 
-## Objetivos
+`Base de Datos.xlsx` continúa siendo la fuente maestra.
 
-- catálogo de coches y motos;
-- búsqueda y filtros avanzados;
-- fichas de vehículo;
-- comparador;
-- marcas, modelos, generaciones y timelines;
-- fotografías;
-- favoritos;
-- rankings y estadísticas;
-- despliegue gratuito mediante GitHub Pages.
+La web consume los archivos de `data/`.
 
-## Estado
+## Publicación
 
-Fase 1 — estructura inicial del repositorio y despliegue.
+GitHub Pages desde `main` / `(root)`.
