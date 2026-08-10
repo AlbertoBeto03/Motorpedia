@@ -7,10 +7,10 @@ const num=v=>{if(typeof v==="number")return v; const m=String(v??"").replace(","
 const initials=name=>name.split(/\s+/).slice(0,2).map(x=>x[0]||"").join("");
 
 Promise.all([
- fetch("data/vehicles.json?v=3").then(r=>r.json()),
- fetch("data/stats.json?v=3").then(r=>r.json()),
- fetch("data/brandLogos.json?v=3").then(r=>r.json()),
- fetch("data/motoTaxonomy.json?v=3&t="+Date.now()).then(r=>r.json())
+ fetch("data/vehicles.json?v=3.1").then(r=>r.json()),
+ fetch("data/stats.json?v=3.1").then(r=>r.json()),
+ fetch("data/brandLogos.json?v=3.1").then(r=>r.json()),
+ fetch("data/motoTaxonomy.json?v=3.1&t="+Date.now()).then(r=>r.json())
 ]).then(([v,s,l,t])=>{
  vehicles=v; stats=s; brandLogos=l; motoTaxonomy=t;
  applyMotoTaxonomy();
@@ -320,22 +320,176 @@ function renderResults(){
  bindCards();
  bindLogoFallbacks($("#grid"));
 }
+
+const RATING_KEYS=[
+ "Valoración global","Sensaciones","Comodidad","Facilidad","Fiabilidad",
+ "Mantenimiento","Sonido","Estética","Ocupante","Carga"
+];
+const RATING_SET=new Set(RATING_KEYS);
+const PRICE_KEYS=new Set([
+ "Precio actual","Precio Alemania","Precio original","Precio ene. 2025",
+ "Precio mínimo","Precio máximo"
+]);
+const SPEC_UNITS={
+ "Potencia":"CV",
+ "Potencia medida":"CV",
+ "Par":"Nm",
+ "Peso DIN":"kg",
+ "Peso en marcha":"kg",
+ "Peso en seco":"kg",
+ "Cilindrada":"cc",
+ "RPM potencia":"rpm",
+ "RPM par":"rpm",
+ "Altura asiento":"mm",
+ "0-100 km/h":"s",
+ "80-120 km/h":"s",
+ "400 m":"s",
+ "100-0 km/h":"m",
+ "Velocidad máxima":"km/h",
+ "Consumo":"L/100 km",
+ "Autovía":"L/100 km",
+ "CO₂":"g/km"
+};
+function numericValue(value){
+ if(typeof value==="number"&&Number.isFinite(value)) return value;
+ if(typeof value!=="string") return null;
+ const s=value.trim();
+ if(!/^-?\d+(?:[.,]\d+)?$/.test(s)) return null;
+ const n=Number(s.replace(",","."));
+ return Number.isFinite(n)?n:null;
+}
+function formatNumber(value,minDecimals=0,maxDecimals=2){
+ const n=numericValue(value);
+ if(n===null) return fmt(value);
+ return new Intl.NumberFormat("es-ES",{
+   useGrouping:true,
+   minimumFractionDigits:minDecimals,
+   maximumFractionDigits:maxDecimals
+ }).format(n);
+}
+function formatKgCv(value){
+ const n=numericValue(value);
+ return n===null?fmt(value):formatNumber(n,2,2);
+}
+function formatCurrency(value){
+ const n=numericValue(value);
+ if(n===null) return fmt(value);
+ return `${formatNumber(n,0,0)} €`;
+}
+function formatDimensions(value){
+ if(value===null||value===undefined||value==="") return "—";
+ const s=String(value);
+ const formatted=s.replace(/\d{4,}/g,m=>formatNumber(Number(m),0,0));
+ return `${formatted.replaceAll("-", "–").replaceAll("/", " / ")} mm`;
+}
+function formatDisplacementAspiration(value){
+ if(value===null||value===undefined||value==="") return "—";
+ const s=String(value).trim();
+ const match=s.match(/^(\d+(?:[.,]\d+)?)\s*(.*)$/);
+ if(!match) return s;
+ const displacement=formatNumber(match[1],0,0);
+ const aspiration=match[2].trim();
+ return aspiration?`${displacement} cc · ${aspiration}`:`${displacement} cc`;
+}
+function formatSpecValue(key,value){
+ if(value===null||value===undefined||value==="") return "—";
+ if(key==="kg/CV") return formatKgCv(value);
+ if(RATING_SET.has(key)){
+   const n=numericValue(value);
+   return n===null?fmt(value):`${formatNumber(n,1,1)} / 5`;
+ }
+ if(PRICE_KEYS.has(key)) return formatCurrency(value);
+ if(key==="Batalla / Largo / Ancho / Alto") return formatDimensions(value);
+ if(key==="Cilindrada / aspiración") return formatDisplacementAspiration(value);
+
+ const unit=SPEC_UNITS[key];
+ if(unit){
+   const n=numericValue(value);
+   if(n!==null){
+     const decimals=(key==="Par"||key==="Consumo"||key==="Autovía")?1:
+                    (key==="0-100 km/h"||key==="80-120 km/h"||key==="400 m"||key==="100-0 km/h")?2:0;
+     return `${formatNumber(n,0,decimals)} ${unit}`;
+   }
+   const raw=String(value).trim();
+   if(raw==="-"||raw==="—") return raw;
+   // Avoid duplicating the unit if the spreadsheet already includes it.
+   return raw.toLowerCase().includes(unit.toLowerCase())?raw:`${raw} ${unit}`;
+ }
+
+ const n=numericValue(value);
+ return n===null?String(value):formatNumber(n,0,2);
+}
+function motoPriceRangeText(v){
+ if(v?.type!=="moto") return null;
+ const min=v.specs?.["Precio mínimo"];
+ const max=v.specs?.["Precio máximo"];
+ const nMin=numericValue(min), nMax=numericValue(max);
+ if(nMin===null&&nMax===null) return null;
+ if(nMin!==null&&nMax!==null){
+   if(nMin===nMax) return formatCurrency(nMin);
+   return `${formatNumber(nMin,0,0)} – ${formatNumber(nMax,0,0)} €`;
+ }
+ return formatCurrency(nMin!==null?nMin:nMax);
+}
+function priceRangeHtml(v){
+ const text=motoPriceRangeText(v);
+ if(!text) return "";
+ return `<div class="priceBand"><span>Valor</span><strong>${escapeHtml(text)}</strong></div>`;
+}
+function ratingHtml(v){
+ if(v?.type!=="moto") return "";
+ const ratings=RATING_KEYS
+   .map(key=>[key,numericValue(v.specs?.[key])])
+   .filter(([,value])=>value!==null);
+ if(!ratings.length) return "";
+
+ return `<section class="ratingsSection">
+   <div class="detailsSectionHead">
+     <div><span class="detailKicker">VALORACIONES</span><h3>Experiencia y uso</h3></div>
+     <span class="ratingScale">0 — 5</span>
+   </div>
+   <div class="ratingsGrid">
+     ${ratings.map(([key,value])=>{
+       const clamped=Math.max(0,Math.min(5,value));
+       const percent=(clamped/5)*100;
+       const global=key==="Valoración global";
+       return `<div class="ratingItem ${global?"ratingGlobal":""}">
+         <div class="ratingTop"><span>${escapeHtml(key)}</span><strong>${escapeHtml(formatNumber(value,1,1))}</strong></div>
+         <div class="ratingTrack" aria-label="${escapeAttr(key)}: ${escapeAttr(formatNumber(value,1,1))} de 5">
+           <span class="ratingFill" style="width:${percent.toFixed(2)}%"></span>
+         </div>
+       </div>`;
+     }).join("")}
+   </div>
+ </section>`;
+}
+function detailSpecEntries(v){
+ return Object.entries(v.specs||{}).filter(([key])=>{
+   if(RATING_SET.has(key)) return false;
+   if(v.type==="moto"&&(key==="Precio mínimo"||key==="Precio máximo")) return false;
+   return true;
+ });
+}
+
 function displayGeneration(v){
  const raw=String(v?.generation||"").trim();
  if(!raw || raw==="Sin especificar") return "Primera generación";
  return raw;
 }
 function cardHtml(v){
- const p=fmt(v.power), w=fmt(v.weight), y=v.yearText||fmt(v.yearStart);
+ const p=v.power==null?"—":`${formatNumber(v.power,0,1)} CV`;
+ const w=v.weight==null?"—":`${formatNumber(v.weight,0,0)} kg`;
+ const ratio=formatKgCv(v.kgcv);
+ const y=v.yearText||fmt(v.yearStart);
  return `<article class="vehicleCard" data-id="${v.id}">
   <div class="vehicleVisual openDetail"><span class="vehicleMark">${escapeHtml(initials(v.brand))}</span></div>
   <div class="cardBody">
    <div class="cardTop"><span class="cardType">${v.type==="car"?"COCHE":"MOTO"}</span><span class="year">${escapeHtml(y)}</span></div>
    <h3 class="openDetail">${escapeHtml(v.name)}</h3><div class="cardBrandLine">${logoUrl(v.brand)?logoHtml(v.brand,"cardBrandLogo"):""}<div class="brand">${escapeHtml(v.brand)}</div></div><div class="hierarchyCrumb">${escapeHtml(v.model||"")} · ${escapeHtml(displayGeneration(v))}</div>
    <div class="miniSpecs">
-    <div><strong>${escapeHtml(p)}${p!=="—"?" CV":""}</strong><span>potencia</span></div>
-    <div><strong>${escapeHtml(w)}${w!=="—"?" kg":""}</strong><span>peso</span></div>
-    <div><strong>${escapeHtml(fmt(v.kgcv))}</strong><span>kg/CV</span></div>
+    <div><strong>${escapeHtml(p)}</strong><span>potencia</span></div>
+    <div><strong>${escapeHtml(w)}</strong><span>peso</span></div>
+    <div><strong>${escapeHtml(ratio)}</strong><span>kg/CV</span></div>
    </div>
    <div class="cardActions">
     <button class="detailBtn">Ver ficha</button>
@@ -353,16 +507,31 @@ function bindCards(){
 function openDetail(id){
  const v=vehicles.find(x=>x.id===id); if(!v)return;
  const key=[
-  ["Potencia",v.power, "CV"],["Par",v.torque,"Nm"],["Peso",v.weight,"kg"],["kg/CV",v.kgcv,""]
+  ["Potencia",v.power],["Par",v.torque],["Peso",v.weight],["kg/CV",v.kgcv]
  ];
+ const keyValue=(label,value)=>{
+   if(label==="Potencia") return value==null?"—":`${formatNumber(value,0,1)} CV`;
+   if(label==="Par") return value==null?"—":`${formatNumber(value,0,1)} Nm`;
+   if(label==="Peso") return value==null?"—":`${formatNumber(value,0,0)} kg`;
+   return formatKgCv(value);
+ };
+ const specs=detailSpecEntries(v);
  $("#dialogContent").innerHTML=`<div class="detailHero">
   <span class="badge">${v.type==="car"?"COCHE":"MOTO"} · ${escapeHtml(v.brand)}</span>
-  <h2>${escapeHtml(v.name)}</h2><p>${escapeHtml(v.model||"")} · ${escapeHtml(displayGeneration(v))} · ${escapeHtml(v.yearText||"Año sin especificar")}</p>
-  <div class="keySpecs">${key.map(([l,x,u])=>`<div><strong>${escapeHtml(fmt(x))}${x!=null&&x!==""&&u?" "+u:""}</strong><span>${l}</span></div>`).join("")}</div>
+  <h2>${escapeHtml(v.name)}</h2>
+  <p>${escapeHtml(v.model||"")} · ${escapeHtml(displayGeneration(v))} · ${escapeHtml(v.yearText||"Año sin especificar")}</p>
+  <div class="keySpecs">${key.map(([label,value])=>`<div><strong>${escapeHtml(keyValue(label,value))}</strong><span>${escapeHtml(label)}</span></div>`).join("")}</div>
+  ${priceRangeHtml(v)}
  </div>
- <div class="details"><h3>Especificaciones</h3><div class="specList">
- ${Object.entries(v.specs||{}).map(([k,x])=>`<div class="specRow"><span>${escapeHtml(k)}</span><span>${escapeHtml(fmt(x))}</span></div>`).join("")}
- </div></div>`;
+ <div class="details">
+   ${ratingHtml(v)}
+   <section class="specsSection">
+     <div class="detailsSectionHead"><div><span class="detailKicker">FICHA TÉCNICA</span><h3>Especificaciones</h3></div></div>
+     <div class="specList">
+       ${specs.map(([key,value])=>`<div class="specRow"><span>${escapeHtml(key)}</span><span>${escapeHtml(formatSpecValue(key,value))}</span></div>`).join("")}
+     </div>
+   </section>
+ </div>`;
  $("#vehicleDialog").showModal();
 }
 function toggleCompare(id){
@@ -381,12 +550,31 @@ function updateCompareUI(){
 function renderCompare(list){
  $("#compareEmpty").style.display=list.length?"none":"block";
  if(!list.length){$("#compareTableWrap").innerHTML="";return}
- const preferred=["Cilindrada / aspiración","Cilindrada","Arquitectura","Cilindros","Potencia","Par","Peso DIN","Peso en marcha","kg/CV","0-100 km/h","Velocidad máxima","Tracción","Transmisión","Consumo","Precio actual","Precio mínimo","Altura asiento"];
- const keys=[...new Set(list.flatMap(v=>Object.keys(v.specs||{})))];
- keys.sort((a,b)=>{let ai=preferred.indexOf(a),bi=preferred.indexOf(b);ai=ai<0?999:ai;bi=bi<0?999:bi;return ai-bi||a.localeCompare(b,"es")});
+ const preferred=[
+   "Cilindrada / aspiración","Cilindrada","Arquitectura","Cilindros",
+   "Potencia","Par","Peso DIN","Peso en marcha","Peso en seco","kg/CV",
+   "0-100 km/h","Velocidad máxima","Tracción","Transmisión","Consumo",
+   "Precio actual","Precio original","Altura asiento",
+   "Valoración global","Sensaciones","Comodidad","Facilidad","Fiabilidad",
+   "Mantenimiento","Sonido","Estética","Ocupante","Carga"
+ ];
+ const keys=[...new Set(list.flatMap(v=>Object.keys(v.specs||{})))]
+   .filter(k=>k!=="Precio mínimo"&&k!=="Precio máximo");
+ keys.sort((a,b)=>{
+   let ai=preferred.indexOf(a),bi=preferred.indexOf(b);
+   ai=ai<0?999:ai;bi=bi<0?999:bi;
+   return ai-bi||a.localeCompare(b,"es");
+ });
+ const hasMotoValue=list.some(v=>motoPriceRangeText(v));
+ const valueRow=hasMotoValue
+   ?`<tr><td>Valor</td>${list.map(v=>`<td>${escapeHtml(motoPriceRangeText(v)||"—")}</td>`).join("")}</tr>`
+   :"";
  $("#compareTableWrap").innerHTML=`<table class="compareTable"><thead><tr><th>Especificación</th>${list.map(v=>`<th>${escapeHtml(v.name)}<br><button class="removeCompare" data-id="${v.id}">Quitar</button></th>`).join("")}</tr></thead>
- <tbody><tr><td>Años</td>${list.map(v=>`<td>${escapeHtml(v.yearText||"—")}</td>`).join("")}</tr>
- ${keys.map(k=>`<tr><td>${escapeHtml(k)}</td>${list.map(v=>`<td>${escapeHtml(fmt(v.specs?.[k]))}</td>`).join("")}</tr>`).join("")}</tbody></table>`;
+ <tbody>
+   <tr><td>Años</td>${list.map(v=>`<td>${escapeHtml(v.yearText||"—")}</td>`).join("")}</tr>
+   ${valueRow}
+   ${keys.map(k=>`<tr><td>${escapeHtml(k)}</td>${list.map(v=>`<td>${escapeHtml(formatSpecValue(k,v.specs?.[k]))}</td>`).join("")}</tr>`).join("")}
+ </tbody></table>`;
  $$(".removeCompare").forEach(b=>b.addEventListener("click",()=>toggleCompare(b.dataset.id)));
 }
 function showView(view){

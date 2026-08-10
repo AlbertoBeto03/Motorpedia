@@ -142,3 +142,136 @@
 .logoTheme-invert .cardBrandLogo{
   filter:brightness(0) invert(1)!important;
 }
+
+
+/* Motorpedia V3.1 — numeric formatting, price band and moto ratings */
+.priceBand{
+  margin-top:26px;
+  display:flex;
+  align-items:baseline;
+  justify-content:space-between;
+  gap:20px;
+  padding:18px 20px;
+  border:1px solid #3a414a;
+  border-radius:12px;
+  background:rgba(9,11,14,.55);
+}
+.priceBand span{
+  color:#969da7;
+  font-size:11px;
+  font-weight:800;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+}
+.priceBand strong{
+  color:#fff;
+  font-size:clamp(20px,3vw,28px);
+  letter-spacing:-.025em;
+  text-align:right;
+}
+
+.detailsSectionHead{
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap:20px;
+  margin-bottom:18px;
+}
+.detailsSectionHead h3{
+  margin:4px 0 0;
+  color:#f4f5f7;
+  font-size:20px;
+  letter-spacing:-.02em;
+  text-transform:none;
+}
+.detailKicker{
+  display:block;
+  color:#ff674f;
+  font-size:10px;
+  line-height:1;
+  font-weight:800;
+  letter-spacing:.15em;
+}
+.ratingScale{
+  color:#707883;
+  font-size:10px;
+  letter-spacing:.1em;
+}
+.ratingsSection{
+  padding-bottom:34px;
+  margin-bottom:30px;
+  border-bottom:1px solid #282e36;
+}
+.ratingsGrid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:18px 28px;
+}
+.ratingItem{
+  min-width:0;
+}
+.ratingGlobal{
+  grid-column:1/-1;
+  padding:15px 16px;
+  border:1px solid #303741;
+  border-radius:11px;
+  background:#11151a;
+}
+.ratingTop{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:18px;
+  margin-bottom:8px;
+}
+.ratingTop span{
+  color:#a3aab4;
+  font-size:12px;
+}
+.ratingTop strong{
+  color:#f4f5f7;
+  font-size:13px;
+  font-variant-numeric:tabular-nums;
+}
+.ratingGlobal .ratingTop span{
+  color:#f4f5f7;
+  font-weight:700;
+}
+.ratingGlobal .ratingTop strong{
+  color:#ff674f;
+  font-size:15px;
+}
+.ratingTrack{
+  position:relative;
+  width:100%;
+  height:7px;
+  overflow:hidden;
+  border-radius:999px;
+  background:#222831;
+}
+.ratingFill{
+  display:block;
+  height:100%;
+  border-radius:inherit;
+  background:linear-gradient(90deg,#e24732,#ff674f);
+}
+.ratingGlobal .ratingTrack{
+  height:9px;
+}
+.specsSection{
+  margin-top:0;
+}
+.specRow span:last-child{
+  font-variant-numeric:tabular-nums;
+}
+
+@media(max-width:700px){
+  .ratingsGrid{grid-template-columns:1fr}
+  .ratingGlobal{grid-column:auto}
+  .priceBand{
+    align-items:flex-start;
+    flex-direction:column;
+    gap:6px;
+  }
+  .priceBand strong{text-align:left}
+}
