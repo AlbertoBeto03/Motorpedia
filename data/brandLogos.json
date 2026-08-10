@@ -1,0 +1,146 @@
+{
+  "BMW": {
+    "slug": "bmw",
+    "url": "https://cdn.simpleicons.org/bmw"
+  },
+  "Audi": {
+    "slug": "audi",
+    "url": "https://cdn.simpleicons.org/audi"
+  },
+  "Porsche": {
+    "slug": "porsche",
+    "url": "https://cdn.simpleicons.org/porsche"
+  },
+  "Alfa Romeo": {
+    "slug": "alfaromeo",
+    "url": "https://cdn.simpleicons.org/alfaromeo"
+  },
+  "VW": {
+    "slug": "volkswagen",
+    "url": "https://cdn.simpleicons.org/volkswagen"
+  },
+  "Ford": {
+    "slug": "ford",
+    "url": "https://cdn.simpleicons.org/ford"
+  },
+  "Honda": {
+    "slug": "honda",
+    "url": "https://cdn.simpleicons.org/honda"
+  },
+  "Peugeot": {
+    "slug": "peugeot",
+    "url": "https://cdn.simpleicons.org/peugeot"
+  },
+  "Renault": {
+    "slug": "renault",
+    "url": "https://cdn.simpleicons.org/renault"
+  },
+  "Volvo": {
+    "slug": "volvo",
+    "url": "https://cdn.simpleicons.org/volvo"
+  },
+  "Toyota": {
+    "slug": "toyota",
+    "url": "https://cdn.simpleicons.org/toyota"
+  },
+  "Nissan": {
+    "slug": "nissan",
+    "url": "https://cdn.simpleicons.org/nissan"
+  },
+  "Mazda": {
+    "slug": "mazda",
+    "url": "https://cdn.simpleicons.org/mazda"
+  },
+  "Hyundai": {
+    "slug": "hyundai",
+    "url": "https://cdn.simpleicons.org/hyundai"
+  },
+  "Kia": {
+    "slug": "kia",
+    "url": "https://cdn.simpleicons.org/kia"
+  },
+  "Ferrari": {
+    "slug": "ferrari",
+    "url": "https://cdn.simpleicons.org/ferrari"
+  },
+  "Lamborghini": {
+    "slug": "lamborghini",
+    "url": "https://cdn.simpleicons.org/lamborghini"
+  },
+  "Maserati": {
+    "slug": "maserati",
+    "url": "https://cdn.simpleicons.org/maserati"
+  },
+  "Bentley": {
+    "slug": "bentley",
+    "url": "https://cdn.simpleicons.org/bentley"
+  },
+  "Bugatti": {
+    "slug": "bugatti",
+    "url": "https://cdn.simpleicons.org/bugatti"
+  },
+  "Aston Martin": {
+    "slug": "astonmartin",
+    "url": "https://cdn.simpleicons.org/astonmartin"
+  },
+  "Tesla": {
+    "slug": "tesla",
+    "url": "https://cdn.simpleicons.org/tesla"
+  },
+  "Jeep": {
+    "slug": "jeep",
+    "url": "https://cdn.simpleicons.org/jeep"
+  },
+  "Citroen": {
+    "slug": "citroen",
+    "url": "https://cdn.simpleicons.org/citroen"
+  },
+  "Skoda": {
+    "slug": "skoda",
+    "url": "https://cdn.simpleicons.org/skoda"
+  },
+  "Seat": {
+    "slug": "seat",
+    "url": "https://cdn.simpleicons.org/seat"
+  },
+  "Opel": {
+    "slug": "opel",
+    "url": "https://cdn.simpleicons.org/opel"
+  },
+  "Suzuki": {
+    "slug": "suzuki",
+    "url": "https://cdn.simpleicons.org/suzuki"
+  },
+  "Yamaha": {
+    "slug": "yamaha",
+    "url": "https://cdn.simpleicons.org/yamaha"
+  },
+  "Ducati": {
+    "slug": "ducati",
+    "url": "https://cdn.simpleicons.org/ducati"
+  },
+  "Kawasaki": {
+    "slug": "kawasaki",
+    "url": "https://cdn.simpleicons.org/kawasaki"
+  },
+  "KTM": {
+    "slug": "ktm",
+    "url": "https://cdn.simpleicons.org/ktm"
+  },
+  "Triumph": {
+    "slug": "triumph",
+    "url": "https://cdn.simpleicons.org/triumph"
+  },
+  "Aprilia": {
+    "slug": "aprilia",
+    "url": "https://cdn.simpleicons.org/aprilia"
+  },
+  "Royal Enfield": {
+    "slug": "royalenfield",
+    "url": "https://cdn.simpleicons.org/royalenfield"
+  },
+  "Harley-Davidson": {
+    "slug": "harleydavidson",
+    "url": "https://cdn.simpleicons.org/harleydavidson"
+  }
+}

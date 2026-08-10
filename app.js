@@ -1,4 +1,4 @@
-let vehicles=[], brands=[], stats={};
+let vehicles=[], brands=[], stats={}, hierarchy=[], brandLogos={};
 let typeFilter="all", visible=48, selected=new Set(), currentResults=[];
 
 const $=s=>document.querySelector(s), $$=s=>document.querySelectorAll(s);
@@ -9,9 +9,11 @@ const initials=name=>name.split(/\s+/).slice(0,2).map(x=>x[0]||"").join("");
 Promise.all([
  fetch("data/vehicles.json").then(r=>r.json()),
  fetch("data/brands.json").then(r=>r.json()),
- fetch("data/stats.json").then(r=>r.json())
-]).then(([v,b,s])=>{
- vehicles=v; brands=b; stats=s;
+ fetch("data/stats.json").then(r=>r.json()),
+ fetch("data/hierarchy.json").then(r=>r.json()),
+ fetch("data/brandLogos.json").then(r=>r.json())
+]).then(([v,b,s,h,l])=>{
+ vehicles=v; brands=b; stats=s; hierarchy=h; brandLogos=l;
  $("#totalStat").textContent=s.total.toLocaleString("es-ES");
  $("#carStat").textContent=s.cars.toLocaleString("es-ES");
  $("#motoStat").textContent=s.motos.toLocaleString("es-ES");
@@ -25,14 +27,42 @@ function populateBrands(){
  const sel=$("#brandFilter");
  brands.forEach(b=>{const o=document.createElement("option");o.value=b.name;o.textContent=`${b.name} (${b.total})`;sel.appendChild(o)});
 }
+function logoUrl(brand){return brandLogos?.[brand]?.url||null}
+function logoHtml(brand,cls="brandLogo"){
+ const u=logoUrl(brand);
+ if(!u) return `<span class="brandInitial">${escapeHtml(initials(brand))}</span>`;
+ return `<img class="${cls}" src="${escapeAttr(u)}" alt="Logo ${escapeAttr(brand)}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><span class="brandInitial" style="display:none">${escapeHtml(initials(brand))}</span>`;
+}
+function openBrand(brand){
+ const h=hierarchy.find(x=>x.brand===brand); if(!h)return;
+ $("#brandsLanding").classList.add("hidden"); $("#brandBrowser").classList.remove("hidden");
+ $("#brandHeader").innerHTML=`${logoUrl(brand)?`<img class="heroBrandLogo" src="${escapeAttr(logoUrl(brand))}" alt="Logo ${escapeAttr(brand)}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><span class="fallbackLogo" style="display:none">${escapeHtml(initials(brand))}</span>`:`<span class="fallbackLogo">${escapeHtml(initials(brand))}</span>`}<div><p class="eyebrow">FABRICANTE</p><h2>${escapeHtml(brand)}</h2><p>${h.models.length} modelos · ${h.count} versiones en la base de datos</p></div>`;
+ $("#modelGrid").innerHTML=h.models.map(m=>`<article class="modelCard"><div class="modelTop"><h3>${escapeHtml(m.name)}</h3><span>${m.count} versiones · ${m.generations.length} generaciones</span></div><div class="generations">${m.generations.map(g=>`<button class="generationBtn" data-brand="${escapeAttr(brand)}" data-model="${escapeAttr(m.name)}" data-generation="${escapeAttr(g.name)}"><strong>${escapeHtml(g.name)}</strong><span>${g.count} versiones →</span></button>`).join("")}</div></article>`).join("");
+ $$(".generationBtn").forEach(btn=>btn.addEventListener("click",()=>openGeneration(btn.dataset.brand,btn.dataset.model,btn.dataset.generation)));
+ window.scrollTo({top:0,behavior:"smooth"});
+}
+function openGeneration(brand,model,generation){
+ showView("catalog");
+ $("#brandFilter").value=brand;
+ $("#search").value="";
+ typeFilter="all";
+ $$(".type").forEach(x=>x.classList.toggle("active",x.dataset.type==="all"));
+ currentResults=vehicles.filter(v=>v.brand===brand&&v.model===model&&v.generation===generation).sort((a,b)=>a.name.localeCompare(b.name,"es"));
+ visible=9999;
+ $("#resultCount").textContent=currentResults.length.toLocaleString("es-ES");
+ $("#resultContext").textContent=`${brand} › ${model} › ${generation}`;
+ $("#grid").innerHTML=currentResults.map(cardHtml).join("");
+ $("#loadMore").style.display="none";
+ bindCards();
+}
 function renderBrands(){
  $("#brandGrid").innerHTML=brands.filter(b=>b.total>0).map(b=>`
  <button class="brandCard" data-brand="${escapeAttr(b.name)}">
-  <span class="brandInitial">${escapeHtml(initials(b.name))}</span>
+  <div class="brandLogoWrap">${logoHtml(b.name)}</div>
   <strong>${escapeHtml(b.name)}</strong>
   <span>${b.total} vehículos · ${b.cars} coches · ${b.motos} motos</span>
  </button>`).join("");
- $$(".brandCard").forEach(x=>x.addEventListener("click",()=>{showView("catalog");$("#brandFilter").value=x.dataset.brand;visible=48;applyFilters()}));
+ $$(".brandCard").forEach(x=>x.addEventListener("click",()=>openBrand(x.dataset.brand)));
 }
 function escapeHtml(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]))}
 function escapeAttr(s){return escapeHtml(s)}
@@ -72,7 +102,7 @@ function cardHtml(v){
   <div class="vehicleVisual openDetail"><span class="vehicleMark">${escapeHtml(initials(v.brand))}</span></div>
   <div class="cardBody">
    <div class="cardTop"><span class="cardType">${v.type==="car"?"COCHE":"MOTO"}</span><span class="year">${escapeHtml(y)}</span></div>
-   <h3 class="openDetail">${escapeHtml(v.name)}</h3><div class="brand">${escapeHtml(v.brand)}</div>
+   <h3 class="openDetail">${escapeHtml(v.name)}</h3><div class="cardBrandLine">${logoUrl(v.brand)?`<img class="cardBrandLogo" src="${escapeAttr(logoUrl(v.brand))}" alt="">`:""}<div class="brand">${escapeHtml(v.brand)}</div></div><div class="hierarchyCrumb">${escapeHtml(v.model||"")} · ${escapeHtml(v.generation||"")}</div>
    <div class="miniSpecs">
     <div><strong>${escapeHtml(p)}${p!=="—"?" CV":""}</strong><span>potencia</span></div>
     <div><strong>${escapeHtml(w)}${w!=="—"?" kg":""}</strong><span>peso</span></div>
@@ -146,3 +176,4 @@ $("#openCompare").addEventListener("click",()=>showView("compare"));
 $("#compareNav").addEventListener("click",()=>showView("compare"));
 $$(".nav[data-view]").forEach(n=>n.addEventListener("click",()=>showView(n.dataset.view)));
 $("#homeBtn").addEventListener("click",()=>showView("catalog"));
+$("#backBrands").addEventListener("click",()=>{$("#brandBrowser").classList.add("hidden");$("#brandsLanding").classList.remove("hidden");window.scrollTo({top:0,behavior:"smooth"})});

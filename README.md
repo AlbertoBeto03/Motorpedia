@@ -1,26 +1,19 @@
-# Motorpedia
+# Motorpedia V2
 
-Base de datos interactiva personal de coches y motos.
+Motorpedia convierte `Base de Datos.xlsx` en una base de datos visual de automoción.
 
-## V1
+## Novedades V2
 
-- **3.058 vehículos** cargados desde el Excel.
-- 2.766 coches.
-- 292 motos.
-- búsqueda instantánea;
-- filtros por tipo. marca. potencia y año;
-- ordenación;
-- fichas completas;
-- comparador de hasta 4 vehículos;
-- explorador de marcas;
-- responsive para PC y móvil.
+- Logos de fabricantes con fallback automático.
+- Navegación jerárquica **Marca → Modelo → Generación → Versión**.
+- 3058 vehículos clasificados.
+- BMW agrupado en familias como Serie 1, Serie 3, Z3, Z4, X3...
+- Volkswagen agrupado en Golf, Passat, Polo, Scirocco... y generaciones I/II/III/IV/V/VI/VII/VIII cuando están en el nombre.
+- Arquitectura genérica para códigos entre paréntesis: E46, 8P, 997, etc.
+- `data/taxonomy_overrides.json` preparado para corregir casos especiales sin modificar el Excel.
 
-## Fuente de datos
+## Datos
 
-`Base de Datos.xlsx` continúa siendo la fuente maestra.
+La clasificación es automática y deliberadamente conservadora. Las excepciones se irán refinando marca por marca en siguientes versiones.
 
-La web consume los archivos de `data/`.
-
-## Publicación
-
-GitHub Pages desde `main` / `(root)`.
+`Base de Datos.xlsx` sigue siendo la fuente maestra.

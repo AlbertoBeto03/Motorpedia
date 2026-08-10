@@ -1,0 +1,21 @@
+{
+  "brandAliases": {
+    "VW": "Volkswagen",
+    "MB": "Mercedes-Benz",
+    "Citroen": "Citroën",
+    "Skoda": "Škoda"
+  },
+  "modelAliases": {
+    "BMW": {
+      "3": "Serie 3",
+      "5": "Serie 5",
+      "1": "Serie 1",
+      "2": "Serie 2",
+      "4": "Serie 4",
+      "6": "Serie 6",
+      "7": "Serie 7",
+      "8": "Serie 8"
+    }
+  },
+  "notes": "Motorpedia V2: automatic hierarchy. Add per-vehicle or per-pattern corrections here in future versions."
+}
