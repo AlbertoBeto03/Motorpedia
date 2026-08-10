@@ -7,11 +7,11 @@ const num=v=>{if(typeof v==="number")return v; const m=String(v??"").replace(","
 const initials=name=>name.split(/\s+/).slice(0,2).map(x=>x[0]||"").join("");
 
 Promise.all([
- fetch("data/vehicles.json?v=2.2.3").then(r=>r.json()),
- fetch("data/brands.json?v=2.2.3").then(r=>r.json()),
- fetch("data/stats.json?v=2.2.3").then(r=>r.json()),
- fetch("data/hierarchy.json?v=2.2.3").then(r=>r.json()),
- fetch("data/brandLogos.json?v=2.2.3").then(r=>r.json())
+ fetch("data/vehicles.json?v=2.2.4").then(r=>r.json()),
+ fetch("data/brands.json?v=2.2.4").then(r=>r.json()),
+ fetch("data/stats.json?v=2.2.4").then(r=>r.json()),
+ fetch("data/hierarchy.json?v=2.2.4").then(r=>r.json()),
+ fetch("data/brandLogos.json?v=2.2.4").then(r=>r.json())
 ]).then(([v,b,s,h,l])=>{
  vehicles=v; brands=b; stats=s; hierarchy=h; brandLogos=l;
  $("#totalStat").textContent=s.total.toLocaleString("es-ES");
@@ -43,10 +43,15 @@ function logoSources(brand){
  ].filter(Boolean))];
 }
 function logoUrl(brand){ return logoSources(brand)[0]||null; }
+function logoTheme(brand){
+ const theme=String(brandLogos?.[brand]?.theme||"normal").toLowerCase();
+ return ["normal","invert","light-bg"].includes(theme)?theme:"normal";
+}
 function logoHtml(brand,cls="brandLogo"){
  const sources=logoSources(brand);
+ const theme=logoTheme(brand);
  if(!sources.length) return `<span class="brandInitial">${escapeHtml(initials(brand))}</span>`;
- return `<img class="${cls}" src="${escapeAttr(sources[0])}" data-logo-sources="${escapeAttr(JSON.stringify(sources))}" data-logo-index="0" alt="Logo ${escapeAttr(brand)}"><span class="brandInitial" style="display:none">${escapeHtml(initials(brand))}</span>`;
+ return `<span class="logoShell logoTheme-${theme}"><img class="${cls}" src="${escapeAttr(sources[0])}" data-logo-sources="${escapeAttr(JSON.stringify(sources))}" data-logo-index="0" alt="Logo ${escapeAttr(brand)}"><span class="brandInitial" style="display:none">${escapeHtml(initials(brand))}</span></span>`;
 }
 function bindLogoFallbacks(scope=document){
  scope.querySelectorAll("img[data-logo-sources]").forEach(img=>{

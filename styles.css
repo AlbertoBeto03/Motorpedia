@@ -73,3 +73,72 @@
   font-size:10px;
   letter-spacing:.08em;
 }
+
+/* Motorpedia V2.2.4 — logo themes */
+.logoShell{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  line-height:0;
+  max-width:100%;
+}
+.logoShell .brandLogo,
+.logoShell .heroBrandLogo,
+.logoShell .cardBrandLogo{
+  display:block;
+}
+
+/* Default: preserve original logo exactly */
+.logoTheme-normal{
+  background:transparent;
+}
+
+/* For truly black/monochrome logos on dark background */
+.logoTheme-invert img{
+  filter:brightness(0) invert(1)!important;
+}
+
+/* For logos that must keep black text/details */
+.logoTheme-light-bg{
+  background:#f1f3f5;
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:10px;
+  padding:7px 10px;
+}
+
+/* Different proportions depending on where the logo is rendered */
+.brandLogoWrap .logoShell{
+  min-height:62px;
+}
+.brandLogoWrap .logoTheme-light-bg{
+  padding:8px 12px;
+}
+
+.brandHeader .logoShell{
+  flex:0 0 auto;
+}
+.brandHeader .logoTheme-light-bg{
+  padding:10px 14px;
+}
+
+.cardBrandLine .logoShell{
+  width:22px;
+  height:22px;
+}
+.cardBrandLine .logoTheme-light-bg{
+  width:auto;
+  height:22px;
+  padding:3px 5px;
+  border-radius:5px;
+}
+.cardBrandLine .logoTheme-light-bg img{
+  max-width:18px;
+  max-height:14px;
+}
+
+/* Avoid old global rule overriding invert */
+.logoTheme-invert .brandLogo,
+.logoTheme-invert .heroBrandLogo,
+.logoTheme-invert .cardBrandLogo{
+  filter:brightness(0) invert(1)!important;
+}
