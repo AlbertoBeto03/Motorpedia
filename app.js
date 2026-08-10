@@ -7,10 +7,10 @@ const num=v=>{if(typeof v==="number")return v; const m=String(v??"").replace(","
 const initials=name=>name.split(/\s+/).slice(0,2).map(x=>x[0]||"").join("");
 
 Promise.all([
- fetch("data/vehicles.json?v=3.3.1").then(r=>r.json()),
- fetch("data/stats.json?v=3.3.1").then(r=>r.json()),
- fetch("data/brandLogos.json?v=3.3.1").then(r=>r.json()),
- fetch("data/motoTaxonomy.json?v=3.3.1&t="+Date.now()).then(r=>r.json())
+ fetch("data/vehicles.json?v=4",{cache:"no-cache"}).then(r=>r.json()),
+ fetch("data/stats.json?v=4",{cache:"no-cache"}).then(r=>r.json()),
+ fetch("data/brandLogos.json?v=4").then(r=>r.json()),
+ fetch("data/motoTaxonomy.json?v=4&t="+Date.now()).then(r=>r.json())
 ]).then(([v,s,l,t])=>{
  vehicles=v; stats=s; brandLogos=l; motoTaxonomy=t;
  applyMotoTaxonomy();
@@ -71,6 +71,7 @@ function applyMotoTaxonomy(){
  const quick=Array.isArray(motoTaxonomy?.overrides)?motoTaxonomy.overrides:[];
  vehicles.forEach(v=>{
    if(v.type!=="moto") return;
+   if(v.taxonomyLocked) return;
    const originalBrand=v.brand;
    const core=motoCoreName(v);
    const targetBrand=aliases[originalBrand]||originalBrand;
@@ -930,6 +931,129 @@ function specGroupHtml(group){
    </div>
  </section>`;
 }
+function mediaImages(v){
+ return Array.isArray(v?.media?.images)?v.media.images.filter(Boolean).slice(0,2):[];
+}
+function vehicleCoverHtml(v){
+ const images=mediaImages(v);
+ if(!images.length){
+   return `<span class="vehicleMark">${escapeHtml(initials(v.brand))}</span>`;
+ }
+ return `<img class="vehicleCover" src="${escapeAttr(images[0])}" alt="${escapeAttr(v.name)}" loading="lazy" data-vehicle-image>
+   <span class="vehicleMark vehicleMediaFallback" style="display:none">${escapeHtml(initials(v.brand))}</span>`;
+}
+function mediaMetaHtml(v){
+ const count=mediaImages(v).length;
+ const hasArticle=Boolean(v?.article);
+ if(!count&&!hasArticle) return "";
+ return `<div class="contentMeta">
+   ${count?`<span>${count} ${count===1?"foto":"fotos"}</span>`:""}
+   ${hasArticle?`<span>Artículo</span>`:""}
+ </div>`;
+}
+function detailGalleryHtml(v){
+ const images=mediaImages(v);
+ if(!images.length) return "";
+ return `<section class="detailGallery detailGallery${images.length}">
+   ${images.map((src,index)=>`<figure class="detailPhoto">
+     <img src="${escapeAttr(src)}" alt="${escapeAttr(`${v.name} — foto ${index+1}`)}" loading="lazy" data-vehicle-image>
+     <figcaption>Foto ${index+1}</figcaption>
+   </figure>`).join("")}
+ </section>`;
+}
+function articleSectionHtml(v){
+ if(!v?.article) return "";
+ return `<details class="vehicleArticle" data-article-path="${escapeAttr(v.article)}">
+   <summary>
+     <span><b>Artículo</b><small>Historia, contexto y legado</small></span>
+     <i>Leer</i>
+   </summary>
+   <div class="articleBody" aria-live="polite">
+     <p class="articlePlaceholder">El artículo se cargará al desplegar esta sección.</p>
+   </div>
+ </details>`;
+}
+function bindVehicleImages(scope=document){
+ scope.querySelectorAll("img[data-vehicle-image]").forEach(img=>{
+   if(img.dataset.mediaBound==="1") return;
+   img.dataset.mediaBound="1";
+   const fail=()=>{
+     const cardFallback=img.nextElementSibling;
+     if(cardFallback?.classList?.contains("vehicleMediaFallback")){
+       img.style.display="none";
+       cardFallback.style.display="flex";
+     }else{
+       const photo=img.closest(".detailPhoto");
+       if(photo) photo.style.display="none";
+     }
+   };
+   img.addEventListener("error",fail);
+   if(img.complete&&img.naturalWidth===0) fail();
+ });
+}
+function markdownInline(text){
+ let html=escapeHtml(text);
+ html=html.replace(/`([^`]+)`/g,"<code>$1</code>");
+ html=html.replace(/\*\*([^*]+)\*\*/g,"<strong>$1</strong>");
+ html=html.replace(/\*([^*]+)\*/g,"<em>$1</em>");
+ html=html.replace(/\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g,'<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
+ return html;
+}
+function markdownToHtml(markdown){
+ const lines=String(markdown||"").replace(/\r/g,"").split("\n");
+ let html="",listType=null;
+ const closeList=()=>{
+   if(listType){html+=`</${listType}>`;listType=null;}
+ };
+ for(const raw of lines){
+   const line=raw.trim();
+   if(!line){closeList();continue;}
+   if(/^---+$/.test(line)){closeList();html+="<hr>";continue;}
+   let m;
+   if((m=line.match(/^(#{1,3})\s+(.+)$/))){
+     closeList();
+     const level=Math.min(4,m[1].length+1);
+     html+=`<h${level}>${markdownInline(m[2])}</h${level}>`;
+     continue;
+   }
+   if((m=line.match(/^>\s*(.+)$/))){
+     closeList(); html+=`<blockquote>${markdownInline(m[1])}</blockquote>`; continue;
+   }
+   if((m=line.match(/^[-*]\s+(.+)$/))){
+     if(listType!=="ul"){closeList();listType="ul";html+="<ul>";}
+     html+=`<li>${markdownInline(m[1])}</li>`;continue;
+   }
+   if((m=line.match(/^\d+\.\s+(.+)$/))){
+     if(listType!=="ol"){closeList();listType="ol";html+="<ol>";}
+     html+=`<li>${markdownInline(m[1])}</li>`;continue;
+   }
+   closeList();
+   html+=`<p>${markdownInline(line)}</p>`;
+ }
+ closeList();
+ return html||"<p>Artículo sin contenido.</p>";
+}
+function bindArticleLoader(scope=document){
+ const details=scope.querySelector(".vehicleArticle");
+ if(!details||details.dataset.bound==="1") return;
+ details.dataset.bound="1";
+ details.addEventListener("toggle",async()=>{
+   if(!details.open||details.dataset.loaded==="1") return;
+   const body=details.querySelector(".articleBody");
+   const path=details.dataset.articlePath;
+   body.innerHTML='<p class="articlePlaceholder">Cargando artículo…</p>';
+   try{
+     const response=await fetch(`${path}?v=4`,{cache:"no-cache"});
+     if(!response.ok) throw new Error(`HTTP ${response.status}`);
+     const markdown=await response.text();
+     body.innerHTML=markdownToHtml(markdown);
+     details.dataset.loaded="1";
+   }catch(err){
+     body.innerHTML='<p class="articleError">No se pudo cargar el artículo.</p>';
+   }
+ });
+}
+
 function displayGeneration(v){
  const raw=String(v?.generation||"").trim();
  if(!raw || raw==="Sin especificar") return "Primera generación";
@@ -941,10 +1065,10 @@ function cardHtml(v){
  const ratio=formatKgCv(v.kgcv);
  const y=v.yearText||fmt(v.yearStart);
  return `<article class="vehicleCard" data-id="${v.id}">
-  <div class="vehicleVisual openDetail"><span class="vehicleMark">${escapeHtml(initials(v.brand))}</span></div>
+  <div class="vehicleVisual openDetail">${vehicleCoverHtml(v)}</div>
   <div class="cardBody">
    <div class="cardTop"><span class="cardType">${v.type==="car"?"COCHE":"MOTO"}</span><span class="year">${escapeHtml(y)}</span></div>
-   <h3 class="openDetail">${escapeHtml(v.name)}</h3><div class="cardBrandLine">${logoUrl(v.brand)?logoHtml(v.brand,"cardBrandLogo"):""}<div class="brand">${escapeHtml(v.brand)}</div></div><div class="hierarchyCrumb">${escapeHtml(v.model||"")} · ${escapeHtml(displayGeneration(v))}</div>
+   <h3 class="openDetail">${escapeHtml(v.name)}</h3><div class="cardBrandLine">${logoUrl(v.brand)?logoHtml(v.brand,"cardBrandLogo"):""}<div class="brand">${escapeHtml(v.brand)}</div></div><div class="hierarchyCrumb">${escapeHtml(v.model||"")} · ${escapeHtml(displayGeneration(v))}</div>${mediaMetaHtml(v)}
    <div class="miniSpecs">
     <div><strong>${escapeHtml(p)}</strong><span>potencia</span></div>
     <div><strong>${escapeHtml(w)}</strong><span>peso</span></div>
@@ -962,6 +1086,7 @@ function bindCards(){
    c.querySelectorAll(".openDetail,.detailBtn").forEach(x=>x.addEventListener("click",()=>openDetail(id)));
    c.querySelector(".compareBtn").addEventListener("click",()=>toggleCompare(id));
  });
+ bindVehicleImages($("#grid"));
 }
 function openDetail(id){
  const v=vehicles.find(x=>x.id===id); if(!v)return;
@@ -982,7 +1107,9 @@ function openDetail(id){
   <div class="keySpecs">${key.map(([label,value])=>`<div><strong>${escapeHtml(keyValue(label,value))}</strong><span>${escapeHtml(label)}</span></div>`).join("")}</div>
   ${priceRangeHtml(v)}
  </div>
+ ${detailGalleryHtml(v)}
  <div class="details">
+   ${articleSectionHtml(v)}
    ${ratingHtml(v)}
    <section class="specsSection">
      <div class="detailsSectionHead">
@@ -995,6 +1122,8 @@ function openDetail(id){
    </section>
  </div>`;
  $("#vehicleDialog").showModal();
+ bindVehicleImages($("#vehicleDialog"));
+ bindArticleLoader($("#vehicleDialog"));
 }
 function toggleCompare(id){
  if(selected.has(id)) selected.delete(id);

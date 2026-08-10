@@ -872,3 +872,67 @@
   .timelineGenerationLabel::before,
   .timelineBranch{left:11px}
 }
+
+
+/* Motorpedia V4 — photos and editorial content */
+.vehicleVisual{position:relative;overflow:hidden}
+.vehicleCover{
+  width:100%;height:100%;display:block;object-fit:cover;object-position:center;
+  transition:transform .28s ease,filter .28s ease
+}
+.vehicleCard:hover .vehicleCover{transform:scale(1.025);filter:brightness(1.04)}
+.vehicleMediaFallback{width:100%;height:100%;align-items:center;justify-content:center}
+.contentMeta{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
+.contentMeta span{
+  padding:3px 6px;border:1px solid #303741;border-radius:5px;background:#11151a;
+  color:#858e99;font-size:8px;font-weight:750;letter-spacing:.04em;text-transform:uppercase
+}
+.detailGallery{
+  display:grid;gap:2px;border-bottom:1px solid var(--line);background:#07090c
+}
+.detailGallery1{grid-template-columns:1fr}
+.detailGallery2{grid-template-columns:1fr 1fr}
+.detailPhoto{
+  position:relative;min-height:250px;max-height:390px;margin:0;overflow:hidden;background:#0b0e12
+}
+.detailPhoto img{
+  width:100%;height:100%;min-height:250px;max-height:390px;display:block;object-fit:cover
+}
+.detailPhoto figcaption{
+  position:absolute;right:10px;bottom:9px;padding:4px 7px;border:1px solid rgba(255,255,255,.15);
+  border-radius:6px;background:rgba(8,10,13,.78);color:#aeb5be;font-size:9px;backdrop-filter:blur(5px)
+}
+.vehicleArticle{
+  margin:0 0 32px;overflow:hidden;border:1px solid #303740;border-radius:13px;background:#0d1014
+}
+.vehicleArticle summary{
+  min-height:68px;display:flex;align-items:center;justify-content:space-between;gap:20px;
+  padding:14px 17px;list-style:none;cursor:pointer;background:linear-gradient(145deg,#15191f,#101318)
+}
+.vehicleArticle summary::-webkit-details-marker{display:none}
+.vehicleArticle summary span{display:block}
+.vehicleArticle summary b{display:block;color:#f4f5f7;font-size:15px}
+.vehicleArticle summary small{display:block;margin-top:3px;color:#727b86;font-size:10px}
+.vehicleArticle summary i{
+  flex:0 0 auto;color:#ff674f;font-size:10px;font-style:normal;font-weight:800;
+  letter-spacing:.08em;text-transform:uppercase
+}
+.vehicleArticle[open] summary{border-bottom:1px solid #292f37}
+.articleBody{max-width:760px;padding:24px 24px 28px;color:#c7ccd3;font-size:13px;line-height:1.72}
+.articleBody p{margin:0 0 15px}
+.articleBody h2,.articleBody h3,.articleBody h4{margin:25px 0 10px;color:#f3f4f6;letter-spacing:-.02em}
+.articleBody h2{font-size:22px}.articleBody h3{font-size:18px}.articleBody h4{font-size:15px}
+.articleBody ul,.articleBody ol{margin:8px 0 18px;padding-left:22px}
+.articleBody li{margin:5px 0}
+.articleBody blockquote{
+  margin:18px 0;padding:11px 15px;border-left:3px solid #e24732;background:#12161b;color:#aeb5be
+}
+.articleBody hr{margin:24px 0;border:0;border-top:1px solid #2b3138}
+.articleBody code{padding:2px 5px;border-radius:4px;background:#1b2026;color:#f0c3b9;font-size:.92em}
+.articleBody a{color:#ff806b;text-decoration:none}.articleBody a:hover{text-decoration:underline}
+.articlePlaceholder,.articleError{color:#747d87;font-style:italic}.articleError{color:#d98979}
+@media(max-width:700px){
+  .detailGallery2{grid-template-columns:1fr}
+  .detailPhoto,.detailPhoto img{min-height:210px;max-height:300px}
+  .articleBody{padding:20px 18px 23px}
+}
