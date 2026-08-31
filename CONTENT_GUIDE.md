@@ -203,3 +203,19 @@ Después abre:
 `data/content-index.csv`
 
 y a partir de ese momento puedes empezar a llenar fotos y artículos sin tocar el código.
+
+
+---
+
+# V4.2 — carga rápida de fotos
+
+Además de la estructura por marca/ID, puedes subir directamente:
+
+```text
+assets/vehicles/_quick/<ID>-1.webp
+assets/vehicles/_quick/<ID>-2.webp
+```
+
+El importador lo detecta automáticamente. La estructura organizada por carpetas tiene prioridad.
+
+Consulta `README_FOTOS_VEHICULOS.md` para el procedimiento completo.

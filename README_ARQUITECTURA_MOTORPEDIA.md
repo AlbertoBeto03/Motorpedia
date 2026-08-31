@@ -1,4 +1,4 @@
-# Motorpedia — Arquitectura y guía completa del código
+# Motorpedia V4.2 — Arquitectura y guía completa del código
 
 > Documento técnico de referencia para entender, mantener, modificar y ampliar Motorpedia.
 
@@ -40,6 +40,8 @@ Su arquitectura se divide en cuatro capas:
 │ app.js                                           │
 │ classification.js                                │
 │ classification.css                               │
+│ experience.js                                    │
+│ experience.css                                   │
 └────────────────────────┬─────────────────────────┘
                          │
                          ▼
@@ -68,6 +70,8 @@ Motorpedia/
 ├── app.js
 ├── classification.js
 ├── classification.css
+├── experience.js
+├── experience.css
 │
 ├── data/
 │   ├── vehicles.json
@@ -1617,3 +1621,4 @@ Generación = E46
 en el Excel.
 
 Esa separación es lo que permitirá seguir ampliando Motorpedia sin convertir el proyecto en una colección de excepciones.
+\n\n---\n\n# 48. Arquitectura de navegación V4.2\n\nV4.2 separa la experiencia en cinco vistas:\n\n```text\nhomeView\ncarsView\nmotosView\nbrandsView\ncompareView\n```\n\nExiste además `catalogView`, pero queda oculto como motor de compatibilidad con funciones históricas de `app.js`. No debe utilizarse como interfaz visible.\n\n## `experience.js`\n\nEs la capa responsable de:\n\n- portada principal;\n- Explorador de coches;\n- Explorador de motos;\n- estados de filtros independientes;\n- filtro A2;\n- filtro de contenido (foto/artículo);\n- navegación desde una generación de marca al explorador correcto.\n\nLos estados de coche y moto son independientes:\n\n```javascript\nexplorerState = {\n  car: { visible: 48, locked: null },\n  moto: { visible: 48, locked: null }\n}\n```\n\nEsto evita que una categoría de moto, por ejemplo, pueda afectar a coches.\n\n## `classification.js` en V4.2\n\nSu responsabilidad principal deja de ser el catálogo general. Se centra en:\n\n1. etiquetas Categoría/Subcategoría en tarjetas y detalle;\n2. filtro de tipo dentro de fabricantes;\n3. categorías/subcategorías únicamente al visualizar motos dentro de una marca.\n\nEn una marca mixta:\n\n```text\nTodo | Coches | Motos\n```\n\nSolo al seleccionar `Motos` aparecen:\n\n```text\nCategoría | Subcategoría\n```\n\n# 49. Fotos rápidas V4.2\n\n`tools/import_excel.py` acepta dos esquemas:\n\n```text\nassets/vehicles/<marca>/<ID>/1.webp\nassets/vehicles/<marca>/<ID>/2.webp\n```\n\ny:\n\n```text\nassets/vehicles/_quick/<ID>-1.webp\nassets/vehicles/_quick/<ID>-2.webp\n```\n\nLa primera estructura tiene prioridad. El objetivo de `_quick` es permitir cargas masivas sin crear una carpeta por ficha.\n\nConsulta `README_FOTOS_VEHICULOS.md`.\n\n# 50. Regla de separación de responsabilidades V4.2\n\n```text\napp.js             → núcleo, fichas, timeline, comparador, formato\nclassification.js  → taxonomía visual y filtrado dentro de marcas\nexperience.js      → portada + exploradores de coches/motos\nstyles.css         → diseño base\nclassification.css → estilos de clasificación/marca\nexperience.css     → estilos de portada/exploradores\n```\n\nPara nuevas funciones de búsqueda específicas de coches o motos, modifica `experience.js`, no el catálogo legacy de `app.js`.\n

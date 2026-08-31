@@ -1,4 +1,4 @@
-# Motorpedia — Guía para importar nuevas fichas de vehículos
+# Motorpedia V4.2 — Guía para importar nuevas fichas de vehículos
 
 > Guía de uso para añadir coches y motos a Motorpedia sin tocar el código de la web.
 
@@ -279,12 +279,14 @@ Categoría: ADVENTURE
 Subcategoría: Gran Adventure
 ```
 
-La V4.1 permite filtrar por ellas:
+La V4.2 las utiliza exclusivamente en contextos donde tienen sentido para motos:
 
-- en el catálogo general;
-- dentro de cada fabricante;
-- en el buscador;
-- y aparecen como etiquetas en las fichas.
+- en el **Explorador de motos**;
+- dentro de una marca cuando se selecciona la gama **Motos**;
+- en el buscador de motos;
+- y como etiquetas informativas en las fichas.
+
+El Explorador de coches no muestra categorías de moto.
 
 ## Antes de crear una nueva subcategoría
 
@@ -297,6 +299,14 @@ Evita crear subcategorías para una sola versión si puede encajar correctamente
 ---
 
 # 7. Fotografías de una versión
+
+La guía específica y más actualizada está en:
+
+`README_FOTOS_VEHICULOS.md`
+
+V4.2 admite tanto la estructura ordenada por carpetas como una carga rápida en `assets/vehicles/_quick/`.
+
+## Estructura ordenada
 
 Motorpedia admite hasta **2 fotografías locales por ficha**.
 
@@ -600,3 +610,16 @@ HTML/CSS/JS = interfaz
 Por tanto, para añadir o corregir vehículos:
 
 **modifica el Excel, no `vehicles.json`.**
+
+
+---
+
+# 15. Navegación V4.2
+
+La portada separa cuatro accesos: **Coches / Motos / Marcas / Comparador**.
+
+- Las nuevas fichas de coche aparecen automáticamente en el Explorador de coches.
+- Las nuevas fichas de moto aparecen automáticamente en el Explorador de motos.
+- Categoría/Subcategoría se aplican solo al explorador de motos.
+- En marcas mixtas (por ejemplo BMW o Honda), primero se puede elegir Todo/Coches/Motos; los filtros de categoría aparecen solo al elegir Motos.
+- Ambos exploradores permiten filtrar fichas con foto o artículo.

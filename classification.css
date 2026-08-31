@@ -1,44 +1,22 @@
-/* Motorpedia V4.1 — categorías y subcategorías */
-.classificationFilterLabel select:disabled{opacity:.45;cursor:not-allowed}
-.classificationUnavailable{opacity:.55}
-
+/* Motorpedia V4.2 — etiquetas y filtros dentro de marcas */
 .classificationTags{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
 .classificationTags-card{margin:9px 0 2px}
 .classificationTags-detail{margin:13px 0 2px}
-.classificationTag{
-  display:inline-flex;align-items:center;min-height:22px;padding:4px 8px;border-radius:999px;
-  font-size:9px;font-weight:800;letter-spacing:.055em;line-height:1;text-transform:uppercase
-}
+.classificationTag{display:inline-flex;align-items:center;min-height:22px;padding:4px 8px;border-radius:999px;font-size:9px;font-weight:800;letter-spacing:.055em;line-height:1;text-transform:uppercase}
 .categoryTag{background:rgba(255,103,79,.12);border:1px solid rgba(255,103,79,.42);color:#ff806b}
 .subcategoryTag{background:#171c22;border:1px solid #353c45;color:#b7bec7}
 .classificationTags-detail .classificationTag{min-height:26px;padding:5px 10px;font-size:10px}
 
-.brandClassificationFilters{
-  display:grid;grid-template-columns:minmax(145px,.8fr) minmax(180px,1fr) minmax(200px,1fr) auto;
-  align-items:end;gap:10px;margin:18px 0 8px;padding:14px 16px;border:1px solid #2b3139;
-  border-radius:12px;background:#0f1318
-}
-.brandClassificationFilters.hidden{display:none!important}
-.brandClassificationFilters label{display:flex;flex-direction:column;gap:6px;color:#7e8792;font-size:10px;font-weight:700;letter-spacing:.04em;text-transform:uppercase}
-.brandClassificationFilters select{
-  min-height:38px;padding:0 10px;border:1px solid #343b44;border-radius:8px;background:#0a0d11;color:#e9ebee
-}
-.brandClassificationFilters button{
-  min-height:38px;padding:0 13px;border:1px solid #343b44;border-radius:8px;background:#14191f;color:#aeb5be;cursor:pointer
-}
-.brandClassificationFilters button:hover{border-color:#565f6b;color:#fff}
-.brandFilterTitle{align-self:center;min-width:0}
-.brandFilterTitle span{display:block;color:#f0f2f4;font-size:12px;font-weight:800}
-.brandFilterTitle small{display:block;margin-top:4px;color:#69727d;font-size:9px;font-weight:600}
-.brandFilterEmpty{
-  grid-column:1/-1;padding:30px;border:1px dashed #333a43;border-radius:12px;color:#7c858f;text-align:center
-}
-
-@media(max-width:850px){
-  .brandClassificationFilters{grid-template-columns:1fr 1fr}
-  .brandFilterTitle{grid-column:1/-1}
-}
-@media(max-width:560px){
-  .brandClassificationFilters{grid-template-columns:1fr}
-  .brandFilterTitle{grid-column:auto}
-}
+.brandBrowseFilters{display:grid;grid-template-columns:minmax(135px,.75fr) auto minmax(320px,1.4fr) auto;align-items:end;gap:12px;margin:18px 0 8px;padding:14px 16px;border:1px solid #2b3139;border-radius:12px;background:#0f1318}
+.brandBrowseIntro{align-self:center;min-width:0}.brandBrowseIntro span{display:block;color:#f0f2f4;font-size:12px;font-weight:800}.brandBrowseIntro small{display:block;margin-top:4px;color:#69727d;font-size:9px;font-weight:600}
+.brandVehicleTypeTabs{display:flex;gap:4px;padding:4px;border:1px solid #313842;border-radius:9px;background:#090c10}
+.brandVehicleTypeTabs button{min-height:32px;padding:0 10px;border:0;border-radius:6px;background:transparent;color:#7f8792;font-size:10px;font-weight:750;cursor:pointer}
+.brandVehicleTypeTabs button.active{background:#282e36;color:#fff}.brandVehicleTypeTabs button:hover{color:#fff}
+.brandMotoClassification{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.brandMotoClassification label{display:flex;flex-direction:column;gap:5px;color:#7e8792;font-size:9px;font-weight:700;letter-spacing:.04em;text-transform:uppercase}
+.brandMotoClassification select{min-height:36px;padding:0 9px;border:1px solid #343b44;border-radius:8px;background:#0a0d11;color:#e9ebee}
+.brandBrowseClear{min-height:38px;padding:0 13px;border:1px solid #343b44;border-radius:8px;background:#14191f;color:#aeb5be;cursor:pointer}.brandBrowseClear:hover{border-color:#565f6b;color:#fff}
+.brandFilterEmpty{grid-column:1/-1;padding:30px;border:1px dashed #333a43;border-radius:12px;color:#7c858f;text-align:center}
+.hidden{display:none!important}
+@media(max-width:980px){.brandBrowseFilters{grid-template-columns:1fr 1fr}.brandBrowseIntro{grid-column:1/-1}.brandMotoClassification{grid-column:1/-1}}
+@media(max-width:600px){.brandBrowseFilters{grid-template-columns:1fr}.brandBrowseIntro,.brandMotoClassification{grid-column:auto}.brandMotoClassification{grid-template-columns:1fr}.brandVehicleTypeTabs{width:100%}.brandVehicleTypeTabs button{flex:1}}

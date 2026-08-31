@@ -18,6 +18,7 @@ DATA_DIR.mkdir(parents=True, exist_ok=True)
 
 SHEET_CARS = "Coches"
 SHEET_MOTOS = "Motos"
+SHEET_MOTOS_FALLBACK = "Copia de Motos"
 
 
 def clean(value):
@@ -89,7 +90,10 @@ def read_workbook(path):
         ]
         rels = ET.fromstring(zf.read("xl/_rels/workbook.xml.rels"))
         relmap = {r.attrib["Id"]: r.attrib["Target"] for r in rels}
-        paths = {name: "xl/" + relmap[rid] for name, rid in sheets}
+        paths = {}
+        for name, rid in sheets:
+            target = relmap[rid].lstrip("/")
+            paths[name] = target if target.startswith("xl/") else "xl/" + target
 
         def read_sheet(sheet_name):
             if sheet_name not in paths:
@@ -126,7 +130,8 @@ def read_workbook(path):
             max_len = max((len(r) for r in rows), default=0)
             return [r + [None] * (max_len - len(r)) for r in rows]
 
-        return read_sheet(SHEET_CARS), read_sheet(SHEET_MOTOS)
+        moto_sheet = SHEET_MOTOS if SHEET_MOTOS in paths else SHEET_MOTOS_FALLBACK
+        return read_sheet(SHEET_CARS), read_sheet(moto_sheet)
 
 
 class RowReader:
@@ -229,18 +234,47 @@ def previous_ids():
 
 
 def media_for(brand, vehicle_id):
+    """Detect up to two local photos and one Markdown article.
+
+    V4.2 supports two photo workflows:
+    1) Organized: assets/vehicles/<brand>/<id>/1.webp and 2.webp
+    2) Quick drop: assets/vehicles/_quick/<id>-1.webp and <id>-2.webp
+
+    The organized path has priority for each photo number.
+    """
     brand_slug = slugify(brand)
     folder = MEDIA_ROOT / brand_slug / vehicle_id
+    quick = MEDIA_ROOT / "_quick"
     images = []
+    sources = []
     for number in (1, 2):
+        found = None
+        found_mode = None
         for ext in ("webp", "png", "jpg", "jpeg"):
             p = folder / f"{number}.{ext}"
             if p.exists():
-                images.append(p.relative_to(ROOT).as_posix())
+                found, found_mode = p, "folder"
                 break
+        if found is None:
+            for ext in ("webp", "png", "jpg", "jpeg"):
+                p = quick / f"{vehicle_id}-{number}.{ext}"
+                if p.exists():
+                    found, found_mode = p, "quick"
+                    break
+        if found is not None:
+            images.append(found.relative_to(ROOT).as_posix())
+            sources.append(found_mode)
+
+    if not sources:
+        photo_mode = ""
+    elif len(set(sources)) == 1:
+        photo_mode = sources[0]
+    else:
+        photo_mode = "mixed"
+
     article_file = ARTICLE_ROOT / brand_slug / f"{vehicle_id}.md"
     article = article_file.relative_to(ROOT).as_posix() if article_file.exists() else None
-    return images, article, brand_slug
+    return images, article, brand_slug, photo_mode
 
 
 def compact_specs(data):
@@ -450,7 +484,7 @@ def main():
                 vehicle_id = f"{base}-{n}"
             seen[vehicle_id] = record["name"]
 
-            images, article, brand_slug = media_for(record["brand"], vehicle_id)
+            images, article, brand_slug, photo_mode = media_for(record["brand"], vehicle_id)
             record["id"] = vehicle_id
             record["media"] = {"images": images}
             record["article"] = article
@@ -470,6 +504,9 @@ def main():
                 "name": record["name"],
                 "years": record["yearText"],
                 "photo_folder": f"assets/vehicles/{brand_slug}/{vehicle_id}/",
+                "quick_photo_1": f"assets/vehicles/_quick/{vehicle_id}-1.webp",
+                "quick_photo_2": f"assets/vehicles/_quick/{vehicle_id}-2.webp",
+                "photo_mode": photo_mode,
                 "photo_1": images[0] if len(images) > 0 else "",
                 "photo_2": images[1] if len(images) > 1 else "",
                 "article_file": f"content/articles/{brand_slug}/{vehicle_id}.md",
@@ -501,7 +538,8 @@ def main():
     fields = [
         "signature", "id", "id_source", "type", "brand", "category", "subcategory",
         "model", "generation", "version", "name", "years",
-        "photo_folder", "photo_1", "photo_2", "article_file", "article_exists",
+        "photo_folder", "quick_photo_1", "quick_photo_2", "photo_mode",
+        "photo_1", "photo_2", "article_file", "article_exists",
     ]
     with (DATA_DIR / "content-index.csv").open("w", encoding="utf-8", newline="") as fh:
         writer = csv.DictWriter(fh, fieldnames=fields)
@@ -511,7 +549,8 @@ def main():
     print(
         f"Motorpedia actualizada desde {db.name}: {stats['total']} vehículos "
         f"({stats['cars']} coches + {stats['motos']} motos), "
-        f"{stats['categories']} categorías y {stats['subcategories']} subcategorías."
+        f"{stats['categories']} categorías y {stats['subcategories']} subcategorías, "
+        f"{stats['withPhotos']} fichas con fotos y {stats['withArticles']} con artículo."
     )
 
 
