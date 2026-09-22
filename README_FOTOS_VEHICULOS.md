@@ -1,4 +1,4 @@
-# Motorpedia V4.2 — Guía completa para añadir fotos
+# Motorpedia V4.3 — Guía completa para añadir fotos
 
 Motorpedia admite **hasta 2 fotos locales por cada ficha**. No hay que editar `vehicles.json` ni escribir rutas en el Excel.
 
@@ -8,7 +8,7 @@ La asociación se hace únicamente mediante el **ID Motorpedia**.
 
 ## Método A — carga rápida (recomendado para muchas fotos)
 
-Este es el método nuevo de V4.2.
+Este método, introducido en V4.2, sigue siendo el recomendado para cargas masivas.
 
 Busca el ID exacto del vehículo en:
 
@@ -55,11 +55,14 @@ Este método es mejor si quieres mantener el repositorio perfectamente ordenado 
 ## Qué foto se usa para qué
 
 `1.webp` o `ID-1.webp`:
-- portada de la tarjeta;
-- primera imagen de la ficha.
+- imagen principal de la tarjeta;
+- fotografía visible al abrir la ficha, junto al nombre y las especificaciones principales.
 
 `2.webp` o `ID-2.webp`:
-- segunda imagen de la galería.
+- segunda fotografía del visor de la ficha;
+- se muestra pulsando la flecha discreta situada sobre la imagen.
+
+En V4.3 ya no se muestran las dos fotografías simultáneamente en una galería vertical: la ficha usa un visor compacto `1 → 2 → 1`.
 
 Puedes tener solo la foto 1.
 
@@ -107,7 +110,7 @@ Abre:
 
 `data/content-index.csv`
 
-Busca el nombre del vehículo. Las columnas V4.2 incluyen:
+Busca el nombre del vehículo. Las columnas del índice incluyen:
 
 - `id`
 - `photo_folder`
@@ -146,7 +149,7 @@ Cuando termine el workflow y GitHub Pages se despliegue, recarga la web.
 
 ---
 
-## Filtro «Contenido» de V4.2
+## Filtro «Contenido»
 
 Los exploradores de coches y motos incluyen:
 
@@ -170,8 +173,12 @@ Comprueba:
 1. que el ID coincide exactamente con `content-index.csv`;
 2. que la foto termina en `-1.webp` / `1.webp`;
 3. que está dentro de la carpeta correcta;
-4. que el workflow ha terminado en verde;
-5. que has esperado al despliegue de GitHub Pages.
+4. que `photo_1`/`photo_2` aparecen rellenos en `data/content-index.csv`;
+5. que el workflow ha terminado en verde;
+6. que has esperado al despliegue de GitHub Pages;
+7. que has recargado la web con `Ctrl + F5`.
+
+Desde V4.3, si Motorpedia indica «2 fotos» pero la tarjeta muestra las iniciales de la marca, ya no se considera un comportamiento normal: el cargador espera al evento real de error del navegador y no marca una imagen lazy como fallida antes de tiempo.
 
 ### Tengo `ID-2.webp` pero no `ID-1.webp`
 
@@ -196,3 +203,37 @@ Las fotos antiguas dejan de corresponder con la ficha. El `ID Motorpedia` debe c
 8. Esperar workflow + Pages
 9. Usar el filtro «Con foto» para revisar
 ```
+
+
+---
+
+## Cómo se muestran las imágenes en V4.3
+
+### Tarjeta / vista previa
+
+Si existe `foto 1`, ocupa el área visual completa de la tarjeta con `object-fit: cover`.
+
+Las iniciales de la marca se conservan únicamente como fallback para:
+- fichas sin fotografías;
+- un archivo realmente inexistente o ilegible.
+
+### Ficha abierta
+
+La primera pantalla de la ficha combina:
+- nombre;
+- jerarquía y años;
+- categoría/subcategoría cuando corresponda;
+- potencia, par, peso y kg/CV;
+- fotografía 1.
+
+Si hay una segunda fotografía aparece una única flecha `›`. Cada pulsación alterna:
+
+```text
+Foto 1 → Foto 2 → Foto 1
+```
+
+También aparece un pequeño contador `1 / 2`.
+
+### Resolución de rutas
+
+`media.js` resuelve las rutas respecto a `document.baseURI`. Esto es importante en GitHub Pages porque Motorpedia se sirve desde una subruta (`/Motorpedia/`) y no desde la raíz absoluta del dominio.

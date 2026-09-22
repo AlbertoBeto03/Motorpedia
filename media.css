@@ -1,0 +1,195 @@
+/* Motorpedia V4.3 — vehicle photography */
+
+/* Cards: when a ficha has a real photo, the photo owns the preview area. */
+.vehicleVisual{
+  height:170px;
+  position:relative;
+  overflow:hidden;
+  background:#0d1014;
+}
+.vehicleCover{
+  width:100%;
+  height:100%;
+  display:block;
+  object-fit:cover;
+  object-position:center;
+  opacity:0;
+  transform:scale(1.01);
+  transition:opacity .18s ease,transform .28s ease,filter .28s ease;
+}
+.vehicleCover.is-loaded{opacity:1}
+.vehicleCard:hover .vehicleCover{
+  transform:scale(1.035);
+  filter:brightness(1.04);
+}
+.vehicleMediaFallback[hidden]{display:none!important}
+.vehicleMediaFallback{
+  width:100%;
+  height:100%;
+  align-items:center;
+  justify-content:center;
+}
+
+/* The modal grows slightly so image + identity data fit comfortably side by side. */
+#vehicleDialog{
+  width:min(1060px,calc(100% - 28px));
+}
+
+/* V4.3: image and main data become one first-screen composition. */
+.detailHeroV43{
+  padding:28px;
+}
+.detailHeroV43.hasVehicleMedia{
+  display:grid;
+  grid-template-columns:minmax(0,1.08fr) minmax(320px,.92fr);
+  gap:28px;
+  align-items:stretch;
+}
+.detailHeroCopy{
+  min-width:0;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  padding:12px 6px 12px 14px;
+}
+.detailHeroV43.noVehicleMedia .detailHeroCopy{
+  max-width:850px;
+}
+.detailHeroV43 .keySpecs{
+  margin-top:28px;
+}
+.detailHeroV43 .priceBand{
+  margin-top:20px;
+}
+
+/* Compact 1-photo/2-photo viewer. */
+.detailHeroMediaPanel{
+  min-width:0;
+  display:flex;
+  align-items:stretch;
+}
+.detailHeroMediaStage{
+  position:relative;
+  width:100%;
+  min-height:315px;
+  aspect-ratio:4/3;
+  overflow:hidden;
+  border:1px solid #343b44;
+  border-radius:13px;
+  background:
+    radial-gradient(circle at 75% 15%,#242a31 0,transparent 45%),
+    #0a0d11;
+}
+.detailHeroSlide{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  display:block;
+  object-fit:cover;
+  object-position:center;
+  opacity:0;
+  transform:scale(1.006);
+  pointer-events:none;
+  transition:opacity .22s ease,transform .3s ease;
+}
+.detailHeroSlide.is-active{
+  opacity:1;
+  transform:scale(1);
+}
+.detailHeroSlide.is-failed{
+  display:none;
+}
+.detailHeroMediaPanel.mediaUnavailable .detailHeroMediaStage::after{
+  content:"Imagen no disponible";
+  position:absolute;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:#66707b;
+  font-size:11px;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+}
+
+/* One discreet arrow, as requested. It cycles 1 → 2 → 1. */
+.detailMediaNext{
+  position:absolute;
+  z-index:3;
+  top:50%;
+  right:11px;
+  width:34px;
+  height:34px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  transform:translateY(-50%);
+  border:1px solid rgba(255,255,255,.18);
+  border-radius:50%;
+  background:rgba(8,10,13,.58);
+  color:#fff;
+  font-size:23px;
+  font-weight:300;
+  line-height:1;
+  cursor:pointer;
+  opacity:.72;
+  backdrop-filter:blur(7px);
+  transition:opacity .18s ease,background .18s ease,border-color .18s ease;
+}
+.detailMediaNext:hover,
+.detailMediaNext:focus-visible{
+  opacity:1;
+  background:rgba(8,10,13,.82);
+  border-color:rgba(255,255,255,.34);
+  outline:none;
+}
+.detailMediaNext[hidden]{display:none}
+
+.detailMediaCounter{
+  position:absolute;
+  z-index:2;
+  right:12px;
+  bottom:11px;
+  padding:4px 7px;
+  border:1px solid rgba(255,255,255,.13);
+  border-radius:999px;
+  background:rgba(8,10,13,.62);
+  color:#c1c7ce;
+  font-size:9px;
+  font-weight:700;
+  letter-spacing:.05em;
+  backdrop-filter:blur(7px);
+}
+.detailMediaCounter[hidden]{display:none}
+
+/* The old full-width V4 gallery is intentionally not used by V4.3. */
+.detailGallery{display:none!important}
+
+@media(max-width:900px){
+  .detailHeroV43.hasVehicleMedia{
+    grid-template-columns:1fr;
+    gap:18px;
+  }
+  .detailHeroCopy{
+    padding:8px 4px;
+  }
+  .detailHeroMediaStage{
+    min-height:280px;
+    aspect-ratio:16/9;
+  }
+}
+
+@media(max-width:700px){
+  .vehicleVisual{height:205px}
+  .detailHeroV43{padding:18px}
+  .detailHeroMediaStage{
+    min-height:225px;
+    border-radius:11px;
+  }
+  .detailMediaNext{
+    right:9px;
+    width:32px;
+    height:32px;
+  }
+}

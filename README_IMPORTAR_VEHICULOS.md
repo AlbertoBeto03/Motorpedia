@@ -1,4 +1,4 @@
-# Motorpedia V4.2 — Guía para importar nuevas fichas de vehículos
+# Motorpedia V4.3 — Guía para importar nuevas fichas de vehículos
 
 > Guía de uso para añadir coches y motos a Motorpedia sin tocar el código de la web.
 
@@ -347,9 +347,9 @@ Usa:
 2.webp
 ```
 
-La imagen `1` se utiliza como portada en las tarjetas.
+La imagen `1` se utiliza como imagen principal en la tarjeta y aparece al abrir la ficha junto al nombre y las características principales.
 
-Las imágenes `1` y `2` aparecen en la galería de la ficha.
+Si existe la imagen `2`, una flecha discreta permite alternar entre foto 1 y foto 2 dentro del mismo visor.
 
 No debes indicar las rutas manualmente en el Excel.
 
@@ -623,3 +623,30 @@ La portada separa cuatro accesos: **Coches / Motos / Marcas / Comparador**.
 - Categoría/Subcategoría se aplican solo al explorador de motos.
 - En marcas mixtas (por ejemplo BMW o Honda), primero se puede elegir Todo/Coches/Motos; los filtros de categoría aparecen solo al elegir Motos.
 - Ambos exploradores permiten filtrar fichas con foto o artículo.
+
+
+---
+
+# 16. Visualización de fotografías en V4.3
+
+La forma de **importar** fotografías no cambia respecto a V4.2. Siguen siendo válidos:
+
+```text
+assets/vehicles/_quick/<ID>-1.webp
+assets/vehicles/_quick/<ID>-2.webp
+```
+
+y:
+
+```text
+assets/vehicles/<marca>/<ID>/1.webp
+assets/vehicles/<marca>/<ID>/2.webp
+```
+
+Lo que cambia es la interfaz:
+- foto 1 sustituye a las iniciales de la marca en la tarjeta;
+- foto 1 aparece dentro de la cabecera principal de la ficha;
+- foto 2 se abre desde la flecha del visor;
+- las iniciales solo aparecen si no existe foto o si el navegador recibe un error real al cargarla.
+
+Consulta `README_FOTOS_VEHICULOS.md` para los detalles.

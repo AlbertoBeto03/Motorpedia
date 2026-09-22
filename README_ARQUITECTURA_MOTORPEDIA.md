@@ -1,4 +1,4 @@
-# Motorpedia V4.2 — Arquitectura y guía completa del código
+# Motorpedia V4.3 — Arquitectura y guía completa del código
 
 > Documento técnico de referencia para entender, mantener, modificar y ampliar Motorpedia.
 
@@ -38,6 +38,7 @@ Su arquitectura se divide en cuatro capas:
 │ index.html                                       │
 │ styles.css                                       │
 │ app.js                                           │
+│ media.js                                          │
 │ classification.js                                │
 │ classification.css                               │
 │ experience.js                                    │
@@ -68,6 +69,7 @@ Motorpedia/
 ├── index.html
 ├── styles.css
 ├── app.js
+├── media.js
 ├── classification.js
 ├── classification.css
 ├── experience.js
@@ -980,19 +982,40 @@ El detalle se muestra con `priceRangeHtml()`.
 
 # 27. Fotografías
 
+Desde V4.3 la presentación visual de fotos está encapsulada en `media.js` y `media.css`.
+
 ## `vehicleCoverHtml()`
 
-Muestra la foto 1 en la tarjeta.
-
-## `detailGalleryHtml()`
-
-Muestra una o dos fotografías en la ficha.
+V4.3 sobrescribe esta función del núcleo para:
+- resolver la ruta respecto a `document.baseURI`;
+- mostrar la foto 1 ocupando la vista previa;
+- conservar las iniciales de la marca únicamente como fallback real.
 
 ## `bindVehicleImages()`
 
-Gestiona errores de carga.
+V4.3 reemplaza la validación antigua.
 
-Si una imagen no existe, evita dejar el icono roto.
+La versión anterior podía evaluar `img.complete && img.naturalWidth === 0` demasiado pronto en una imagen con `loading="lazy"` y activar el fallback antes de que el navegador terminase la carga.
+
+Ahora el fallback se activa únicamente al recibir un evento `error` real.
+
+## `detailHeroMediaHtml()`
+
+Genera el visor integrado en la cabecera de la ficha.
+
+- Foto 1 se muestra inicialmente.
+- Foto 2 se mantiene dentro del mismo visor.
+- Si existen dos fotos, aparece una flecha discreta.
+
+## `bindDetailMediaViewer()`
+
+Gestiona:
+- cambio `1 → 2 → 1`;
+- contador;
+- imágenes fallidas;
+- ocultación de controles cuando solo queda una imagen válida.
+
+La antigua galería V4 permanece en el núcleo por compatibilidad, pero V4.3 ya no la utiliza visualmente.
 
 ---
 
@@ -1622,3 +1645,129 @@ en el Excel.
 
 Esa separación es lo que permitirá seguir ampliando Motorpedia sin convertir el proyecto en una colección de excepciones.
 \n\n---\n\n# 48. Arquitectura de navegación V4.2\n\nV4.2 separa la experiencia en cinco vistas:\n\n```text\nhomeView\ncarsView\nmotosView\nbrandsView\ncompareView\n```\n\nExiste además `catalogView`, pero queda oculto como motor de compatibilidad con funciones históricas de `app.js`. No debe utilizarse como interfaz visible.\n\n## `experience.js`\n\nEs la capa responsable de:\n\n- portada principal;\n- Explorador de coches;\n- Explorador de motos;\n- estados de filtros independientes;\n- filtro A2;\n- filtro de contenido (foto/artículo);\n- navegación desde una generación de marca al explorador correcto.\n\nLos estados de coche y moto son independientes:\n\n```javascript\nexplorerState = {\n  car: { visible: 48, locked: null },\n  moto: { visible: 48, locked: null }\n}\n```\n\nEsto evita que una categoría de moto, por ejemplo, pueda afectar a coches.\n\n## `classification.js` en V4.2\n\nSu responsabilidad principal deja de ser el catálogo general. Se centra en:\n\n1. etiquetas Categoría/Subcategoría en tarjetas y detalle;\n2. filtro de tipo dentro de fabricantes;\n3. categorías/subcategorías únicamente al visualizar motos dentro de una marca.\n\nEn una marca mixta:\n\n```text\nTodo | Coches | Motos\n```\n\nSolo al seleccionar `Motos` aparecen:\n\n```text\nCategoría | Subcategoría\n```\n\n# 49. Fotos rápidas V4.2\n\n`tools/import_excel.py` acepta dos esquemas:\n\n```text\nassets/vehicles/<marca>/<ID>/1.webp\nassets/vehicles/<marca>/<ID>/2.webp\n```\n\ny:\n\n```text\nassets/vehicles/_quick/<ID>-1.webp\nassets/vehicles/_quick/<ID>-2.webp\n```\n\nLa primera estructura tiene prioridad. El objetivo de `_quick` es permitir cargas masivas sin crear una carpeta por ficha.\n\nConsulta `README_FOTOS_VEHICULOS.md`.\n\n# 50. Regla de separación de responsabilidades V4.2\n\n```text\napp.js             → núcleo, fichas, timeline, comparador, formato\nclassification.js  → taxonomía visual y filtrado dentro de marcas\nexperience.js      → portada + exploradores de coches/motos\nstyles.css         → diseño base\nclassification.css → estilos de clasificación/marca\nexperience.css     → estilos de portada/exploradores\n```\n\nPara nuevas funciones de búsqueda específicas de coches o motos, modifica `experience.js`, no el catálogo legacy de `app.js`.\n
+
+---
+
+# 51. Capa multimedia V4.3
+
+V4.3 añade dos archivos:
+
+```text
+media.js
+media.css
+```
+
+La finalidad es aislar la lógica visual de fotografías del núcleo histórico de `app.js`.
+
+## Orden de carga obligatorio
+
+```html
+<script src="app.js?v=4"></script>
+<script src="media.js?v=4.3"></script>
+<script src="classification.js?v=4.2"></script>
+<script src="experience.js?v=4.2"></script>
+```
+
+El orden es deliberado:
+
+1. `app.js` crea las funciones base.
+2. `media.js` sustituye `vehicleCoverHtml`, `bindVehicleImages` y `openDetail`.
+3. `classification.js` captura el `openDetail` de V4.3 y añade las etiquetas de categoría/subcategoría encima.
+4. `experience.js` utiliza finalmente las funciones ya extendidas.
+
+Cambiar este orden puede provocar que desaparezcan las etiquetas o que vuelva a utilizarse el detalle antiguo.
+
+## Resolución de URLs
+
+`mediaAssetUrl(path)` utiliza:
+
+```javascript
+new URL(path, document.baseURI)
+```
+
+Esto evita depender de una raíz `/` absoluta y mantiene compatibilidad con:
+
+```text
+https://usuario.github.io/Motorpedia/
+```
+
+Para esta aplicación no deben construirse URLs como:
+
+```text
+/assets/vehicles/...
+```
+
+porque apuntarían a la raíz del dominio en lugar de `/Motorpedia/assets/...`.
+
+## Vista previa
+
+El flujo de una tarjeta con foto es:
+
+```text
+vehicles.json
+  ↓
+v.media.images[0]
+  ↓
+vehicleCoverHtml(v)
+  ↓
+mediaAssetUrl()
+  ↓
+<img class="vehicleCover">
+```
+
+`experience.js` sigue llamando a `cardHtml()`, por lo que no necesita saber cómo se representa la fotografía.
+
+## Ficha
+
+La cabecera V4.3 queda conceptualmente así:
+
+```text
+┌───────────────────────────────────────────────────────────┐
+│ Nombre + jerarquía      │ Foto 1                         │
+│ etiquetas               │                              › │
+│ potencia / par / peso   │                           1 / 2 │
+└───────────────────────────────────────────────────────────┘
+```
+
+No se renderiza una segunda galería debajo.
+
+## Regla de responsabilidad V4.3
+
+```text
+app.js             → datos UI base, especificaciones, timeline, comparador
+media.js           → URLs de imágenes, preview, visor de ficha
+classification.js  → taxonomía visual y filtrado dentro de marcas
+experience.js      → portada + exploradores de coches/motos
+
+styles.css         → diseño base
+media.css          → fotografías de tarjetas + visor de ficha
+classification.css → clasificación
+experience.css     → portada/exploradores
+```
+
+Si el problema es «la imagen existe en `vehicles.json` pero no se ve», revisa primero `media.js` y la URL final de la imagen en DevTools, no el importador.
+
+# 52. Diagnóstico de imágenes V4.3
+
+Si `content-index.csv` indica:
+
+```text
+photo_mode = quick
+photo_1 = assets/vehicles/_quick/car-02017-1.webp
+photo_2 = assets/vehicles/_quick/car-02017-2.webp
+```
+
+la detección de backend/importador ya es correcta.
+
+En ese caso la depuración debe centrarse en:
+
+```text
+mediaAssetUrl()
+Network → imagen
+Console
+GitHub Pages
+```
+
+Una respuesta `200` en Network confirma que la ruta funciona.
+
+Una respuesta `404` significa que la ruta/nombre del archivo no coincide con el repositorio publicado.

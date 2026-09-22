@@ -1,4 +1,4 @@
-# Motorpedia V4 — añadir vehículos, fotos y artículos
+# Motorpedia V4.3 — añadir vehículos, fotos y artículos
 
 ## Flujo normal
 
@@ -97,8 +97,8 @@ assets/
             └── 2.webp
 ```
 
-La foto 1 se usa como portada en el catálogo.
-Las dos se muestran en la galería de la ficha.
+La foto 1 se usa como imagen principal de la tarjeta y aparece en la cabecera de la ficha junto al nombre y las características principales.
+Si existe foto 2, se accede mediante una flecha discreta en el mismo visor.
 
 Formatos soportados:
 
@@ -219,3 +219,22 @@ assets/vehicles/_quick/<ID>-2.webp
 El importador lo detecta automáticamente. La estructura organizada por carpetas tiene prioridad.
 
 Consulta `README_FOTOS_VEHICULOS.md` para el procedimiento completo.
+
+
+---
+
+# V4.3 — visor de fotografías
+
+La estructura de archivos no cambia.
+
+La interfaz sí cambia:
+
+```text
+Tarjeta            → foto 1
+Ficha abierta      → foto 1
+Flecha de la ficha → foto 2
+```
+
+Si hay dos imágenes, la flecha alterna `1 → 2 → 1`.
+
+V4.3 también resuelve las URLs respecto a la base de GitHub Pages y activa las iniciales de la marca únicamente tras un error real de carga.
