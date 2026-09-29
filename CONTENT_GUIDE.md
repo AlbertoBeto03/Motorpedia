@@ -1,8 +1,8 @@
-# Motorpedia V4.3 — añadir vehículos, fotos y artículos
+# Motorpedia V4.4 — añadir vehículos, fotos y artículos
 
 ## Flujo normal
 
-`Base de Datos.xlsx` sigue siendo la fuente maestra.
+`Base_de_Datos.xlsx` es la fuente maestra.
 
 Cuando sustituyes el Excel en GitHub, el workflow de V4 regenera automáticamente:
 
@@ -12,45 +12,28 @@ Cuando sustituyes el Excel en GitHub, el workflow de V4 regenera automáticament
 
 No tienes que volver a convertir el Excel manualmente.
 
-## Columnas opcionales que puedes añadir al FINAL del Excel
+## Estructura maestra V4.4
 
-Puedes añadir sin modificar las columnas actuales:
+Las columnas estructurales ya están integradas directamente en las hojas:
 
-- `Motorpedia ID`
-- `Motorpedia Modelo`
-- `Motorpedia Generación`
+```text
+ID Motorpedia
+Marca
+Modelo
+Generación
+Versión
+```
 
-### Motorpedia ID
+En `Coches`, los años se guardan en `Inicio` y `Fin`, y cilindrada/aspiración se separan en `CC / Asp` y `Aspiración`.
 
-Recomendado para versiones a las que vas a añadir contenido.
-
-Ejemplo:
-
-`bmw-m3-e46-2001`
-
-Debe ser único y conviene no cambiarlo después.
-
-Si lo dejas vacío, Motorpedia genera un ID automáticamente utilizando nombre, años,
-cilindrada, potencia, par y transmisión.
-
-### Motorpedia Modelo / Motorpedia Generación
-
-Permiten forzar la agrupación desde el Excel.
-
-Ejemplo:
-
-`Motorpedia Modelo = Serie 3`
-
-`Motorpedia Generación = E46`
-
-Tienen prioridad sobre la clasificación automática, incluso para motos.
+No añadas columnas alternativas tipo `Motorpedia Modelo` o `Motorpedia Generación`: corrige directamente las columnas estructurales.
 
 ---
 
 # Añadir un vehículo
 
 1. Añade la fila al Excel.
-2. Sustituye `Base de Datos.xlsx` en la raíz del repositorio.
+2. Sustituye `Base_de_Datos.xlsx` en la raíz del repositorio.
 3. Commit.
 4. Espera a que termine `Actions → Update Motorpedia data`.
 
@@ -177,7 +160,7 @@ Workflow:
 
 Se ejecuta cuando modificas:
 
-- `Base de Datos.xlsx`;
+- `Base_de_Datos.xlsx`;
 - `tools/import_excel.py`;
 - `assets/vehicles/**`;
 - `content/articles/**`.
@@ -238,3 +221,29 @@ Flecha de la ficha → foto 2
 Si hay dos imágenes, la flecha alterna `1 → 2 → 1`.
 
 V4.3 también resuelve las URLs respecto a la base de GitHub Pages y activa las iniciales de la marca únicamente tras un error real de carga.
+
+
+---
+
+# V4.4 — fichas técnicas completas
+
+El navegador ya no depende de una selección reducida de especificaciones. El importador vuelca todos los campos técnicos con contenido y `specs.js` los organiza automáticamente en:
+
+```text
+Identificación
+Motor y transmisión
+Dimensiones y peso
+Chasis y parte ciclo
+Prestaciones
+Consumo, eficiencia y aerodinámica
+Mercado y valor
+Pruebas y referencias
+```
+
+La misma organización se utiliza en la ficha individual y en el comparador.
+
+Archivo Excel canónico:
+
+```text
+Base_de_Datos.xlsx
+```

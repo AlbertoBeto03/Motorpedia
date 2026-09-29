@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
+from datetime import date, timedelta
 from pathlib import Path
 import csv
 import hashlib
@@ -19,6 +20,7 @@ DATA_DIR.mkdir(parents=True, exist_ok=True)
 SHEET_CARS = "Coches"
 SHEET_MOTOS = "Motos"
 SHEET_MOTOS_FALLBACK = "Copia de Motos"
+CURRENT_YEAR = date.today().year
 
 
 def clean(value):
@@ -28,6 +30,15 @@ def clean(value):
         value = value.strip()
         return value if value else None
     return value
+
+
+def meaningful(value):
+    value = clean(value)
+    if value is None:
+        return False
+    if isinstance(value, str) and value.strip() in {"-", "–", "—"}:
+        return False
+    return True
 
 
 def strip_accents(text):
@@ -47,23 +58,28 @@ def normalize_header(value):
 
 
 def database_file():
+    # V4.4: Base_de_Datos.xlsx is the canonical source.
     preferred = [
-        "Base_de_Datos.xlsm", "Base de Datos.xlsm",
-        "Base_de_Datos.xlsx", "Base de Datos.xlsx",
+        "Base_de_Datos.xlsx",
+        "Base_de_Datos.xlsm",
+        "Base de Datos.xlsx",
+        "Base de Datos.xlsm",
     ]
     for name in preferred:
         p = ROOT / name
         if p.exists():
             return p
-    candidates = sorted(list(ROOT.glob("*.xlsm")) + list(ROOT.glob("*.xlsx")))
+    candidates = sorted(list(ROOT.glob("*.xlsx")) + list(ROOT.glob("*.xlsm")))
     candidates = [p for p in candidates if not p.name.startswith("~$")]
     if not candidates:
-        raise FileNotFoundError("No se encontró la base de datos .xlsx/.xlsm en la raíz del repositorio.")
+        raise FileNotFoundError("No se encontró Base_de_Datos.xlsx ni otra base .xlsx/.xlsm en la raíz.")
     return candidates[0]
 
 
 def col_to_idx(ref):
     match = re.match(r"([A-Z]+)", ref)
+    if not match:
+        return 0
     n = 0
     for ch in match.group(1):
         n = n * 26 + ord(ch) - 64
@@ -136,7 +152,6 @@ def read_workbook(path):
 
 class RowReader:
     def __init__(self, headers, row):
-        self.headers = headers
         self.row = row
         self.exact = {}
         self.normalized = {}
@@ -184,7 +199,7 @@ def year_text(start, end):
     e = clean(end)
     if s is None and e is None:
         return ""
-    if s is not None and (e is None or str(e).strip() in {"-", "–"}):
+    if s is not None and e is None:
         return f"{s}–"
     if s is None:
         return str(e)
@@ -193,10 +208,19 @@ def year_text(start, end):
     return f"{s}–{e}"
 
 
+def excel_serial_date(value):
+    if isinstance(value, (int, float)) and 20000 <= float(value) <= 80000:
+        try:
+            return (date(1899, 12, 30) + timedelta(days=int(value))).isoformat()
+        except Exception:
+            pass
+    return clean(value)
+
+
 def display_name(brand, model, generation, version):
     parts = [str(brand).strip(), str(model).strip()]
     version_text = str(version).strip() if version is not None else ""
-    if version_text and version_text not in {"-", "–"}:
+    if version_text and version_text not in {"-", "–", "—"}:
         model_text = str(model).strip().lower()
         if version_text.lower() != model_text:
             parts.append(version_text)
@@ -210,6 +234,23 @@ def stable_signature(record):
     return hashlib.sha1(raw.encode("utf-8")).hexdigest()
 
 
+def identity_generation(value):
+    n = normalize_header(value)
+    if n in {"", "-", "gen 1", "primera generacion", "sin especificar"}:
+        return ""
+    return n
+
+
+def identity_key(record):
+    return "|".join([
+        normalize_header(record.get("type")),
+        normalize_header(record.get("brand")),
+        normalize_header(record.get("model")),
+        identity_generation(record.get("generation")),
+        normalize_header(record.get("version")),
+    ])
+
+
 def generated_id(record, signature):
     core = slugify("-".join(str(record.get(k) or "") for k in (
         "brand", "model", "generation", "version", "yearText"
@@ -217,31 +258,37 @@ def generated_id(record, signature):
     return f"{record['type']}-{core[:82].strip('-')}-{signature[:8]}"
 
 
-def previous_ids():
+def previous_state():
     path = DATA_DIR / "content-index.csv"
-    result = {}
+    by_signature = {}
+    by_identity = {}
     if not path.exists():
-        return result
+        return by_signature, by_identity
     try:
         with path.open("r", encoding="utf-8", newline="") as fh:
             for row in csv.DictReader(fh):
-                sig, vid = row.get("signature"), row.get("id")
-                if sig and vid:
-                    result.setdefault(sig, []).append(vid)
+                vid = clean(row.get("id"))
+                if not vid:
+                    continue
+                sig = clean(row.get("signature"))
+                if sig:
+                    by_signature.setdefault(sig, []).append(vid)
+                fake = {
+                    "type": row.get("type"),
+                    "brand": row.get("brand"),
+                    "model": row.get("model"),
+                    "generation": row.get("generation"),
+                    "version": row.get("version"),
+                }
+                key = identity_key(fake)
+                if key:
+                    by_identity.setdefault(key, []).append(vid)
     except Exception:
         pass
-    return result
+    return by_signature, by_identity
 
 
 def media_for(brand, vehicle_id):
-    """Detect up to two local photos and one Markdown article.
-
-    V4.2 supports two photo workflows:
-    1) Organized: assets/vehicles/<brand>/<id>/1.webp and 2.webp
-    2) Quick drop: assets/vehicles/_quick/<id>-1.webp and <id>-2.webp
-
-    The organized path has priority for each photo number.
-    """
     brand_slug = slugify(brand)
     folder = MEDIA_ROOT / brand_slug / vehicle_id
     quick = MEDIA_ROOT / "_quick"
@@ -278,7 +325,26 @@ def media_for(brand, vehicle_id):
 
 
 def compact_specs(data):
-    return {key: value for key, value in data.items() if clean(value) is not None}
+    return {key: value for key, value in data.items() if meaningful(value)}
+
+
+def split_legacy_displacement(value, aspiration):
+    if aspiration is not None or not isinstance(value, str):
+        return value, aspiration
+    m = re.fullmatch(r"\s*(\d+(?:[.,]\d+)?)\s*(NA|TT|T\+C|T|C)\s*", value, re.I)
+    if not m:
+        return value, aspiration
+    number = float(m.group(1).replace(",", "."))
+    if number.is_integer():
+        number = int(number)
+    labels = {
+        "NA": "Atmosférico",
+        "T": "Turbo",
+        "TT": "Twin Turbo",
+        "C": "Compresor",
+        "T+C": "Turbo + Compresor",
+    }
+    return number, labels.get(m.group(2).upper(), m.group(2))
 
 
 def car_record(headers, row):
@@ -287,20 +353,35 @@ def car_record(headers, row):
     model = r.get("Modelo")
     if not brand or not model:
         return None
-    generation = r.get("Generación", "Generacion") or "Sin especificar"
+
+    generation = r.get("Generación", "Generacion") or "-"
     version = r.get("Versión", "Version") or "-"
     start, end = r.get("Inicio"), r.get("Fin")
-    ys, ye = int_year(start), int_year(end)
-    if ye is None and ys is not None and (end is None or str(end).strip() in {"-", "–"}):
-        ye = ys
+    malformed_start = isinstance(start, str) and end is None and not re.fullmatch(r"\s*(18\d{2}|19\d{2}|20\d{2}|21\d{2})\s*", start)
+    if malformed_start:
+        ys, explicit_end, ye = None, None, None
+        ytext = str(start).strip()
+        source_end = None
+    else:
+        ys, explicit_end = int_year(start), int_year(end)
+        ye = explicit_end if explicit_end is not None else (CURRENT_YEAR if ys is not None and end is None else None)
+        ytext = year_text(start, end)
+        source_end = end if end is not None else ("Actualidad" if ys is not None else None)
+
+    displacement, aspiration = split_legacy_displacement(r.get("CC / Asp", "Cilindrada"), r.get("Aspiración", "Aspiracion"))
 
     specs = compact_specs({
-        "Cilindrada / aspiración": r.get("CC / Asp"),
-        "Arquitectura": r.get("Motor"),
-        "Combustible": r.get("Comb"),
+        "Favorito": r.get("⭐"),
+        "Forza": r.get("Forza"),
+        "Cilindrada": displacement,
+        "Aspiración": aspiration,
+        "Arquitectura motor": r.get("Motor"),
+        "Combustible": r.get("Comb", "Combustible"),
         "Potencia": r.get("Potencia"),
-        "Potencia medida": r.get("Potencia media"),
+        "RPM potencia": r.get("Pot rpm", "cv rpm"),
         "Par": r.get("Par (Nm)", "Par"),
+        "RPM par": r.get("Par rpm", "Nm rpm"),
+        "Límite de revoluciones": r.get("Limite rpm", "Límite rpm"),
         "Tracción": r.get("Tracción", "Traccion"),
         "Peso DIN": r.get("Peso (DIN)"),
         "Batalla / Largo / Ancho / Alto": r.get("Bat./Largo/Anch/Alto"),
@@ -311,10 +392,9 @@ def car_record(headers, row):
         "Velocidad máxima": r.get("Vmax"),
         "100-0 km/h": r.get("100-0 (m)"),
         "Precio actual": r.get("Precio Actual"),
-        "Precio Alemania": r.get("Precio Alemania + 1200viaje + matriculacion"),
-        "Precio original": r.get("Precio Original"),
-        "Precio ene. 2025": r.get("Precio Enero 2025"),
-        "Consumo": r.get("Consumo"),
+        "Precio original España": r.get("Precio Original España", "Precio Original"),
+        "Consumo homologado": r.get("Consumo homologado"),
+        "Consumo real": r.get("Consumo real"),
         "Autovía": r.get("Autovía", "Autovia"),
         "CO₂": r.get("CO2 g/km"),
         "Eficiencia": r.get("Eficiencia"),
@@ -327,8 +407,8 @@ def car_record(headers, row):
         "Hockenheim Short": r.get("Hockenheim S"),
         "Balocco": r.get("Balocco"),
         "Auto Zeitung": r.get("Auto Zeitung"),
-        "Motor": r.get("MOTOR"),
-        "Vida útil motor": r.get("VDIa util motor", "Vida util motor"),
+        "Código motor": r.get("MOTOR"),
+        "Vida útil motor": r.get("VDIa util motor", "Vida util motor", "Vida útil motor"),
         "Culata": r.get("Culata"),
         "Chasis": r.get("Chasis"),
         "Suspensión delantera": r.get("Susp del"),
@@ -339,9 +419,10 @@ def car_record(headers, row):
         "Neumático trasero": r.get("Neum tras"),
         "Transmisión": r.get("Transmisión", "Transmision"),
         "Alimentación": r.get("Alimentación", "Alimentacion"),
+        "Fecha de actualización": excel_serial_date(r.get("Fecha")),
     })
 
-    record = {
+    return {
         "type": "car",
         "brand": str(brand),
         "model": str(model),
@@ -350,13 +431,13 @@ def car_record(headers, row):
         "name": display_name(brand, model, generation, version),
         "yearStart": ys,
         "yearEnd": ye,
-        "yearText": year_text(start, end),
+        "yearText": ytext,
         "favorite": r.get("⭐"),
         "forza": r.get("Forza"),
         "power": r.get("Potencia"),
         "torque": r.get("Par (Nm)", "Par"),
         "weight": r.get("Peso (DIN)"),
-        "kgcv": r.get("Kg/Hp", "Kg/cv"),
+        "kgcv": r.get("Kg/Hp", "Kg/cv", "kg/CV"),
         "zero100": r.get("0-100"),
         "vmax": r.get("Vmax"),
         "price": r.get("Precio Actual"),
@@ -365,8 +446,9 @@ def car_record(headers, row):
         "taxonomyLocked": True,
         "specs": specs,
         "sourceId": r.get("ID Motorpedia"),
+        "sourceStart": start,
+        "sourceEnd": source_end,
     }
-    return record
 
 
 def moto_record(headers, row):
@@ -375,13 +457,17 @@ def moto_record(headers, row):
     model = r.get("Modelo")
     if not brand or not model:
         return None
-    generation = r.get("Generación", "Generacion") or "Sin especificar"
+
+    generation = r.get("Generación", "Generacion") or "-"
     version = r.get("Versión", "Version") or "-"
     years = r.get("Año", "Ano")
     ys, ye = year_range(years)
+    if ys is not None and ye is None:
+        ye = ys
 
     specs = compact_specs({
-        "Tipo": r.get("Categoría", "Categoria"),
+        "Categoría": r.get("Categoría", "Categoria"),
+        "Subcategoría": r.get("Subcategoría", "Subcategoria"),
         "A2": r.get("A2"),
         "Cilindrada": r.get("Cilindrada"),
         "Cilindros": r.get("Cilindros"),
@@ -404,6 +490,7 @@ def moto_record(headers, row):
         "Neumático delantero": r.get("Neum del"),
         "Neumático trasero": r.get("Neum tras"),
         "Llanta": r.get("Llanta"),
+        # Legacy / future optional columns remain supported.
         "Valoración global": r.get("Valoración global", "Valoracion global"),
         "Sensaciones": r.get("Sensaciones"),
         "Comodidad": r.get("Comodidad"),
@@ -416,7 +503,7 @@ def moto_record(headers, row):
         "Carga": r.get("Carga"),
     })
 
-    record = {
+    return {
         "type": "moto",
         "brand": str(brand),
         "model": str(model),
@@ -438,8 +525,50 @@ def moto_record(headers, row):
         "taxonomyLocked": True,
         "specs": specs,
         "sourceId": r.get("ID Motorpedia"),
+        "sourceStart": ys,
+        "sourceEnd": ye,
     }
-    return record
+
+
+def enrich_identity_specs(record, vehicle_id, excel_id=None):
+    end_value = record.pop("sourceEnd", None)
+    start_value = record.pop("sourceStart", None)
+    identity_values = {
+        "ID Motorpedia": excel_id or vehicle_id,
+        "ID publicado": vehicle_id if excel_id and slugify(excel_id) != vehicle_id else None,
+        "Marca": record.get("brand"),
+        "Modelo": record.get("model"),
+        "Generación": record.get("generation"),
+        "Versión": record.get("version"),
+        "Inicio producción": start_value,
+        "Fin producción": end_value,
+    }
+    # Identity fields intentionally keep '-' because it is meaningful in V4.4
+    # (single generation / version not specified).
+    identity = {key: value for key, value in identity_values.items() if clean(value) is not None}
+    record["specs"] = {**identity, **record.get("specs", {})}
+
+
+def choose_id(record, explicit, signature, old_by_signature, old_by_identity,
+              sig_occurrences, identity_occurrences):
+    # Published IDs are preserved first so existing photos/articles never break
+    # when the spreadsheet structure changes (e.g. Gen 1 -> "-" or split years).
+    ikey = identity_key(record)
+    iocc = identity_occurrences.get(ikey, 0)
+    identity_occurrences[ikey] = iocc + 1
+    if ikey in old_by_identity and iocc < len(old_by_identity[ikey]):
+        return old_by_identity[ikey][iocc], "preserved-identity"
+
+    if explicit:
+        return slugify(explicit), "excel"
+
+    socc = sig_occurrences.get(signature, 0)
+    sig_occurrences[signature] = socc + 1
+    if signature in old_by_signature and socc < len(old_by_signature[signature]):
+        return old_by_signature[signature][socc], "preserved-signature"
+
+    base = generated_id(record, signature)
+    return base if socc == 0 else f"{base}-{socc + 1}", "generated"
 
 
 def main():
@@ -447,8 +576,10 @@ def main():
     car_rows, moto_rows = read_workbook(db)
     car_headers = car_rows[0]
     moto_headers = moto_rows[0]
-    old = previous_ids()
-    occurrences = {}
+    old_by_signature, old_by_identity = previous_state()
+
+    sig_occurrences = {}
+    identity_occurrences = {}
     seen = {}
     vehicles = []
     index_rows = []
@@ -461,20 +592,14 @@ def main():
             record = builder(headers, row)
             if not record:
                 continue
+
             signature = stable_signature(record)
-            occurrence = occurrences.get(signature, 0)
-            occurrences[signature] = occurrence + 1
             explicit = clean(record.pop("sourceId", None))
-            if explicit:
-                vehicle_id = slugify(explicit)
-                id_source = "excel"
-            elif signature in old and occurrence < len(old[signature]):
-                vehicle_id = old[signature][occurrence]
-                id_source = "preserved"
-            else:
-                base = generated_id(record, signature)
-                vehicle_id = base if occurrence == 0 else f"{base}-{occurrence + 1}"
-                id_source = "generated"
+            vehicle_id, id_source = choose_id(
+                record, explicit, signature,
+                old_by_signature, old_by_identity,
+                sig_occurrences, identity_occurrences,
+            )
 
             if vehicle_id in seen:
                 n = 2
@@ -484,6 +609,7 @@ def main():
                 vehicle_id = f"{base}-{n}"
             seen[vehicle_id] = record["name"]
 
+            enrich_identity_specs(record, vehicle_id, explicit)
             images, article, brand_slug, photo_mode = media_for(record["brand"], vehicle_id)
             record["id"] = vehicle_id
             record["media"] = {"images": images}
@@ -493,6 +619,7 @@ def main():
             index_rows.append({
                 "signature": signature,
                 "id": vehicle_id,
+                "excel_id": explicit or "",
                 "id_source": id_source,
                 "type": record["type"],
                 "brand": record["brand"],
@@ -511,6 +638,7 @@ def main():
                 "photo_2": images[1] if len(images) > 1 else "",
                 "article_file": f"content/articles/{brand_slug}/{vehicle_id}.md",
                 "article_exists": "yes" if article else "no",
+                "spec_count": len(record.get("specs", {})),
             })
 
     categories = sorted({v["category"] for v in vehicles if v.get("category")})
@@ -536,10 +664,10 @@ def main():
     )
 
     fields = [
-        "signature", "id", "id_source", "type", "brand", "category", "subcategory",
+        "signature", "id", "excel_id", "id_source", "type", "brand", "category", "subcategory",
         "model", "generation", "version", "name", "years",
         "photo_folder", "quick_photo_1", "quick_photo_2", "photo_mode",
-        "photo_1", "photo_2", "article_file", "article_exists",
+        "photo_1", "photo_2", "article_file", "article_exists", "spec_count",
     ]
     with (DATA_DIR / "content-index.csv").open("w", encoding="utf-8", newline="") as fh:
         writer = csv.DictWriter(fh, fieldnames=fields)
@@ -547,9 +675,8 @@ def main():
         writer.writerows(index_rows)
 
     print(
-        f"Motorpedia actualizada desde {db.name}: {stats['total']} vehículos "
+        f"Motorpedia V4.4 actualizada desde {db.name}: {stats['total']} vehículos "
         f"({stats['cars']} coches + {stats['motos']} motos), "
-        f"{stats['categories']} categorías y {stats['subcategories']} subcategorías, "
         f"{stats['withPhotos']} fichas con fotos y {stats['withArticles']} con artículo."
     )
 

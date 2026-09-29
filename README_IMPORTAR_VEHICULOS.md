@@ -1,4 +1,4 @@
-# Motorpedia V4.3 — Guía para importar nuevas fichas de vehículos
+# Motorpedia V4.4 — Guía para importar nuevas fichas de vehículos
 
 > Guía de uso para añadir coches y motos a Motorpedia sin tocar el código de la web.
 
@@ -6,19 +6,23 @@
 
 La fuente maestra de Motorpedia es el Excel ubicado en la raíz del repositorio.
 
-Actualmente el importador acepta estos nombres, por orden de prioridad:
+Desde V4.4 el archivo canónico es:
 
-1. `Base_de_Datos.xlsm`
-2. `Base de Datos.xlsm`
-3. `Base_de_Datos.xlsx`
-4. `Base de Datos.xlsx`
+`Base_de_Datos.xlsx`
 
-**Recomendación:** mantener únicamente `Base_de_Datos.xlsm` en la raíz del repositorio para evitar cualquier ambigüedad.
+El importador mantiene compatibilidad con nombres antiguos, pero busca en este orden:
+
+1. `Base_de_Datos.xlsx`
+2. `Base_de_Datos.xlsm`
+3. `Base de Datos.xlsx`
+4. `Base de Datos.xlsm`
+
+**Recomendación:** mantener únicamente `Base_de_Datos.xlsx` en la raíz del repositorio para evitar cualquier ambigüedad.
 
 El flujo normal es:
 
 ```text
-Editar Base_de_Datos.xlsm
+Editar Base_de_Datos.xlsx
         ↓
 Subir / hacer commit en GitHub
         ↓
@@ -429,6 +433,7 @@ Base de Datos.xlsx
 Base de Datos.xlsm
 Base_de_Datos.xlsx
 Base_de_Datos.xlsm
+tools/import_excel.py
 assets/vehicles/**
 content/articles/**
 ```
@@ -483,6 +488,7 @@ Entre sus campos están:
 ```text
 signature
 id
+excel_id
 id_source
 type
 brand
@@ -497,6 +503,7 @@ photo_1
 photo_2
 article_file
 article_exists
+spec_count
 ```
 
 Es especialmente útil para encontrar:
@@ -567,7 +574,7 @@ Mantén **una única base de datos principal** en la raíz.
 Recomendación:
 
 ```text
-Base_de_Datos.xlsm
+Base_de_Datos.xlsx
 ```
 
 ---
@@ -585,7 +592,7 @@ Base_de_Datos.xlsm
 [ ] Rellenar Categoría/Subcategoría si corresponde
 [ ] Añadir especificaciones disponibles
 [ ] Guardar Excel
-[ ] Subir Base_de_Datos.xlsm
+[ ] Subir Base_de_Datos.xlsx
 [ ] Comprobar GitHub Actions
 [ ] Comprobar content-index.csv
 [ ] Añadir foto 1.webp
@@ -650,3 +657,95 @@ Lo que cambia es la interfaz:
 - las iniciales solo aparecen si no existe foto o si el navegador recibe un error real al cargarla.
 
 Consulta `README_FOTOS_VEHICULOS.md` para los detalles.
+
+
+---
+
+# 17. V4.4 — nueva estructura de la hoja `Coches`
+
+La hoja `Coches` queda normalizada siguiendo el formato del McLaren 570S de referencia.
+
+## Años
+
+Usa dos celdas independientes:
+
+```text
+Inicio | Fin
+2016   | 2020
+```
+
+Si el vehículo sigue en producción, deja `Fin` vacío. La web mostrará `2019–` y el importador extenderá internamente la cronología hasta el año actual.
+
+## Cilindrada y aspiración
+
+Ya no deben mezclarse en una sola celda.
+
+Correcto:
+
+```text
+CC / Asp | Aspiración
+3799     | Twin Turbo (1.2 bar)
+1368     | Turbo
+3996     | Atmosférico
+```
+
+El nombre histórico de la columna `CC / Asp` se conserva por compatibilidad, pero desde V4.4 contiene únicamente la cilindrada.
+
+## Generación única
+
+Cuando un modelo solo tiene una generación en la base, utiliza:
+
+```text
+-
+```
+
+en lugar de `Gen 1`. Si existen varias generaciones reales, conserva el código correspondiente (`E46`, `992`, `II`, `VII`, etc.).
+
+## IDs publicados y contenido existente
+
+V4.4 añade una protección importante para no romper fotografías y artículos ya publicados.
+
+Al regenerar la base, el importador intenta primero reconocer cada vehículo por:
+
+```text
+tipo + marca + modelo + generación normalizada + versión
+```
+
+Por eso un cambio estructural como `Gen 1 → -` no debería cambiar el ID que ya usa la web.
+
+`content-index.csv` diferencia ahora:
+
+- `excel_id`: valor existente en la columna `ID Motorpedia` del Excel;
+- `id`: ID efectivo publicado por Motorpedia;
+- `id_source`: indica si fue preservado o creado.
+
+Esto permite mantener rutas antiguas como:
+
+```text
+assets/vehicles/_quick/car-01748-1.webp
+content/articles/mclaren/car-01748.md
+```
+
+aunque la estructura interna del Excel haya cambiado.
+
+## Toda la información técnica se publica
+
+V4.4 importa todos los campos técnicos actuales de `Coches`, entre ellos:
+
+- cilindrada y aspiración;
+- arquitectura y código de motor;
+- combustible;
+- potencia y rpm de potencia;
+- par y rpm de par;
+- límite de revoluciones;
+- transmisión y tracción;
+- peso y dimensiones;
+- prestaciones;
+- consumo homologado, real y autovía;
+- emisiones y aerodinámica;
+- precios;
+- chasis, suspensiones, frenos y neumáticos;
+- tiempos e índices disponibles;
+- fecha de actualización.
+
+Los campos vacíos o marcados simplemente con `-` no generan filas técnicas innecesarias.

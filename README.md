@@ -1,53 +1,118 @@
-# Motorpedia V2
+# Motorpedia V4.4
 
-Motorpedia convierte `Base de Datos.xlsx` en una base de datos visual de automoción.
+Motorpedia es una enciclopedia estática de coches y motos construida sobre GitHub Pages.
 
-## Novedades V2
+La fuente maestra es:
 
-- Logos de fabricantes con fallback automático.
-- Navegación jerárquica **Marca → Modelo → Generación → Versión**.
-- 3058 vehículos clasificados.
-- BMW agrupado en familias como Serie 1, Serie 3, Z3, Z4, X3...
-- Volkswagen agrupado en Golf, Passat, Polo, Scirocco... y generaciones I/II/III/IV/V/VI/VII/VIII cuando están en el nombre.
-- Arquitectura genérica para códigos entre paréntesis: E46, 8P, 997, etc.
-- `data/taxonomy_overrides.json` preparado para corregir casos especiales sin modificar el Excel.
+```text
+Base_de_Datos.xlsx
+```
 
-## Datos
+El Excel se transforma automáticamente en JSON mediante `tools/import_excel.py`. La web no usa backend ni base de datos SQL.
 
-La clasificación es automática y deliberadamente conservadora. Las excepciones se irán refinando marca por marca en siguientes versiones.
+## Navegación
 
-`Base de Datos.xlsx` sigue siendo la fuente maestra.
+La portada separa cuatro áreas:
 
+- **Coches**
+- **Motos**
+- **Marcas**
+- **Comparador**
 
-## V2.1
+Los exploradores de coches y motos son independientes, por lo que las categorías específicas de moto no aparecen en coches.
 
-- Cada generación muestra su rango de años calculado a partir de las fichas que contiene.
-- Logos mostrados a color.
-- Sistema de logos locales en `assets/brand-logos/`.
-- `data/brandLogos.json` acepta un campo `local` para sobreescribir logos automáticos.
+## V4.4 — ficha técnica completa
 
+La principal novedad de V4.4 es que la ficha ya no muestra una selección reducida de datos: publica todos los campos técnicos con contenido y los ordena en bloques coherentes.
 
-## V2.2.1
+```text
+Identificación
+Motor y transmisión
+Dimensiones y peso
+Chasis y parte ciclo
+Prestaciones
+Consumo, eficiencia y aerodinámica
+Mercado y valor
+Pruebas y referencias
+```
 
-- Generaciones ordenadas cronológicamente por año de inicio.
-- `Sin especificar` pasa a mostrarse como `Primera generación`.
-- Sistema `modelPrefixOverrides` para corregir familias mal detectadas sin tocar Excel.
-- Toyota `GR Supra` se agrupa en `Supra`.
-- Toyota `GR Yaris` se agrupa en `Yaris`.
-- Guía: `data/TAXONOMY_GUIDE.md`.
+Se muestran, cuando existen, datos como:
 
+- cilindrada y aspiración por separado;
+- arquitectura y código de motor;
+- potencia y rpm de potencia;
+- par y rpm de par;
+- límite de revoluciones;
+- transmisión y tracción;
+- pesos y dimensiones;
+- aceleración, recuperación, frenada y velocidad máxima;
+- consumo homologado, real y de autovía;
+- CO₂, Cx y SCx;
+- chasis, suspensiones, frenos y neumáticos;
+- precios;
+- tiempos e índices de referencia;
+- fecha de actualización.
 
-## V2.2.2
-- Logos 100 % locales.
-- Detección automática por nombre de marca.
-- `brandLogos.json` queda solo para excepciones.
-- Guía completa en `LOGOS.md`.
+El comparador utiliza el mismo orden de bloques.
 
+## Base de datos V4.4
 
-## V2.2.3
+La hoja `Coches` utiliza ahora como formato de referencia:
 
-- Corregido el fallback de logos en las tarjetas del catálogo.
-- Ya no se muestra el icono de imagen rota si falta una extensión concreta.
-- Las tarjetas muestran `Primera generación` en lugar de `Sin especificar`.
-- El mismo nombre amigable se usa en el contexto del catálogo y en la ficha.
-- Cache-busting actualizado a `2.2.3`.
+```text
+Inicio | Fin
+CC / Asp | Aspiración
+```
+
+`CC / Asp` mantiene el nombre histórico de la columna, pero contiene únicamente la cilindrada.
+
+Cuando un modelo solo tiene una generación, `Generación` utiliza `-` en lugar de `Gen 1`.
+
+La hoja `Motos` conserva su estructura actual.
+
+## Fotos y artículos
+
+Fotos organizadas:
+
+```text
+assets/vehicles/<marca>/<ID>/1.webp
+assets/vehicles/<marca>/<ID>/2.webp
+```
+
+Carga rápida:
+
+```text
+assets/vehicles/_quick/<ID>-1.webp
+assets/vehicles/_quick/<ID>-2.webp
+```
+
+Artículos:
+
+```text
+content/articles/<marca>/<ID>.md
+```
+
+Consulta:
+
+- `README_IMPORTAR_VEHICULOS.md`
+- `README_FOTOS_VEHICULOS.md`
+- `README_ARQUITECTURA_MOTORPEDIA.md`
+- `CONTENT_GUIDE.md`
+
+## Actualización automática
+
+Al modificar `Base_de_Datos.xlsx`, fotografías, artículos o el importador, GitHub Actions ejecuta:
+
+```text
+.github/workflows/update-motorpedia-data.yml
+```
+
+y regenera:
+
+```text
+data/vehicles.json
+data/stats.json
+data/content-index.csv
+```
+
+No edites esos tres archivos manualmente para cambiar una ficha.

@@ -1,4 +1,4 @@
-# Motorpedia V4.3 — Arquitectura y guía completa del código
+# Motorpedia V4.4 — Arquitectura y guía completa del código
 
 > Documento técnico de referencia para entender, mantener, modificar y ampliar Motorpedia.
 
@@ -17,7 +17,7 @@ Su arquitectura se divide en cuatro capas:
 
 ```text
 ┌──────────────────────────────────────────────────┐
-│                Base_de_Datos.xlsm                │
+│                Base_de_Datos.xlsx                │
 │            Fuente maestra de vehículos           │
 └────────────────────────┬─────────────────────────┘
                          │
@@ -39,8 +39,10 @@ Su arquitectura se divide en cuatro capas:
 │ styles.css                                       │
 │ app.js                                           │
 │ media.js                                          │
+│ specs.js                                          │
 │ classification.js                                │
 │ classification.css                               │
+│ specs.css                                        │
 │ experience.js                                    │
 │ experience.css                                   │
 └────────────────────────┬─────────────────────────┘
@@ -64,14 +66,16 @@ content/articles/
 ```text
 Motorpedia/
 │
-├── Base_de_Datos.xlsm
+├── Base_de_Datos.xlsx
 │
 ├── index.html
 ├── styles.css
 ├── app.js
 ├── media.js
+├── specs.js
 ├── classification.js
 ├── classification.css
+├── specs.css
 ├── experience.js
 ├── experience.css
 │
@@ -99,7 +103,7 @@ Motorpedia/
 
 ---
 
-# 3. `Base_de_Datos.xlsm`
+# 3. `Base_de_Datos.xlsx`
 
 Es la **fuente de verdad** de las fichas.
 
@@ -148,10 +152,10 @@ No necesita Microsoft Excel ni LibreOffice.
 Busca el archivo en este orden:
 
 ```python
-Base_de_Datos.xlsm
-Base de Datos.xlsm
 Base_de_Datos.xlsx
+Base_de_Datos.xlsm
 Base de Datos.xlsx
+Base de Datos.xlsm
 ```
 
 Si ninguno existe, busca cualquier `.xlsm/.xlsx` en la raíz.
@@ -1313,7 +1317,7 @@ en el Excel, no tocar JS.
 ## Código/datos que sí debes editar
 
 ```text
-Base_de_Datos.xlsm
+Base_de_Datos.xlsx
 index.html
 app.js
 styles.css
@@ -1504,7 +1508,7 @@ Cualquier nueva funcionalidad debería intentar conservarlas.
 # 45. Mapa mental final
 
 ```text
-                    Base_de_Datos.xlsm
+                    Base_de_Datos.xlsx
                             │
                             ▼
                   tools/import_excel.py
@@ -1558,7 +1562,7 @@ GitHub Pages
 Modificar:
 
 ```text
-Base_de_Datos.xlsm
+Base_de_Datos.xlsx
 ```
 
 ## La clasificación de un vehículo está mal
@@ -1771,3 +1775,131 @@ GitHub Pages
 Una respuesta `200` en Network confirma que la ruta funciona.
 
 Una respuesta `404` significa que la ruta/nombre del archivo no coincide con el repositorio publicado.
+
+
+---
+
+# 53. V4.4 — datos normalizados y ficha técnica completa
+
+## Base maestra canónica
+
+A partir de V4.4 el nombre recomendado es:
+
+```text
+Base_de_Datos.xlsx
+```
+
+`database_file()` lo busca antes que cualquier `.xlsm`, por lo que una copia antigua `Base_de_Datos.xlsm` ya no puede eclipsar accidentalmente la base nueva.
+
+## Nueva estructura de `Coches`
+
+V4.4 toma como referencia la estructura normalizada del McLaren 570S:
+
+```text
+Inicio | Fin
+CC / Asp | Aspiración
+```
+
+`CC / Asp` conserva el nombre de cabecera por compatibilidad, pero contiene únicamente cilindrada.
+
+La generación única se representa con `-`.
+
+## `tools/import_excel.py` V4.4
+
+El importador construye ahora una ficha completa. Entre los campos exportados a `specs` están:
+
+```text
+ID Motorpedia / ID publicado
+Marca / Modelo / Generación / Versión
+Inicio / Fin
+Cilindrada / Aspiración
+Arquitectura motor / Código motor
+Combustible
+Potencia / RPM potencia
+Par / RPM par
+Límite de revoluciones
+Transmisión / Tracción
+Pesos / dimensiones / kg-CV
+Prestaciones
+Consumos / CO2 / Cx / SCx
+Precios
+Chasis / suspensiones / frenos / neumáticos
+Tiempos e índices
+Fecha de actualización
+```
+
+Los campos sin información real no se exportan.
+
+### Preservación de IDs
+
+La migración `Gen 1 → -` no debe romper fotos o artículos existentes. Por eso V4.4 consulta primero el `content-index.csv` ya publicado y compara una identidad normalizada:
+
+```text
+tipo + marca + modelo + generación normalizada + versión
+```
+
+Si encuentra una coincidencia conserva el `id` web anterior. El valor de la hoja se guarda además como `excel_id`.
+
+Esto permite que:
+
+```text
+Excel:       car-McLaren-570S---Coupé
+ID publicado: car-01748
+```
+
+puedan coexistir durante la migración sin perder:
+
+```text
+assets/vehicles/_quick/car-01748-1.webp
+content/articles/mclaren/car-01748.md
+```
+
+## `specs.js`
+
+Nueva capa cargada después de `app.js` y antes de `media.js`.
+
+Responsabilidades:
+
+1. ordenar todos los campos técnicos por bloques;
+2. asignar unidades;
+3. traducir códigos de combustible y disposición de tracción conocidos;
+4. hacer que los textos largos de chasis/suspensión sean legibles;
+5. ordenar también el comparador con los mismos bloques;
+6. mostrar el valor actual del coche en la cabecera cuando exista.
+
+Orden de carga V4.4:
+
+```html
+<script src="app.js?v=4"></script>
+<script src="specs.js?v=4.4"></script>
+<script src="media.js?v=4.3"></script>
+<script src="classification.js?v=4.2"></script>
+<script src="experience.js?v=4.2"></script>
+```
+
+## `specs.css`
+
+Añade únicamente estilos de ficha completa:
+
+- valores largos con salto de línea;
+- bloques visuales adicionales;
+- encabezados de sección en el comparador;
+- adaptación móvil.
+
+## Flujo de datos V4.4
+
+```text
+Base_de_Datos.xlsx
+        ↓
+tools/import_excel.py
+        ↓
+data/vehicles.json
+        ↓
+app.js
+        ↓
+specs.js
+        ↓
+media.js / classification.js / experience.js
+        ↓
+GitHub Pages
+```

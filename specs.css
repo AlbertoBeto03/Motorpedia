@@ -1,0 +1,58 @@
+/* Motorpedia V4.4 — ficha técnica completa */
+.specGroup .specRow{
+  align-items:flex-start;
+}
+.specGroup .specRow>span:first-child{
+  flex:0 0 38%;
+  min-width:0;
+}
+.specGroup .specRow>span:last-child{
+  flex:1 1 auto;
+  min-width:0;
+  max-width:62%;
+  white-space:normal;
+  overflow-wrap:anywhere;
+  line-height:1.45;
+}
+.specGroupWide .specGroupRows{
+  align-items:start;
+}
+.specGroup[data-spec-group="identity"] .specGroupHead{
+  box-shadow:inset 3px 0 0 #727b86;
+}
+.specGroup[data-spec-group="efficiency"] .specGroupHead{
+  box-shadow:inset 3px 0 0 #4f8f78;
+}
+.specGroup[data-spec-group="market"] .specGroupHead{
+  box-shadow:inset 3px 0 0 #b28a57;
+}
+.specGroup[data-spec-group="tests"] .specGroupHead{
+  box-shadow:inset 3px 0 0 #74649c;
+}
+.compareGroupRow td{
+  position:static!important;
+  padding:18px 14px 8px!important;
+  background:#0b0e12!important;
+  color:#ff674f!important;
+  font-size:10px!important;
+  font-weight:850;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  border-bottom:1px solid #353c45!important;
+}
+.compareTable td{
+  white-space:normal;
+  line-height:1.45;
+}
+@media(max-width:760px){
+  .specGroup .specRow>span:first-child,
+  .specGroup .specRow>span:last-child{
+    flex-basis:auto;
+    max-width:none;
+  }
+  .specGroup .specRow{
+    flex-direction:column;
+    gap:5px;
+  }
+  .specGroup .specRow>span:last-child{text-align:left}
+}
