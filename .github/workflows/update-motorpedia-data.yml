@@ -5,7 +5,7 @@ on:
   push:
     branches: [main]
     paths:
-      - "Base de Datos.xlsx"
+      - "Base_de_Datos.xlsm"
       - "tools/import_excel.py"
       - "assets/vehicles/**"
       - "content/articles/**"
