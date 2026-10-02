@@ -10,6 +10,7 @@ import re
 import unicodedata
 import xml.etree.ElementTree as ET
 import zipfile
+from urllib.parse import quote
 
 ROOT = Path(__file__).resolve().parents[1]
 DATA_DIR = ROOT / "data"
@@ -288,25 +289,90 @@ def previous_state():
     return by_signature, by_identity
 
 
-def media_for(brand, vehicle_id):
+# V4.4.2: fotos y artículos se enlazan por el ID del Excel ("ID Motorpedia"),
+# p. ej. "car-BMW-Serie 1-F20-114i". El ID publicado (car-00684) sigue valiendo
+# como alternativa para no romper lo ya subido.
+UNSAFE_NAME_CHARS = re.compile(r'[\\/:*?"<>|#%]')
+IMAGE_EXTS = (".webp", ".png", ".jpg", ".jpeg")
+_DIR_INDEX = {}
+
+
+def media_key(name):
+    """Clave para comparar nombres de archivo con el ID del Excel.
+
+    Tolera: acentos NFC/NFD (macOS), caracteres que no pueden ir en un nombre de
+    archivo ni en una URL (/ \\ : * ? " < > | # %, que valen "-") y espacios
+    (que valen "-"). Distingue mayúsculas de minúsculas.
+    """
+    text = unicodedata.normalize("NFC", str(name))
+    text = UNSAFE_NAME_CHARS.sub("-", text)
+    text = re.sub(r"\s+", "-", text)
+    return text.rstrip(". ")
+
+
+def safe_filename(name):
+    """Nombre de archivo esperado para un ID del Excel (solo sustituye lo imposible)."""
+    return UNSAFE_NAME_CHARS.sub("-", unicodedata.normalize("NFC", str(name))).strip()
+
+
+def _dir_index(directory, dirs=False):
+    cache_key = (directory, dirs)
+    if cache_key not in _DIR_INDEX:
+        index = {}
+        if directory.is_dir():
+            for entry in sorted(directory.iterdir()):
+                if dirs:
+                    if entry.is_dir():
+                        index.setdefault(media_key(entry.name), entry)
+                elif entry.is_file():
+                    index.setdefault((media_key(entry.stem), entry.suffix.lower()), entry)
+        _DIR_INDEX[cache_key] = index
+    return _DIR_INDEX[cache_key]
+
+
+def media_names(vehicle_id, excel_id=None, occurrence=0):
+    """Nombres aceptados para un vehículo, por orden de prioridad.
+
+    Varios vehículos pueden compartir el mismo ID del Excel (misma versión en
+    años distintos). El primero usa el ID tal cual; los siguientes, "__2", "__3"...
+    en el orden de la hoja. Siempre se acepta también el ID publicado.
+    """
+    names = []
+    if excel_id:
+        names.append(f"{excel_id}__{occurrence + 1}" if occurrence else str(excel_id))
+    names.append(vehicle_id)
+    return names
+
+
+def media_for(brand, vehicle_id, excel_id=None, occurrence=0):
     brand_slug = slugify(brand)
-    folder = MEDIA_ROOT / brand_slug / vehicle_id
-    quick = MEDIA_ROOT / "_quick"
+    names = media_names(vehicle_id, excel_id, occurrence)
+    folders = _dir_index(MEDIA_ROOT / brand_slug, dirs=True)
+    quick = _dir_index(MEDIA_ROOT / "_quick")
     images = []
     sources = []
     for number in (1, 2):
         found = None
         found_mode = None
-        for ext in ("webp", "png", "jpg", "jpeg"):
-            p = folder / f"{number}.{ext}"
-            if p.exists():
-                found, found_mode = p, "folder"
+        for name in names:
+            folder = folders.get(media_key(name))
+            if folder is None:
+                continue
+            for ext in IMAGE_EXTS:
+                p = folder / f"{number}{ext}"
+                if p.exists():
+                    found, found_mode = p, "folder"
+                    break
+            if found is not None:
                 break
         if found is None:
-            for ext in ("webp", "png", "jpg", "jpeg"):
-                p = quick / f"{vehicle_id}-{number}.{ext}"
-                if p.exists():
-                    found, found_mode = p, "quick"
+            for name in names:
+                for ext in IMAGE_EXTS:
+                    p = quick.get((f"{media_key(name)}-{number}", ext))
+                    if p is not None:
+                        found, found_mode = p, "quick"
+                        break
+                if found is not None:
                     break
         if found is not None:
             images.append(found.relative_to(ROOT).as_posix())
@@ -319,9 +385,19 @@ def media_for(brand, vehicle_id):
     else:
         photo_mode = "mixed"
 
-    article_file = ARTICLE_ROOT / brand_slug / f"{vehicle_id}.md"
-    article = article_file.relative_to(ROOT).as_posix() if article_file.exists() else None
+    articles = _dir_index(ARTICLE_ROOT / brand_slug)
+    article = None
+    for name in names:
+        p = articles.get((media_key(name), ".md"))
+        if p is not None:
+            article = p.relative_to(ROOT).as_posix()
+            break
     return images, article, brand_slug, photo_mode
+
+
+def web_path(path):
+    """Ruta lista para usar como URL (espacios, acentos y & codificados)."""
+    return quote(path, safe="/") if path else path
 
 
 def compact_specs(data):
@@ -583,6 +659,7 @@ def main():
 
     sig_occurrences = {}
     identity_occurrences = {}
+    excel_occurrences = {}
     seen = {}
     vehicles = []
     index_rows = []
@@ -613,10 +690,18 @@ def main():
             seen[vehicle_id] = record["name"]
 
             enrich_identity_specs(record, vehicle_id, explicit)
-            images, article, brand_slug, photo_mode = media_for(record["brand"], vehicle_id)
+            media_occurrence = 0
+            if explicit:
+                ekey = media_key(explicit)
+                media_occurrence = excel_occurrences.get(ekey, 0)
+                excel_occurrences[ekey] = media_occurrence + 1
+            images, article, brand_slug, photo_mode = media_for(
+                record["brand"], vehicle_id, explicit, media_occurrence
+            )
+            expected = safe_filename(media_names(vehicle_id, explicit, media_occurrence)[0])
             record["id"] = vehicle_id
-            record["media"] = {"images": images}
-            record["article"] = article
+            record["media"] = {"images": [web_path(i) for i in images]}
+            record["article"] = web_path(article)
             vehicles.append(record)
 
             index_rows.append({
@@ -633,13 +718,13 @@ def main():
                 "version": record["version"],
                 "name": record["name"],
                 "years": record["yearText"],
-                "photo_folder": f"assets/vehicles/{brand_slug}/{vehicle_id}/",
-                "quick_photo_1": f"assets/vehicles/_quick/{vehicle_id}-1.webp",
-                "quick_photo_2": f"assets/vehicles/_quick/{vehicle_id}-2.webp",
+                "photo_folder": f"assets/vehicles/{brand_slug}/{expected}/",
+                "quick_photo_1": f"assets/vehicles/_quick/{expected}-1.webp",
+                "quick_photo_2": f"assets/vehicles/_quick/{expected}-2.webp",
                 "photo_mode": photo_mode,
                 "photo_1": images[0] if len(images) > 0 else "",
                 "photo_2": images[1] if len(images) > 1 else "",
-                "article_file": f"content/articles/{brand_slug}/{vehicle_id}.md",
+                "article_file": f"content/articles/{brand_slug}/{expected}.md",
                 "article_exists": "yes" if article else "no",
                 "spec_count": len(record.get("specs", {})),
             })
@@ -678,7 +763,7 @@ def main():
         writer.writerows(index_rows)
 
     print(
-        f"Motorpedia V4.4.1 actualizada desde {db.name}: {stats['total']} vehículos "
+        f"Motorpedia V4.4.2 actualizada desde {db.name}: {stats['total']} vehículos "
         f"({stats['cars']} coches + {stats['motos']} motos), "
         f"{stats['withPhotos']} fichas con fotos y {stats['withArticles']} con artículo."
     )
