@@ -7,8 +7,8 @@ const num=v=>{if(typeof v==="number")return v; const m=String(v??"").replace(","
 const initials=name=>name.split(/\s+/).slice(0,2).map(x=>x[0]||"").join("");
 
 Promise.all([
- fetch("data/vehicles.json?v=4",{cache:"no-cache"}).then(r=>r.json()),
- fetch("data/stats.json?v=4",{cache:"no-cache"}).then(r=>r.json()),
+ fetch("data/vehicles.json?v=4.4.1",{cache:"no-cache"}).then(r=>r.json()),
+ fetch("data/stats.json?v=4.4.1",{cache:"no-cache"}).then(r=>r.json()),
  fetch("data/brandLogos.json?v=4").then(r=>r.json()),
  fetch("data/motoTaxonomy.json?v=4&t="+Date.now()).then(r=>r.json())
 ]).then(([v,s,l,t])=>{
@@ -685,10 +685,15 @@ function formatKgCv(value){
  const n=numericValue(value);
  return n===null?fmt(value):formatNumber(n,2,2);
 }
+// V4.4.1: agrupación de miles siempre ("3.500", no "3500"). Intl es-ES no agrupa los
+// números de 4 cifras por defecto, así que se hace a mano.
+function formatPriceNumber(n){
+ return String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g,".");
+}
 function formatCurrency(value){
  const n=numericValue(value);
  if(n===null) return fmt(value);
- return `${formatNumber(n,0,0)} €`;
+ return `${formatPriceNumber(n)} €`;
 }
 function formatDimensions(value){
  if(value===null||value===undefined||value==="") return "—";
@@ -734,20 +739,21 @@ function formatSpecValue(key,value){
  const n=numericValue(value);
  return n===null?String(value):formatNumber(n,0,2);
 }
-function motoPriceRangeText(v){
- if(v?.type!=="moto") return null;
- const min=v.specs?.["Precio mínimo"];
- const max=v.specs?.["Precio máximo"];
+// V4.4.1: el precio de coches y motos es un intervalo (Precio min / Precio max).
+// Intervalo -> "3.500 - 4.500 €". Un solo valor, o min = max -> "3.500 €".
+function priceRangeText(v){
+ const min=v?.specs?.["Precio mínimo"];
+ const max=v?.specs?.["Precio máximo"];
  const nMin=numericValue(min), nMax=numericValue(max);
  if(nMin===null&&nMax===null) return null;
  if(nMin!==null&&nMax!==null){
    if(nMin===nMax) return formatCurrency(nMin);
-   return `${formatNumber(nMin,0,0)} – ${formatNumber(nMax,0,0)} €`;
+   return `${formatPriceNumber(Math.min(nMin,nMax))} - ${formatPriceNumber(Math.max(nMin,nMax))} €`;
  }
  return formatCurrency(nMin!==null?nMin:nMax);
 }
 function priceRangeHtml(v){
- const text=motoPriceRangeText(v);
+ const text=priceRangeText(v);
  if(!text) return "";
  return `<div class="priceBand"><span>Valor</span><strong>${escapeHtml(text)}</strong></div>`;
 }
@@ -862,7 +868,7 @@ function normalizedDetailEntries(v){
  const out=[];
  Object.entries(v.specs||{}).forEach(([key,value])=>{
    if(RATING_SET.has(key)) return;
-   if(v.type==="moto"&&(key==="Precio mínimo"||key==="Precio máximo")) return;
+   if(key==="Precio mínimo"||key==="Precio máximo") return;
 
    if(key==="Cilindrada / aspiración"){
      const split=splitCarDisplacementAspiration(value);
@@ -1145,7 +1151,7 @@ function renderCompare(list){
    "Cilindrada / aspiración","Cilindrada","Arquitectura","Cilindros",
    "Potencia","Par","Peso DIN","Peso en marcha","Peso en seco","kg/CV",
    "0-100 km/h","Velocidad máxima","Tracción","Transmisión","Consumo",
-   "Precio actual","Precio original","Altura asiento",
+   "Precio","Precio original","Altura asiento",
    "Valoración global","Sensaciones","Comodidad","Facilidad","Fiabilidad",
    "Mantenimiento","Sonido","Estética","Ocupante","Carga"
  ];
@@ -1156,9 +1162,9 @@ function renderCompare(list){
    ai=ai<0?999:ai;bi=bi<0?999:bi;
    return ai-bi||a.localeCompare(b,"es");
  });
- const hasMotoValue=list.some(v=>motoPriceRangeText(v));
- const valueRow=hasMotoValue
-   ?`<tr><td>Valor</td>${list.map(v=>`<td>${escapeHtml(motoPriceRangeText(v)||"—")}</td>`).join("")}</tr>`
+ const hasValue=list.some(v=>priceRangeText(v));
+ const valueRow=hasValue
+   ?`<tr><td>Valor</td>${list.map(v=>`<td>${escapeHtml(priceRangeText(v)||"—")}</td>`).join("")}</tr>`
    :"";
  $("#compareTableWrap").innerHTML=`<table class="compareTable"><thead><tr><th>Especificación</th>${list.map(v=>`<th>${escapeHtml(v.name)}<br><button class="removeCompare" data-id="${v.id}">Quitar</button></th>`).join("")}</tr></thead>
  <tbody>

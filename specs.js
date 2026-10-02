@@ -1,7 +1,6 @@
-/* Motorpedia V4.4 — ficha técnica completa y ordenada */
+/* Motorpedia V4.4.1 — ficha técnica completa y ordenada · precio como intervalo */
 (() => {
   const baseFormatSpecValue = formatSpecValue;
-  const basePriceRangeHtml = priceRangeHtml;
 
   const GROUPS = [
     {
@@ -59,7 +58,7 @@
       id: "market",
       title: "Mercado y valor",
       subtitle: "Referencias económicas disponibles en la base",
-      keys: ["Precio actual", "Precio original España", "Precio mínimo", "Precio máximo"]
+      keys: ["Precio", "Precio original España"]
     },
     {
       id: "tests",
@@ -77,6 +76,10 @@
   const PRICE_KEYS_V44 = new Set([
     "Precio actual", "Precio original España", "Precio mínimo", "Precio máximo"
   ]);
+
+  // V4.4.1: "Precio mínimo" y "Precio máximo" se fusionan en una única fila "Precio"
+  // con el formato "3.500 - 4.500 €" (ver priceRangeText en app.js).
+  const isPriceBound = key => key === "Precio mínimo" || key === "Precio máximo";
 
   const FUEL_LABELS = {
     G: "Gasolina",
@@ -112,6 +115,7 @@
   formatSpecValue = function(key, value) {
     if (value === null || value === undefined || value === "") return "—";
 
+    if (key === "Precio") return String(value);
     if (key === "Combustible") {
       const raw = String(value).trim();
       return FUEL_LABELS[raw] || raw;
@@ -165,9 +169,13 @@
     Object.entries(v?.specs || {}).forEach(([key, value]) => {
       // Las valoraciones de moto ya se muestran en su bloque visual específico.
       if (RATING_KEYS_V44.has(key)) return;
+      if (isPriceBound(key)) return;
       const group = groups.get(groupIdForKey(key));
       group.entries.push({ key, value });
     });
+
+    const priceText = priceRangeText(v);
+    if (priceText) groups.get("market").entries.push({ key: "Precio", value: priceText });
 
     for (const group of groups.values()) {
       if (group.keys.length) {
@@ -202,15 +210,18 @@
   };
 
   priceRangeHtml = function(v) {
+    const band = (label, text) =>
+      `<div class="priceBand"><span>${label}</span><strong>${escapeHtml(text)}</strong></div>`;
+
+    const range = priceRangeText(v);
+    if (range) return band("Valor", range);
+
+    // Coches sin rango de mercado: se conserva el precio original como referencia.
     if (v?.type === "car") {
-      const current = v.specs?.["Precio actual"];
       const original = v.specs?.["Precio original España"];
-      const value = current ?? original;
-      if (numericValue(value) !== null) {
-        return `<div class="priceBand"><span>${current != null ? "Valor actual" : "Precio original"}</span><strong>${escapeHtml(formatCurrency(value))}</strong></div>`;
-      }
+      if (numericValue(original) !== null) return band("Precio original", formatCurrency(original));
     }
-    return basePriceRangeHtml(v);
+    return "";
   };
 
   // El comparador usa los mismos bloques y el mismo orden que la ficha individual.
@@ -221,7 +232,8 @@
       return;
     }
 
-    const keys = [...new Set(list.flatMap(v => Object.keys(v.specs || {})))];
+    const keys = [...new Set(list.flatMap(v => Object.keys(v.specs || {})))].filter(key => !isPriceBound(key));
+    if (list.some(v => priceRangeText(v))) keys.push("Precio");
     const buckets = new Map();
     GROUPS.forEach(group => buckets.set(group.id, { ...group, keysFound: [] }));
     buckets.set("other", { id: "other", title: "Otros datos", keys: [], keysFound: [] });
@@ -245,7 +257,7 @@
       ${group.keysFound.map(key => `
         <tr>
           <td>${escapeHtml(key)}</td>
-          ${list.map(v => `<td>${escapeHtml(formatSpecValue(key, v.specs?.[key]))}</td>`).join("")}
+          ${list.map(v => `<td>${escapeHtml(key === "Precio" ? (priceRangeText(v) || "—") : formatSpecValue(key, v.specs?.[key]))}</td>`).join("")}
         </tr>`).join("")}
     `).join("");
 
@@ -257,5 +269,5 @@
     $$(".removeCompare").forEach(button => button.addEventListener("click", () => toggleCompare(button.dataset.id)));
   };
 
-  window.MotorpediaSpecs = { groups: GROUPS, version: "4.4" };
+  window.MotorpediaSpecs = { groups: GROUPS, version: "4.4.1" };
 })();

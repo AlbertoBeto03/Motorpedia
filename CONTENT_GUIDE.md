@@ -2,7 +2,7 @@
 
 ## Flujo normal
 
-`Base_de_Datos.xlsx` es la fuente maestra.
+`Base_de_Datos.xlsm` es la fuente maestra.
 
 Cuando sustituyes el Excel en GitHub, el workflow de V4 regenera automáticamente:
 
@@ -33,7 +33,7 @@ No añadas columnas alternativas tipo `Motorpedia Modelo` o `Motorpedia Generaci
 # Añadir un vehículo
 
 1. Añade la fila al Excel.
-2. Sustituye `Base_de_Datos.xlsx` en la raíz del repositorio.
+2. Sustituye `Base_de_Datos.xlsm` en la raíz del repositorio.
 3. Commit.
 4. Espera a que termine `Actions → Update Motorpedia data`.
 
@@ -160,7 +160,7 @@ Workflow:
 
 Se ejecuta cuando modificas:
 
-- `Base_de_Datos.xlsx`;
+- `Base_de_Datos.xlsm`;
 - `tools/import_excel.py`;
 - `assets/vehicles/**`;
 - `content/articles/**`.
@@ -245,5 +245,5 @@ La misma organización se utiliza en la ficha individual y en el comparador.
 Archivo Excel canónico:
 
 ```text
-Base_de_Datos.xlsx
+Base_de_Datos.xlsm
 ```

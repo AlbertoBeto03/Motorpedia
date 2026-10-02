@@ -58,10 +58,10 @@ def normalize_header(value):
 
 
 def database_file():
-    # V4.4: Base_de_Datos.xlsx is the canonical source.
+    # V4.4.1: Base_de_Datos.xlsm is the canonical source (the .xlsx copy is retired).
     preferred = [
-        "Base_de_Datos.xlsx",
         "Base_de_Datos.xlsm",
+        "Base_de_Datos.xlsx",
         "Base de Datos.xlsx",
         "Base de Datos.xlsm",
     ]
@@ -72,7 +72,7 @@ def database_file():
     candidates = sorted(list(ROOT.glob("*.xlsx")) + list(ROOT.glob("*.xlsm")))
     candidates = [p for p in candidates if not p.name.startswith("~$")]
     if not candidates:
-        raise FileNotFoundError("No se encontró Base_de_Datos.xlsx ni otra base .xlsx/.xlsm en la raíz.")
+        raise FileNotFoundError("No se encontró Base_de_Datos.xlsm ni otra base .xlsx/.xlsm en la raíz.")
     return candidates[0]
 
 
@@ -391,7 +391,10 @@ def car_record(headers, row):
         "400 m": r.get("400m"),
         "Velocidad máxima": r.get("Vmax"),
         "100-0 km/h": r.get("100-0 (m)"),
-        "Precio actual": r.get("Precio Actual"),
+        # V4.4.1: el precio de coche pasa a ser un intervalo (Precio min / Precio max).
+        # "Precio Actual" se mantiene como alias por compatibilidad con bases antiguas.
+        "Precio mínimo": r.get("Precio min", "Precio Actual"),
+        "Precio máximo": r.get("Precio max"),
         "Precio original España": r.get("Precio Original España", "Precio Original"),
         "Consumo homologado": r.get("Consumo homologado"),
         "Consumo real": r.get("Consumo real"),
@@ -440,7 +443,7 @@ def car_record(headers, row):
         "kgcv": r.get("Kg/Hp", "Kg/cv", "kg/CV"),
         "zero100": r.get("0-100"),
         "vmax": r.get("Vmax"),
-        "price": r.get("Precio Actual"),
+        "price": r.get("Precio min", "Precio Actual"),
         "category": r.get("Categoría", "Categoria"),
         "subcategory": r.get("Subcategoría", "Subcategoria"),
         "taxonomyLocked": True,
@@ -675,7 +678,7 @@ def main():
         writer.writerows(index_rows)
 
     print(
-        f"Motorpedia V4.4 actualizada desde {db.name}: {stats['total']} vehículos "
+        f"Motorpedia V4.4.1 actualizada desde {db.name}: {stats['total']} vehículos "
         f"({stats['cars']} coches + {stats['motos']} motos), "
         f"{stats['withPhotos']} fichas con fotos y {stats['withArticles']} con artículo."
     )

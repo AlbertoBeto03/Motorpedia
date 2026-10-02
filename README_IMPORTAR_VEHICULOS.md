@@ -8,21 +8,21 @@ La fuente maestra de Motorpedia es el Excel ubicado en la raíz del repositorio.
 
 Desde V4.4 el archivo canónico es:
 
-`Base_de_Datos.xlsx`
+`Base_de_Datos.xlsm`
 
 El importador mantiene compatibilidad con nombres antiguos, pero busca en este orden:
 
-1. `Base_de_Datos.xlsx`
-2. `Base_de_Datos.xlsm`
+1. `Base_de_Datos.xlsm`
+2. `Base_de_Datos.xlsx`
 3. `Base de Datos.xlsx`
 4. `Base de Datos.xlsm`
 
-**Recomendación:** mantener únicamente `Base_de_Datos.xlsx` en la raíz del repositorio para evitar cualquier ambigüedad.
+**Recomendación:** mantener únicamente `Base_de_Datos.xlsm` en la raíz del repositorio para evitar cualquier ambigüedad.
 
 El flujo normal es:
 
 ```text
-Editar Base_de_Datos.xlsx
+Editar Base_de_Datos.xlsm
         ↓
 Subir / hacer commit en GitHub
         ↓
@@ -429,9 +429,6 @@ El workflow se encuentra en:
 Se activa cuando cambia:
 
 ```text
-Base de Datos.xlsx
-Base de Datos.xlsm
-Base_de_Datos.xlsx
 Base_de_Datos.xlsm
 tools/import_excel.py
 assets/vehicles/**
@@ -574,7 +571,7 @@ Mantén **una única base de datos principal** en la raíz.
 Recomendación:
 
 ```text
-Base_de_Datos.xlsx
+Base_de_Datos.xlsm
 ```
 
 ---
@@ -592,7 +589,7 @@ Base_de_Datos.xlsx
 [ ] Rellenar Categoría/Subcategoría si corresponde
 [ ] Añadir especificaciones disponibles
 [ ] Guardar Excel
-[ ] Subir Base_de_Datos.xlsx
+[ ] Subir Base_de_Datos.xlsm
 [ ] Comprobar GitHub Actions
 [ ] Comprobar content-index.csv
 [ ] Añadir foto 1.webp

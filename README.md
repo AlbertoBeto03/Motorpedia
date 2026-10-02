@@ -1,11 +1,11 @@
-# Motorpedia V4.4
+# Motorpedia V4.4.1
 
 Motorpedia es una enciclopedia estática de coches y motos construida sobre GitHub Pages.
 
 La fuente maestra es:
 
 ```text
-Base_de_Datos.xlsx
+Base_de_Datos.xlsm
 ```
 
 El Excel se transforma automáticamente en JSON mediante `tools/import_excel.py`. La web no usa backend ni base de datos SQL.
@@ -101,7 +101,7 @@ Consulta:
 
 ## Actualización automática
 
-Al modificar `Base_de_Datos.xlsx`, fotografías, artículos o el importador, GitHub Actions ejecuta:
+Al modificar `Base_de_Datos.xlsm`, fotografías, artículos o el importador, GitHub Actions ejecuta:
 
 ```text
 .github/workflows/update-motorpedia-data.yml

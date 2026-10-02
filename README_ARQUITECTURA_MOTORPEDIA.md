@@ -17,7 +17,7 @@ Su arquitectura se divide en cuatro capas:
 
 ```text
 ┌──────────────────────────────────────────────────┐
-│                Base_de_Datos.xlsx                │
+│                Base_de_Datos.xlsm                │
 │            Fuente maestra de vehículos           │
 └────────────────────────┬─────────────────────────┘
                          │
@@ -66,7 +66,7 @@ content/articles/
 ```text
 Motorpedia/
 │
-├── Base_de_Datos.xlsx
+├── Base_de_Datos.xlsm
 │
 ├── index.html
 ├── styles.css
@@ -103,7 +103,7 @@ Motorpedia/
 
 ---
 
-# 3. `Base_de_Datos.xlsx`
+# 3. `Base_de_Datos.xlsm`
 
 Es la **fuente de verdad** de las fichas.
 
@@ -152,8 +152,8 @@ No necesita Microsoft Excel ni LibreOffice.
 Busca el archivo en este orden:
 
 ```python
-Base_de_Datos.xlsx
 Base_de_Datos.xlsm
+Base_de_Datos.xlsx
 Base de Datos.xlsx
 Base de Datos.xlsm
 ```
@@ -1317,7 +1317,7 @@ en el Excel, no tocar JS.
 ## Código/datos que sí debes editar
 
 ```text
-Base_de_Datos.xlsx
+Base_de_Datos.xlsm
 index.html
 app.js
 styles.css
@@ -1508,7 +1508,7 @@ Cualquier nueva funcionalidad debería intentar conservarlas.
 # 45. Mapa mental final
 
 ```text
-                    Base_de_Datos.xlsx
+                    Base_de_Datos.xlsm
                             │
                             ▼
                   tools/import_excel.py
@@ -1562,7 +1562,7 @@ GitHub Pages
 Modificar:
 
 ```text
-Base_de_Datos.xlsx
+Base_de_Datos.xlsm
 ```
 
 ## La clasificación de un vehículo está mal
@@ -1786,10 +1786,10 @@ Una respuesta `404` significa que la ruta/nombre del archivo no coincide con el 
 A partir de V4.4 el nombre recomendado es:
 
 ```text
-Base_de_Datos.xlsx
+Base_de_Datos.xlsm
 ```
 
-`database_file()` lo busca antes que cualquier `.xlsm`, por lo que una copia antigua `Base_de_Datos.xlsm` ya no puede eclipsar accidentalmente la base nueva.
+Desde V4.4.1 la base canónica es `Base_de_Datos.xlsm`: `database_file()` la busca la primera y el `.xlsx` queda retirado del repositorio.
 
 ## Nueva estructura de `Coches`
 
@@ -1889,7 +1889,7 @@ Añade únicamente estilos de ficha completa:
 ## Flujo de datos V4.4
 
 ```text
-Base_de_Datos.xlsx
+Base_de_Datos.xlsm
         ↓
 tools/import_excel.py
         ↓
