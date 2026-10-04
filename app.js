@@ -7,8 +7,8 @@ const num=v=>{if(typeof v==="number")return v; const m=String(v??"").replace(","
 const initials=name=>name.split(/\s+/).slice(0,2).map(x=>x[0]||"").join("");
 
 Promise.all([
- fetch("data/vehicles.json?v=4.4.3",{cache:"no-cache"}).then(r=>r.json()),
- fetch("data/stats.json?v=4.4.3",{cache:"no-cache"}).then(r=>r.json()),
+ fetch("data/vehicles.json?v=4.4.4",{cache:"no-cache"}).then(r=>r.json()),
+ fetch("data/stats.json?v=4.4.4",{cache:"no-cache"}).then(r=>r.json()),
  fetch("data/brandLogos.json?v=4").then(r=>r.json()),
  fetch("data/motoTaxonomy.json?v=4&t="+Date.now()).then(r=>r.json())
 ]).then(([v,s,l,t])=>{
@@ -752,10 +752,26 @@ function priceRangeText(v){
  }
  return formatCurrency(nMin!==null?nMin:nMax);
 }
+// V4.4.4: etiqueta + texto del precio de un vehículo (ficha y tarjeta comparten criterio).
+// Intervalo de mercado -> "Valor". Coche sin intervalo -> "Precio original" si existe.
+function priceBandParts(v){
+ const range=priceRangeText(v);
+ if(range) return {label:"Valor",text:range};
+ if(v?.type==="car"){
+   const original=v.specs?.["Precio original España"];
+   if(numericValue(original)!==null) return {label:"Precio original",text:formatCurrency(original)};
+ }
+ return null;
+}
 function priceRangeHtml(v){
- const text=priceRangeText(v);
- if(!text) return "";
- return `<div class="priceBand"><span>Valor</span><strong>${escapeHtml(text)}</strong></div>`;
+ const part=priceBandParts(v);
+ if(!part) return "";
+ return `<div class="priceBand"><span>${escapeHtml(part.label)}</span><strong>${escapeHtml(part.text)}</strong></div>`;
+}
+function cardPriceHtml(v){
+ const part=priceBandParts(v);
+ if(!part) return "";
+ return `<div class="cardPrice"><span>${escapeHtml(part.label)}</span><strong>${escapeHtml(part.text)}</strong></div>`;
 }
 function ratingHtml(v){
  if(v?.type!=="moto") return "";
@@ -1080,6 +1096,7 @@ function cardHtml(v){
     <div><strong>${escapeHtml(w)}</strong><span>peso</span></div>
     <div><strong>${escapeHtml(ratio)}</strong><span>kg/CV</span></div>
    </div>
+   ${cardPriceHtml(v)}
    <div class="cardActions">
     <button class="detailBtn">Ver ficha</button>
     <button class="compareBtn ${selected.has(v.id)?"selected":""}">${selected.has(v.id)?"✓ En comparador":"+ Comparar"}</button>

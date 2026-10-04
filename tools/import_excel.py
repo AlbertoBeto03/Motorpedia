@@ -642,8 +642,7 @@ def enrich_identity_specs(record, vehicle_id, excel_id=None):
     end_value = record.pop("sourceEnd", None)
     start_value = record.pop("sourceStart", None)
     identity_values = {
-        "ID Motorpedia": excel_id or vehicle_id,
-        "ID publicado": vehicle_id if excel_id and slugify(excel_id) != vehicle_id else None,
+        # V4.4.4: los ID son información interna; ya no se publican dentro de specs.
         "Marca": record.get("brand"),
         "Modelo": record.get("model"),
         "Generación": record.get("generation"),
@@ -796,7 +795,7 @@ def main():
         writer.writerows(index_rows)
 
     print(
-        f"Motorpedia V4.4.3 actualizada desde {db.name}: {stats['total']} vehículos "
+        f"Motorpedia V4.4.4 actualizada desde {db.name}: {stats['total']} vehículos "
         f"({stats['cars']} coches + {stats['motos']} motos), "
         f"{stats['withPhotos']} fichas con fotos y {stats['withArticles']} con artículo."
     )

@@ -1,4 +1,4 @@
-/* Motorpedia V4.4.1 — ficha técnica completa y ordenada · precio como intervalo */
+/* Motorpedia V4.4.4 — ficha técnica completa y ordenada · precio como intervalo · sin ID internos */
 (() => {
   const baseFormatSpecValue = formatSpecValue;
 
@@ -8,7 +8,7 @@
       title: "Identificación",
       subtitle: "Datos de ficha, producción y clasificación",
       keys: [
-        "ID Motorpedia", "ID publicado", "Marca", "Modelo", "Generación", "Versión",
+        "Marca", "Modelo", "Generación", "Versión",
         "Inicio producción", "Fin producción", "Fecha de actualización",
         "Favorito", "Forza", "Categoría", "Subcategoría", "A2"
       ]
@@ -80,6 +80,10 @@
   // V4.4.1: "Precio mínimo" y "Precio máximo" se fusionan en una única fila "Precio"
   // con el formato "3.500 - 4.500 €" (ver priceRangeText en app.js).
   const isPriceBound = key => key === "Precio mínimo" || key === "Precio máximo";
+
+  // V4.4.4: los ID son información interna y no se muestran ni en la ficha ni en el comparador.
+  const HIDDEN_KEYS = new Set(["ID Motorpedia", "ID publicado", "ID Fotos"]);
+  const isHidden = key => HIDDEN_KEYS.has(key);
 
   const FUEL_LABELS = {
     G: "Gasolina",
@@ -169,7 +173,7 @@
     Object.entries(v?.specs || {}).forEach(([key, value]) => {
       // Las valoraciones de moto ya se muestran en su bloque visual específico.
       if (RATING_KEYS_V44.has(key)) return;
-      if (isPriceBound(key)) return;
+      if (isPriceBound(key) || isHidden(key)) return;
       const group = groups.get(groupIdForKey(key));
       group.entries.push({ key, value });
     });
@@ -210,18 +214,9 @@
   };
 
   priceRangeHtml = function(v) {
-    const band = (label, text) =>
-      `<div class="priceBand"><span>${label}</span><strong>${escapeHtml(text)}</strong></div>`;
-
-    const range = priceRangeText(v);
-    if (range) return band("Valor", range);
-
-    // Coches sin rango de mercado: se conserva el precio original como referencia.
-    if (v?.type === "car") {
-      const original = v.specs?.["Precio original España"];
-      if (numericValue(original) !== null) return band("Precio original", formatCurrency(original));
-    }
-    return "";
+    const part = priceBandParts(v);
+    if (!part) return "";
+    return `<div class="priceBand"><span>${escapeHtml(part.label)}</span><strong>${escapeHtml(part.text)}</strong></div>`;
   };
 
   // El comparador usa los mismos bloques y el mismo orden que la ficha individual.
@@ -232,7 +227,7 @@
       return;
     }
 
-    const keys = [...new Set(list.flatMap(v => Object.keys(v.specs || {})))].filter(key => !isPriceBound(key));
+    const keys = [...new Set(list.flatMap(v => Object.keys(v.specs || {})))].filter(key => !isPriceBound(key) && !isHidden(key));
     if (list.some(v => priceRangeText(v))) keys.push("Precio");
     const buckets = new Map();
     GROUPS.forEach(group => buckets.set(group.id, { ...group, keysFound: [] }));
@@ -269,5 +264,5 @@
     $$(".removeCompare").forEach(button => button.addEventListener("click", () => toggleCompare(button.dataset.id)));
   };
 
-  window.MotorpediaSpecs = { groups: GROUPS, version: "4.4.3" };
+  window.MotorpediaSpecs = { groups: GROUPS, version: "4.4.4" };
 })();
