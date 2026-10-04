@@ -269,5 +269,5 @@
     $$(".removeCompare").forEach(button => button.addEventListener("click", () => toggleCompare(button.dataset.id)));
   };
 
-  window.MotorpediaSpecs = { groups: GROUPS, version: "4.4.1" };
+  window.MotorpediaSpecs = { groups: GROUPS, version: "4.4.3" };
 })();

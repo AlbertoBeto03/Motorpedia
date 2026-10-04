@@ -237,3 +237,9 @@ También aparece un pequeño contador `1 / 2`.
 ### Resolución de rutas
 
 `media.js` resuelve las rutas respecto a `document.baseURI`. Esto es importante en GitHub Pages porque Motorpedia se sirve desde una subruta (`/Motorpedia/`) y no desde la raíz absoluta del dominio.
+
+---
+
+## V4.4.3 — fotos compartidas entre varios vehículos
+
+Con la columna **ID Fotos** del Excel, varios vehículos pueden compartir las mismas fotos. Se suben una sola vez con el nombre del grupo. Ver `README_V4.4.3.md`.

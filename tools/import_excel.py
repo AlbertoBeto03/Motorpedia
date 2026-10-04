@@ -289,7 +289,7 @@ def previous_state():
     return by_signature, by_identity
 
 
-# V4.4.2: fotos y artículos se enlazan por el ID del Excel ("ID Motorpedia"),
+# V4.4.3: columna "ID Fotos" (grupos de fotos compartidos). V4.4.2: fotos y artículos se enlazan por el ID del Excel ("ID Motorpedia"),
 # p. ej. "car-BMW-Serie 1-F20-114i". El ID publicado (car-00684) sigue valiendo
 # como alternativa para no romper lo ya subido.
 UNSAFE_NAME_CHARS = re.compile(r'[\\/:*?"<>|#%]')
@@ -331,7 +331,7 @@ def _dir_index(directory, dirs=False):
 
 
 def media_names(vehicle_id, excel_id=None, occurrence=0):
-    """Nombres aceptados para un vehículo, por orden de prioridad.
+    """Nombres propios de un vehículo, por orden de prioridad.
 
     Varios vehículos pueden compartir el mismo ID del Excel (misma versión en
     años distintos). El primero usa el ID tal cual; los siguientes, "__2", "__3"...
@@ -344,39 +344,66 @@ def media_names(vehicle_id, excel_id=None, occurrence=0):
     return names
 
 
-def media_for(brand, vehicle_id, excel_id=None, occurrence=0):
-    brand_slug = slugify(brand)
-    names = media_names(vehicle_id, excel_id, occurrence)
-    folders = _dir_index(MEDIA_ROOT / brand_slug, dirs=True)
-    quick = _dir_index(MEDIA_ROOT / "_quick")
-    images = []
-    sources = []
+def clean_photo_group(group, excel_id=None):
+    """Grupo de fotos de la columna "ID Fotos" del Excel.
+
+    Solo cuenta si es un grupo real: se ignora si está vacío, si es el marcador
+    "car-" de las filas sin datos o si coincide con el propio ID del vehículo.
+    """
+    group = clean(group)
+    if not group:
+        return None
+    group = str(group).strip()
+    if group in ("car-", "moto-") or (excel_id and media_key(group) == media_key(excel_id)):
+        return None
+    return group
+
+
+def find_photos(name, folders, quick):
+    """Fotos 1 y 2 de un nombre: carpeta (1.webp, 2.webp) o archivos rápidos (<nombre>-1.webp)."""
+    images, sources = [], []
     for number in (1, 2):
-        found = None
-        found_mode = None
-        for name in names:
-            folder = folders.get(media_key(name))
-            if folder is None:
-                continue
+        found = found_mode = None
+        folder = folders.get(media_key(name))
+        if folder is not None:
             for ext in IMAGE_EXTS:
                 p = folder / f"{number}{ext}"
                 if p.exists():
                     found, found_mode = p, "folder"
                     break
-            if found is not None:
-                break
         if found is None:
-            for name in names:
-                for ext in IMAGE_EXTS:
-                    p = quick.get((f"{media_key(name)}-{number}", ext))
-                    if p is not None:
-                        found, found_mode = p, "quick"
-                        break
-                if found is not None:
+            for ext in IMAGE_EXTS:
+                p = quick.get((f"{media_key(name)}-{number}", ext))
+                if p is not None:
+                    found, found_mode = p, "quick"
                     break
         if found is not None:
             images.append(found.relative_to(ROOT).as_posix())
             sources.append(found_mode)
+    return images, sources
+
+
+def media_for(brand, vehicle_id, excel_id=None, occurrence=0, photo_group=None):
+    """Fotos y artículo de un vehículo.
+
+    Fotos, por orden: las propias (ID del Excel, luego ID publicado) y, si no hay
+    ninguna, las del grupo ("ID Fotos"). Se usa un solo origen para las dos fotos.
+    El artículo es siempre propio de cada vehículo.
+    """
+    brand_slug = slugify(brand)
+    names = media_names(vehicle_id, excel_id, occurrence)
+    folders = _dir_index(MEDIA_ROOT / brand_slug, dirs=True)
+    quick = _dir_index(MEDIA_ROOT / "_quick")
+
+    images, sources, photo_from = [], [], ""
+    candidates = [(name, "own") for name in names]
+    if photo_group:
+        candidates.append((photo_group, "group"))
+    for name, origin in candidates:
+        images, sources = find_photos(name, folders, quick)
+        if images:
+            photo_from = origin
+            break
 
     if not sources:
         photo_mode = ""
@@ -392,7 +419,7 @@ def media_for(brand, vehicle_id, excel_id=None, occurrence=0):
         if p is not None:
             article = p.relative_to(ROOT).as_posix()
             break
-    return images, article, brand_slug, photo_mode
+    return images, article, brand_slug, photo_mode, photo_from
 
 
 def web_path(path):
@@ -525,6 +552,7 @@ def car_record(headers, row):
         "taxonomyLocked": True,
         "specs": specs,
         "sourceId": r.get("ID Motorpedia"),
+        "photoGroup": r.get("ID Fotos") or r.get("Grupo fotos"),
         "sourceStart": start,
         "sourceEnd": source_end,
     }
@@ -604,6 +632,7 @@ def moto_record(headers, row):
         "taxonomyLocked": True,
         "specs": specs,
         "sourceId": r.get("ID Motorpedia"),
+        "photoGroup": r.get("ID Fotos") or r.get("Grupo fotos"),
         "sourceStart": ys,
         "sourceEnd": ye,
     }
@@ -673,6 +702,7 @@ def main():
             if not record:
                 continue
 
+            raw_photo_group = record.pop("photoGroup", None)
             signature = stable_signature(record)
             explicit = clean(record.pop("sourceId", None))
             vehicle_id, id_source = choose_id(
@@ -695,8 +725,9 @@ def main():
                 ekey = media_key(explicit)
                 media_occurrence = excel_occurrences.get(ekey, 0)
                 excel_occurrences[ekey] = media_occurrence + 1
-            images, article, brand_slug, photo_mode = media_for(
-                record["brand"], vehicle_id, explicit, media_occurrence
+            photo_group = clean_photo_group(raw_photo_group, explicit)
+            images, article, brand_slug, photo_mode, photo_from = media_for(
+                record["brand"], vehicle_id, explicit, media_occurrence, photo_group
             )
             expected = safe_filename(media_names(vehicle_id, explicit, media_occurrence)[0])
             record["id"] = vehicle_id
@@ -721,6 +752,8 @@ def main():
                 "photo_folder": f"assets/vehicles/{brand_slug}/{expected}/",
                 "quick_photo_1": f"assets/vehicles/_quick/{expected}-1.webp",
                 "quick_photo_2": f"assets/vehicles/_quick/{expected}-2.webp",
+                "photo_group": photo_group or "",
+                "photo_from": photo_from,
                 "photo_mode": photo_mode,
                 "photo_1": images[0] if len(images) > 0 else "",
                 "photo_2": images[1] if len(images) > 1 else "",
@@ -754,7 +787,7 @@ def main():
     fields = [
         "signature", "id", "excel_id", "id_source", "type", "brand", "category", "subcategory",
         "model", "generation", "version", "name", "years",
-        "photo_folder", "quick_photo_1", "quick_photo_2", "photo_mode",
+        "photo_folder", "quick_photo_1", "quick_photo_2", "photo_group", "photo_from", "photo_mode",
         "photo_1", "photo_2", "article_file", "article_exists", "spec_count",
     ]
     with (DATA_DIR / "content-index.csv").open("w", encoding="utf-8", newline="") as fh:
@@ -763,7 +796,7 @@ def main():
         writer.writerows(index_rows)
 
     print(
-        f"Motorpedia V4.4.2 actualizada desde {db.name}: {stats['total']} vehículos "
+        f"Motorpedia V4.4.3 actualizada desde {db.name}: {stats['total']} vehículos "
         f"({stats['cars']} coches + {stats['motos']} motos), "
         f"{stats['withPhotos']} fichas con fotos y {stats['withArticles']} con artículo."
     )

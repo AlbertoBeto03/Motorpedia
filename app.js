@@ -7,8 +7,8 @@ const num=v=>{if(typeof v==="number")return v; const m=String(v??"").replace(","
 const initials=name=>name.split(/\s+/).slice(0,2).map(x=>x[0]||"").join("");
 
 Promise.all([
- fetch("data/vehicles.json?v=4.4.1",{cache:"no-cache"}).then(r=>r.json()),
- fetch("data/stats.json?v=4.4.1",{cache:"no-cache"}).then(r=>r.json()),
+ fetch("data/vehicles.json?v=4.4.3",{cache:"no-cache"}).then(r=>r.json()),
+ fetch("data/stats.json?v=4.4.3",{cache:"no-cache"}).then(r=>r.json()),
  fetch("data/brandLogos.json?v=4").then(r=>r.json()),
  fetch("data/motoTaxonomy.json?v=4&t="+Date.now()).then(r=>r.json())
 ]).then(([v,s,l,t])=>{
